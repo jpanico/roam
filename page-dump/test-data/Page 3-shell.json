@@ -1,0 +1,22 @@
+[
+    {
+        "user": {
+            "id": 3
+        },
+        "view-type": "document",
+        "time": 1684931788494,
+        "title": "Page 3",
+        "children": [
+            {
+                "id": 711
+            },
+            {
+                "id": 714
+            }
+        ],
+        "uid": "hfm6NKq2c",
+        "open": true,
+        "id": 709,
+        "sidebar": 4
+    }
+]
