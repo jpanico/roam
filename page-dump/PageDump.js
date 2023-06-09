@@ -23,8 +23,10 @@
  * @property {UidTuple} source
  * @property {UidTuple} value
  * 
- * @typedef {IdObject[]} children
- * @typedef {IdObject[]} refs
+ * @typedef {IdObject[]} raw_children
+ * @typedef {IdObject[]} raw_refs
+ * @typedef {uid[]} normal_children
+ * @typedef {uid[]} normal_refs
  * 
  * @typedef {Object.<string, OrderedUid>} Id2UidMap - key is id (as string)
  * @typedef {Object.<title, uid>} Title2UidMap - 
@@ -38,8 +40,8 @@
  * @property {string} [string] - present only for Blocks
  * @property {title} [title] - present only for Pages
  * @property {order} [order] - present only for Blocks that are children
- * @property {children} [children] 
- * @property {refs} [refs] 
+ * @property {raw_children} [children] 
+ * @property {raw_refs} [refs] 
  * @property {IdObject} [page] - present only for Blocks
  * @property {boolean} [open] - present only for Blocks
  * @property {integer} [sidebar] - present only for Pages
@@ -47,6 +49,15 @@
  * @property {LinkObject[][]} [attrs] - :entity/attrs
  * @property {IdObject[]} [lookup] - no idea what this is used for
  * @property {IdObject[]} [seen_by] - no idea what this is used for
+ * 
+ * @typedef Vertex - the normalized shape of Roam elements
+ * @type {Object}
+ * @property {uid} uid
+ * @property {string} text
+ * @property {VertexType} [vertex_type] - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {string} [media_type] - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {normal_children} [children] 
+ * @property {normal_refs} [refs] 
  */
 
 /**
@@ -151,6 +162,7 @@ function dumpPage(pageTitle, config, env) {
     const pageNodes = pullAllPageNodes(pageTitle, config, env)
     /** @type {RoamNode[]} */
     const pageNodesReshaped = pageNodes.map(e => pick(e, config.includeProperties))
+    /** @type {Vertex[]} */
     const vertices = normalizeNodes(pageNodesReshaped, config.addProperties)
     const outputFileName = pageTitle + `.json`
 
@@ -160,7 +172,7 @@ function dumpPage(pageTitle, config, env) {
 /**
  * @param {RoamNode[]} nodes
  * @param {string[]} toAddProperties
- * @returns {Object[]}
+ * @returns {Vertex[]}
  */
 function normalizeNodes(nodes, toAddProperties) {
     console.log(`
@@ -182,6 +194,8 @@ function normalizeNodes(nodes, toAddProperties) {
 
     console.log(`normalizeNodes: title2UidMap = ${JSON.stringify(title2UidMap)}`)
 
+    // the type here is not quite Vertex, because 'vertex-type', 'media-type' aren't present yet
+    /** @type {Vertex[]} */
     const normalizedNodes = nodes.map(node => normalizeNode(node, id2UidMap, title2UidMap))
     return addProperties(normalizedNodes, toAddProperties)
 }
@@ -189,9 +203,9 @@ function normalizeNodes(nodes, toAddProperties) {
 /**
  * Adds the specified JS properties to each of the Objects in nodes
  *
- * @param {Object[]} nodes
+ * @param {Vertex[]} nodes
  * @param {string[]} toAddProperties
- * @returns {Object[]}
+ * @returns {Vertex[]}
  */
 function addProperties(nodes, toAddProperties) {
     console.log(`
@@ -203,6 +217,8 @@ function addProperties(nodes, toAddProperties) {
     if (!(Array.isArray(toAddProperties) && toAddProperties.length))
         return nodes
 
+    // the type here is not quite Vertex, because 'vertex-type', 'media-type' aren't present yet
+    /** @type {Vertex[]} */
     var vertices = nodes
     toAddProperties.forEach((propKey) => {
         vertices = vertices.map(getAddPropertyFunction(propKey))
@@ -215,7 +231,7 @@ function addProperties(nodes, toAddProperties) {
  * Returns one of the add... functions
  *
  * @param {string} propertyName
- * @returns { (node:Object) => Object<node> }
+ * @returns { (vertex:Vertex) => Vertex }
  */
 function getAddPropertyFunction(propertyName) {
     switch (propertyName) {
@@ -232,12 +248,13 @@ function getAddPropertyFunction(propertyName) {
  * Add a "media-type" property to the JS Object 'node'. The media-type is derived from the content
  * in the Node: https://www.iana.org/assignments/media-types/media-types.xhtml
  *
- * @param {Object} node
- * @returns { Object<node> }
+ * @param {Vertex} node
+ * @returns {Vertex}
  */
 function addMediaType(node) {
     console.log(`addMediaType: node = ${JSON.stringify(node)}`)
 
+    /** @type {string} */
     var mediaType
     if ([VertexType.ROAM_PAGE.description, VertexType.ROAM_BLOCK.description].includes(node["vertex-type"]))
         mediaType = "text/plain"
@@ -246,6 +263,7 @@ function addMediaType(node) {
         throw Error(`unrecognized media type for node: ${JSON.stringify(node)}`)
 
     // clone the node argument
+    /** @type {Vertex} */
     const vertex = Object.assign({}, node)
     vertex[`media-type`] = mediaType
     return vertex
@@ -255,19 +273,22 @@ function addMediaType(node) {
  * Add a "vertex-type" property to the JS Object 'node'. The vertex-type values come from 
  * from the VertexType enum.
  *
- * @param {Object} node
- * @returns { Object<node> }
+ * @param {Vertex} node
+ * @returns {Vertex}
  */
 function addVertexType(node) {
     console.log(`addVertexType: node = ${JSON.stringify(node)}`)
 
+    /** @type {string} */
     const hasTitle = node.hasOwnProperty('title')
+    /** @type {string} */
     const hasString = node.hasOwnProperty('string')
     assert(
         (hasTitle && !hasString) ||
         (!hasTitle && hasString),
         `one and only one condition must be true: hasTitle|hasString`
     )
+    /** @type {VertexType} */
     var vertexType
     if (hasTitle)
         vertexType = VertexType.ROAM_PAGE
@@ -277,6 +298,7 @@ function addVertexType(node) {
         throw Error(`unrecognized Node type`)
 
     // clone the node argument
+    /** @type {Vertex} */
     const vertex = Object.assign({}, node)
     vertex[`vertex-type`] = vertexType.description
     return vertex
@@ -287,7 +309,7 @@ function addVertexType(node) {
  * @param {RoamNode} node
  * @param {Id2UidMap} id2UidMap
  * @param {Title2UidMap} title2UidMap
- * @returns { Object<node> }
+ * @returns {Vertex}
  */
 function normalizeNode(node, id2UidMap, title2UidMap) {
     console.log(`
@@ -310,7 +332,7 @@ function normalizeNode(node, id2UidMap, title2UidMap) {
  * @param {*} value
  * @param {Id2UidMap} id2UidMap
  * @param {Title2UidMap} title2UidMap
- * @returns { [string, *] } a new key-value pair that replaces the input key-value pair
+ * @returns {[string, *]} a new key-value pair that replaces the input key-value pair
  */
 function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     console.log(`
@@ -352,7 +374,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     }
 
     /**
-     * @param {children} value - captured from enclosing function
+     * @param {raw_children} value - captured from enclosing function
      * @param {Id2UidMap} id2UidMap - captured from enclosing function
      */
     function normalizeChildren() {
@@ -366,7 +388,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     }
 
     /**
-     * @param {refs} value - captured from enclosing function
+     * @param {raw_refs} value - captured from enclosing function
      * @param {Id2UidMap} id2UidMap - captured from enclosing function
      */
     function normalizeRefs() {
@@ -580,7 +602,7 @@ function buildQuery(followChildren, followRefs) {
 }
 
 /**
- * @param {[*]} obj
+ * @param {*} obj
  * @param {string} fileName
  * @param {JSEnvironment} env
  * @returns {string|undefined} - if the environment isNode, then will return the 
@@ -590,9 +612,11 @@ function saveAsJSONFile(obj, fileName, env) {
     console.log(`saveAsJSONFile: nodeCount = ${obj.length}, fileName = ${fileName}, env = ${JSON.stringify(env)}`)
 
     // 3rd arg triggers pretty formatting: number of spaces per level of indent
+    /** @type {string} */
     const json = JSON.stringify(obj, null, 4)
     console.log(`saveAsJSONFile: json = ${json}`)
 
+    /** @type {string} */
     var writePath
     if (env.isRoam)
         writeJSONFromBrowser(fileName, json)
