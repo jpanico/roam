@@ -5,6 +5,72 @@
  */
 
 /**
+ * @typedef {string} uid
+ * @typedef {integer} id
+ * @typedef {integer} order
+ * @typedef {string} title
+ * 
+ * @typedef {['uid', uid]} UidTuple
+ * @typedef {[uid, order]} OrderedUid
+ * @typedef {[*, order]} OrderedValue
+ * 
+ * @typedef IdObject
+ * @type {Object}
+ * @property {id} id
+ * 
+ * @typedef LinkObject
+ * @type {Object}
+ * @property {UidTuple} source
+ * @property {UidTuple} value
+ * 
+ * @typedef {IdObject[]} children
+ * @typedef {IdObject[]} refs
+ * 
+ * @typedef {Object.<string, OrderedUid>} Id2UidMap - key is id (as string)
+ * @typedef {Object.<title, uid>} Title2UidMap - 
+ * 
+ * @typedef RoamNode - the raw shape of Block/Page elements returned from Roam queries
+ * @type {Object}
+ * @property {uid} uid
+ * @property {id} id
+ * @property {integer} time
+ * @property {IdObject} user
+ * @property {string} [string] - present only for Blocks
+ * @property {title} [title] - present only for Pages
+ * @property {order} [order] - present only for Blocks that are children
+ * @property {children} [children] 
+ * @property {refs} [refs] 
+ * @property {IdObject} [page] - present only for Blocks
+ * @property {boolean} [open] - present only for Blocks
+ * @property {integer} [sidebar] - present only for Pages
+ * @property {IdObject[]} [parents] - present only for Blocks
+ * @property {LinkObject[][]} [attrs] - :entity/attrs
+ * @property {IdObject[]} [lookup] - no idea what this is used for
+ * @property {IdObject[]} [seen_by] - no idea what this is used for
+ */
+
+/**
+ * @typedef JSEnvironment
+ * @type {Object}
+ * @property {boolean} isBrowser
+ * @property {boolean} isNode
+ * @property {boolean} isWebWorker
+ * @property {boolean} isJsDom
+ * @property {boolean} isDeno
+ * @property {boolean} isRoam
+ * @property {boolean} isTest 
+ */
+
+/**
+ * @typedef DumpConfig 
+ * @type {Object} 
+ * @property {FollowLinksDirective} followChildren
+ * @property {FollowLinksDirective} followRefs
+ * @property {string[]} includeProperties
+ * @property {string[]} addProperties - properties synthesized by PageDump (not having direct Roam representation)
+ */
+
+/**
  * A poor man's version of Node.js AssertionError:
  * (https://nodejs.org/api/assert.html#class-assertassertionerror). 
  * roam/js scripts do not have access to Node.
@@ -50,37 +116,40 @@ const FollowLinksDirective = Object.freeze(
     }
 )
 
+/** @type {DumpConfig} */
 const config = {
     "followChildren": FollowLinksDirective.DEEP,
     "followRefs": FollowLinksDirective.DEEP,
     "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id"],
-    /** these are properties synthesized by this script
-     * (not having direct Roam representation)
-     */
-    "addProperties": ["vertex-type", "media-type"]
+     "addProperties": ["vertex-type", "media-type"]
 }
 
+/** @type {JSEnvironment} */
 const env = checkEnvironment()
-if(env.isRoam) {
+if (env.isRoam) {
     const pageTitle = "Page 3"
-    const dumpPath = dumpPage(pageTitle, config)
+    const dumpPath = dumpPage(pageTitle, config, env)
     console.log(`dumpPath = ${dumpPath}`)
-} else if(env.isTest) {
+} else if (env.isTest) {
     module.exports = {
         FollowLinksDirective: FollowLinksDirective,
         dumpPage: dumpPage
-    };    
+    };
 }
 
 /**
  * @param {string} pageTitle
- * @param {Object} config
- * @returns {string|undefined} -- if the environmen5t isNode, then will return the 
- *                                path at which the file was saved
+ * @param {DumpConfig} config
+ * @param {JSEnvironment} env
+ * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
  */
-function dumpPage(pageTitle, config) {
-    const env = checkEnvironment()
+function dumpPage(pageTitle, config, env) {
+    if (env == undefined)
+        env = checkEnvironment()
+
+    /** @type {RoamNode[]} */
     const pageNodes = pullAllPageNodes(pageTitle, config, env)
+    /** @type {RoamNode[]} */
     const pageNodesReshaped = pageNodes.map(e => pick(e, config.includeProperties))
     const vertices = normalizeNodes(pageNodesReshaped, config.addProperties)
     const outputFileName = pageTitle + `.json`
@@ -89,7 +158,7 @@ function dumpPage(pageTitle, config) {
 }
 
 /**
- * @param {Object[]} nodes
+ * @param {RoamNode[]} nodes
  * @param {string[]} toAddProperties
  * @returns {Object[]}
  */
@@ -100,12 +169,14 @@ function normalizeNodes(nodes, toAddProperties) {
         toAddProperties = ${JSON.stringify(toAddProperties)}
     `)
 
+    /** @type {Id2UidMap} */
     const id2UidMap = Object.fromEntries(nodes.map(x => [x.id, [x.uid, x.order]]));
     console.log(`normalizeNodes: id2UidMap = ${JSON.stringify(id2UidMap)}`)
 
     // all of the nodes that do not have a title property will be successively
     // mapped to the "undefined" property
-    let title2UidMap = new Map(nodes.map(x => [x.title, x.uid]));
+     /** @type {Title2UidMap} */
+     let title2UidMap = new Map(nodes.map(x => [x.title, x.uid]));
     // remove the bogus "undefined" property that corresponds to nodes with no titles
     delete title2UidMap["undefined"];
 
@@ -212,9 +283,10 @@ function addVertexType(node) {
 }
 
 /**
- * @param {Object} node
- * @param {Map<String, Object>} id2UidMap
- * @param {Object.<string,string} title2UidMap
+ *
+ * @param {RoamNode} node
+ * @param {Id2UidMap} id2UidMap
+ * @param {Title2UidMap} title2UidMap
  * @returns { Object<node> }
  */
 function normalizeNode(node, id2UidMap, title2UidMap) {
@@ -235,10 +307,10 @@ function normalizeNode(node, id2UidMap, title2UidMap) {
 
 /**
  * @param {string} key
- * @param {Object} value
- * @param {Object.<string,string[]} id2UidMap
- * @param {Object.<string,string} title2UidMap
- * @returns { [string, Object] } a new key-value pair that replaces the input key-value pair
+ * @param {*} value
+ * @param {Id2UidMap} id2UidMap
+ * @param {Title2UidMap} title2UidMap
+ * @returns { [string, *] } a new key-value pair that replaces the input key-value pair
  */
 function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     console.log(`
@@ -263,8 +335,8 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     /**
      * replace page-refs based on page "title", with page-refs based on page "uid"
      *
-     * @param {string} value -- captured from enclosing function (closure)
-     * @returns {string} a new value to replace input value
+     * @param {string} value - captured from enclosing function (closure)
+     * @returns {string} - a new value to replace input value
      */
     function normalizeString() {
         // regex to match page reference
@@ -279,8 +351,10 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
         return normalized
     }
 
-    // the "children" property value is a JS array of obj/dict, where each 
-    // obj has a single property: "id", whose value is a 2 element array; uid,order
+    /**
+     * @param {children} value - captured from enclosing function
+     * @param {Id2UidMap} id2UidMap - captured from enclosing function
+     */
     function normalizeChildren() {
         // this creates an array of pairs/tuples/2elementarrays: [uid(String), order(int)]
         const unorderedUids = value.map(child => id2UidMap[child["id"]])
@@ -291,21 +365,20 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
         return orderedUids.map(e => e[0])
     }
 
-    // the "refs" property value is a JS array of obj/dict, where each 
-    // obj has a single property: "id", whose value is a 2 element array; uid,order
+    /**
+     * @param {refs} value - captured from enclosing function
+     * @param {Id2UidMap} id2UidMap - captured from enclosing function
+     */
     function normalizeRefs() {
         return value.map(e => id2UidMap[e["id"]][0])
     }
 
-    /*
+    /**
      * compare 2 JS tuples that have "order" integer value at index 1 
      *
-     * @typedef {*} OrderTupleIndex0
-     * @typedef {integer} OrderTupleIndex1
-     * @typedef {[OrderTupleIndex0, OrderTupleIndex1]} OrderTuple
-     * @param {OrderTuple} lhs
-     * @param {OrderTuple} rhs
-     * @returns {integer} -- standard Java contract:
+     * @param {OrderedValue} lhs
+     * @param {OrderedValue} rhs
+     * @returns {integer} - standard Java contract:
      *        0 if lhs.order == rhs.order
      *        <0 if lhs.order < rhs.order
      *        >0 if lhs.order > rhs.order
@@ -324,7 +397,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     }
 }
 
-/*
+/**
  * create a new Object that contains a subset of properties 
  * (only those listed in the props param) from obj
  *
@@ -339,22 +412,24 @@ function pick(obj, props) {
 }
 
 /**
- * @param {string} pageTitle
- * @param {Object} config
+ * @param {title} pageTitle
+ * @param {DumpConfig} config
  * @param {FollowLinksDirective} config.followChildren
  * @param {FollowLinksDirective} config.followRefs
  * @param {string[]} config.includeProperties
  * @param {string[]} config.addProperties
  * @param {JSEnvironment} env
- * @returns {Object[]}
+ * @returns {RoamNode[]}
  */
 function pullAllPageNodes(pageTitle, config, env) {
-     console.log(`pullAllPageNodes: 
+    console.log(`pullAllPageNodes: 
         pageTitle = ${pageTitle}, config = ${JSON.stringify(config)}, env= ${JSON.stringify(env)}`)
 
+    /** @type {RoamNode[]} */
     const pageContentFlattened = pullPageNodes(pageTitle, config.followChildren, config.followRefs, env)
     console.log(`pageContentFlattened= ${JSON.stringify(pageContentFlattened)}`)
 
+    /** @type {RoamNode[]} */
     const pageShell =
         pullPageNodes(pageTitle, FollowLinksDirective.DONT_FOLLOW, FollowLinksDirective.DONT_FOLLOW, env)
     console.log(`pageShell = ${JSON.stringify(pageShell)}`)
@@ -363,11 +438,11 @@ function pullAllPageNodes(pageTitle, config, env) {
 }
 
 /**
- * @param {string} pageTitle
+ * @param {title} pageTitle
  * @param {FollowLinksDirective} followChildren
  * @param {FollowLinksDirective} followRefs
  * @param {JSEnvironment} env
- * @returns {Object[]}
+ * @returns {RoamNode[]}
  */
 function pullPageNodes(pageTitle, followChildren, followRefs, env) {
     console.log(`pullPageNodes: 
@@ -381,20 +456,22 @@ function pullPageNodes(pageTitle, followChildren, followRefs, env) {
 }
 
 /**
- * @param {string} pageTitle
+ * @param {title} pageTitle
  * @param {FollowLinksDirective} followChildren
  * @param {FollowLinksDirective} followRefs
- * @returns {Object[]}
+ * @returns {RoamNode[]}
  */
 function pullPageNodesFromFile(pageTitle, followChildren, followRefs) {
     console.log(`pullPageNodesFromFile: 
         pageTitle = ${pageTitle}, followChildren = ${followChildren.description},
         followRefs = ${followRefs.description} `)
 
+    /** @type {string} */
     const targetEntity =
         (followChildren == FollowLinksDirective.DONT_FOLLOW &&
             followRefs == FollowLinksDirective.DONT_FOLLOW) ?
             "shell" : "content"
+    /** @type {string} */
     const targetFilePath = `./test-data/${pageTitle}-${targetEntity}-input.json`
     console.log(`pullPageNodesFromFile: targetFilePath = ${targetFilePath}`)
 
@@ -402,23 +479,26 @@ function pullPageNodesFromFile(pageTitle, followChildren, followRefs) {
 }
 
 /**
- * @param {string} pageTitle
+ * @param {title} pageTitle
  * @param {FollowLinksDirective} followChildren
  * @param {FollowLinksDirective} followRefs
- * @returns {Object[]}
+ * @returns {RoamNode[]}
  */
 function pullPageNodesFromRoam(pageTitle, followChildren, followRefs) {
     console.log(`pullPageNodesFromRoam: 
         pageTitle = ${pageTitle}, followChildren = ${followChildren.description},
         followRefs = ${followRefs.description} `)
 
+    /** @type {string} */
     const query = buildQuery(followChildren, followRefs)
+    /** @type {string} */
     const rules = buildRules(followChildren, followRefs)
     console.log(`pullPageNodesFromRoam: query = ${query}, rules = ${rules}`)
 
     // the nature of this query is to return an array of arrays, where each nested array
     // contains a single node
-    const nodesRaw = window.roamAlphaAPI.q(query, pageTitle, rules)
+     /** @type {RoamNode[][]} */
+     const nodesRaw = window.roamAlphaAPI.q(query, pageTitle, rules)
     // flatten array of arrays of nodes -> array of nodes
     return nodesRaw.flat()
 }
@@ -458,7 +538,7 @@ function buildRules(followChildren, followRefs) {
                 (linker ?proximate_linker ?a) 
             ]`
     const rules =
-            `[ 
+        `[ 
                 [ (linker ?b ?a )
                 ( or 
                     ${proximateRefsRule} 
@@ -503,7 +583,7 @@ function buildQuery(followChildren, followRefs) {
  * @param {[*]} obj
  * @param {string} fileName
  * @param {JSEnvironment} env
- * @returns {string|undefined} -- if the environment isNode, then will return the 
+ * @returns {string|undefined} - if the environment isNode, then will return the 
  *                                path at which the file was saved
  */
 function saveAsJSONFile(obj, fileName, env) {
@@ -527,7 +607,7 @@ function saveAsJSONFile(obj, fileName, env) {
 /**
  * @param {string} fileName
  * @param {string} json
- * @returns {undefined} -- no return; void
+ * @returns {undefined} - no return; void
  */
 function writeJSONFromBrowser(fileName, json) {
     console.log(`writeJSONFromBrowser: fileName = ${fileName}, json = ${json}`)
@@ -540,17 +620,17 @@ function writeJSONFromBrowser(fileName, json) {
 /**
  * @param {string} fileName
  * @param {string} json
- * @returns {string} -- the path at which the file was written
+ * @returns {string} - the path at which the file was written
  */
 function writeJSONFromNodeJS(fileName, json) {
     console.log(`writeJSONFromNodeJS: fileName = ${fileName}, json = ${json}`)
 
-    const outputDir = './'
+    const outputDir = './out/'
     const outputPath = outputDir + fileName
     const fs = require('fs');
 
-    // if(!fs.existsSync(outputDir))
-    //     fs.mkdirSync(outputDir)
+    if (!fs.existsSync(outputDir))
+        fs.mkdirSync(outputDir)
     fs.writeFileSync(outputPath, json)
 
     return outputPath
@@ -561,7 +641,7 @@ function writeJSONFromNodeJS(fileName, json) {
  *
  * @param {boolean} value
  * @param {string} errorMessage
- * @returns {undefined} -- no return; void
+ * @returns {undefined} - no return; void
  * @throws {AssertionError}
  */
 function assert(value, errorMessage) {
@@ -570,15 +650,6 @@ function assert(value, errorMessage) {
 }
 
 /**
- * @typedef {Object} JSEnvironment
- * @property {boolean} isBrowser
- * @property {boolean} isNode
- * @property {boolean} isWebWorker
- * @property {boolean} isJsDom
- * @property {boolean} isDeno
- * @property {boolean} isRoam
- * @property {boolean} isTest
- * 
  * @return {JSEnvironment}
  */
 function checkEnvironment() {
@@ -617,7 +688,7 @@ function checkEnvironment() {
         (isBrowser) &&
         (typeof window.roamAlphaAPI !== "undefined")
 
-    const isTest = ! isRoam
+    const isTest = !isRoam
 
     return {
         isBrowser: isBrowser, isNode: isNode, isWebWorker: isWebWorker, isJsDom: isJsDom, isDeno: isDeno,
