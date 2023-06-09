@@ -9,7 +9,6 @@
  * (https://nodejs.org/api/assert.html#class-assertassertionerror). 
  * roam/js scripts do not have access to Node.
  */
-
 class AssertionError extends Error {
     constructor(value) {
         super(`"${value}"`);
@@ -52,7 +51,6 @@ const FollowLinksDirective = Object.freeze(
 )
 
 const config = {
-    "targetPageTitle": "Page 3",
     "followChildren": FollowLinksDirective.DEEP,
     "followRefs": FollowLinksDirective.DEEP,
     "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id"],
@@ -63,12 +61,32 @@ const config = {
 }
 
 const env = checkEnvironment()
-const pageNodes = pullAllPageNodes(config, env)
-const pageNodesReshaped = pageNodes.map(e => pick(e, config.includeProperties))
-const vertices = normalizeNodes(pageNodesReshaped, config.addProperties)
-const outputFileName = config.targetPageTitle + `.json`
+if(env.isRoam) {
+    const pageTitle = "Page 3"
+    const dumpPath = dumpPage(pageTitle, config)
+    console.log(`dumpPath = ${dumpPath}`)
+} else if(env.isTest) {
+    module.exports = {
+        FollowLinksDirective: FollowLinksDirective,
+        dumpPage: dumpPage
+    };    
+}
 
-saveAsJSONFile(vertices, outputFileName, env)
+/**
+ * @param {string} pageTitle
+ * @param {Object} config
+ * @returns {string|undefined} -- if the environmen5t isNode, then will return the 
+ *                                path at which the file was saved
+ */
+function dumpPage(pageTitle, config) {
+    const env = checkEnvironment()
+    const pageNodes = pullAllPageNodes(pageTitle, config, env)
+    const pageNodesReshaped = pageNodes.map(e => pick(e, config.includeProperties))
+    const vertices = normalizeNodes(pageNodesReshaped, config.addProperties)
+    const outputFileName = pageTitle + `.json`
+
+    return saveAsJSONFile(vertices, outputFileName, env)
+}
 
 /**
  * @param {Object[]} nodes
@@ -321,8 +339,8 @@ function pick(obj, props) {
 }
 
 /**
+ * @param {string} pageTitle
  * @param {Object} config
- * @param {string} config.targetPageTitle
  * @param {FollowLinksDirective} config.followChildren
  * @param {FollowLinksDirective} config.followRefs
  * @param {string[]} config.includeProperties
@@ -330,14 +348,15 @@ function pick(obj, props) {
  * @param {JSEnvironment} env
  * @returns {Object[]}
  */
-function pullAllPageNodes(config, env) {
-    console.log(`pullAllPageNodes:\n   config= ${JSON.stringify(config)},\n   env= ${JSON.stringify(env)}`)
-    const pageContentFlattened = pullPageNodes(config.targetPageTitle, config.followChildren, config.followRefs, env)
+function pullAllPageNodes(pageTitle, config, env) {
+     console.log(`pullAllPageNodes: 
+        pageTitle = ${pageTitle}, config = ${JSON.stringify(config)}, env= ${JSON.stringify(env)}`)
+
+    const pageContentFlattened = pullPageNodes(pageTitle, config.followChildren, config.followRefs, env)
     console.log(`pageContentFlattened= ${JSON.stringify(pageContentFlattened)}`)
 
     const pageShell =
-        pullPageNodes(config.targetPageTitle, FollowLinksDirective.DONT_FOLLOW,
-            FollowLinksDirective.DONT_FOLLOW, env)
+        pullPageNodes(pageTitle, FollowLinksDirective.DONT_FOLLOW, FollowLinksDirective.DONT_FOLLOW, env)
     console.log(`pageShell = ${JSON.stringify(pageShell)}`)
 
     return [].concat(pageShell, pageContentFlattened)
@@ -376,7 +395,7 @@ function pullPageNodesFromFile(pageTitle, followChildren, followRefs) {
         (followChildren == FollowLinksDirective.DONT_FOLLOW &&
             followRefs == FollowLinksDirective.DONT_FOLLOW) ?
             "shell" : "content"
-    const targetFilePath = `./test-data/${pageTitle}-${targetEntity}.json`
+    const targetFilePath = `./test-data/${pageTitle}-${targetEntity}-input.json`
     console.log(`pullPageNodesFromFile: targetFilePath = ${targetFilePath}`)
 
     return require(targetFilePath)
@@ -484,7 +503,8 @@ function buildQuery(followChildren, followRefs) {
  * @param {[*]} obj
  * @param {string} fileName
  * @param {JSEnvironment} env
- * @returns {undefined} -- no return; void
+ * @returns {string|undefined} -- if the environment isNode, then will return the 
+ *                                path at which the file was saved
  */
 function saveAsJSONFile(obj, fileName, env) {
     console.log(`saveAsJSONFile: nodeCount = ${obj.length}, fileName = ${fileName}, env = ${JSON.stringify(env)}`)
@@ -493,14 +513,22 @@ function saveAsJSONFile(obj, fileName, env) {
     const json = JSON.stringify(obj, null, 4)
     console.log(`saveAsJSONFile: json = ${json}`)
 
+    var writePath
     if (env.isRoam)
         writeJSONFromBrowser(fileName, json)
     else if (env.isNode)
-        writeJSONFromNodeJS(fileName, json)
+        writePath = writeJSONFromNodeJS(fileName, json)
     else
         throw `unsupported env: ${JSON.stringify(env)} `
+
+    return writePath
 }
 
+/**
+ * @param {string} fileName
+ * @param {string} json
+ * @returns {undefined} -- no return; void
+ */
 function writeJSONFromBrowser(fileName, json) {
     console.log(`writeJSONFromBrowser: fileName = ${fileName}, json = ${json}`)
 
@@ -509,11 +537,23 @@ function writeJSONFromBrowser(fileName, json) {
     window.saveAs(blob, fileName)
 }
 
+/**
+ * @param {string} fileName
+ * @param {string} json
+ * @returns {string} -- the path at which the file was written
+ */
 function writeJSONFromNodeJS(fileName, json) {
     console.log(`writeJSONFromNodeJS: fileName = ${fileName}, json = ${json}`)
 
+    const outputDir = './'
+    const outputPath = outputDir + fileName
     const fs = require('fs');
-    fs.writeFileSync('./' + fileName, json);
+
+    // if(!fs.existsSync(outputDir))
+    //     fs.mkdirSync(outputDir)
+    fs.writeFileSync(outputPath, json)
+
+    return outputPath
 }
 
 /**
@@ -537,6 +577,7 @@ function assert(value, errorMessage) {
  * @property {boolean} isJsDom
  * @property {boolean} isDeno
  * @property {boolean} isRoam
+ * @property {boolean} isTest
  * 
  * @return {JSEnvironment}
  */
@@ -576,8 +617,10 @@ function checkEnvironment() {
         (isBrowser) &&
         (typeof window.roamAlphaAPI !== "undefined")
 
+    const isTest = ! isRoam
+
     return {
         isBrowser: isBrowser, isNode: isNode, isWebWorker: isWebWorker, isJsDom: isJsDom, isDeno: isDeno,
-        isRoam: isRoam
+        isRoam: isRoam, isTest: isTest
     }
 }
