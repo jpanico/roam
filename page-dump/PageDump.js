@@ -3,6 +3,19 @@
  * SPDX-FileCopyrightText: © 2023 Joe Panico <joe@panmachine.biz>
  * SPDX-License-Identifier: MIT
  */
+/**
+ * @overview
+ * This is a roam/js script; run within a roam/js... page in RoamResearch (0.9.11+), by pasting this entire script into
+ * a child block of a '{{[[roam/js]]}}' block
+ *
+ * Roam/js scripting supports only vanilla, untyped, JavaScript-- it does not support TypeScript.
+ * [JSDoc](https://jsdoc.app/tags-type.html) provides a method for adding type anotations to JS code, via special tags
+ * (e.g. @typedef) placed in JSDoc style comments. IDEs like VS Code (1.78+) support JSDoc type annotations
+ * out-of-the-box, so that the source editors will provide almost all of the type-directed assistance that would be
+ * available in Typescript at development time. At runtime, all of these type annotations are
+ *
+ *
+ */
 
 /**
  * @typedef {string} uid
@@ -50,6 +63,11 @@
  * @property {IdObject[]} [lookup] - no idea what this is used for
  * @property {IdObject[]} [seen_by] - no idea what this is used for
  * 
+ * @typedef EnrichedNode - a RoamNode with synthetic properties added
+ * @type {RoamNode}
+ * @property {VertexType} vertex_type - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {string} media_type - it's actually 'vertex-type', but JSDoc bug prevents
+ * 
  * @typedef Vertex - the normalized shape of Roam elements
  * @type {Object}
  * @property {uid} uid
@@ -88,15 +106,15 @@
  */
 class AssertionError extends Error {
     constructor(value) {
-        super(`"${value}"`);
-        this.name = 'AssertionError';
+        super(`"${value}"`)
+        this.name = 'AssertionError'
     }
 }
 
 class NotImplementedError extends Error {
     constructor(value) {
-        super(`"${value}"`);
-        this.name = 'NotImplementedError';
+        super(`"${value}"`)
+        this.name = 'NotImplementedError'
     }
 }
 
@@ -132,8 +150,12 @@ const config = {
     "followChildren": FollowLinksDirective.DEEP,
     "followRefs": FollowLinksDirective.DEEP,
     "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id"],
-     "addProperties": ["vertex-type", "media-type"]
+    "addProperties": ["vertex-type", "media-type"]
 }
+
+// disable all console logging
+// console.log = function() {}
+
 
 /** @type {JSEnvironment} */
 const env = checkEnvironment()
@@ -145,7 +167,7 @@ if (env.isRoam) {
     module.exports = {
         FollowLinksDirective: FollowLinksDirective,
         dumpPage: dumpPage
-    };
+    }
 }
 
 /**
@@ -182,30 +204,28 @@ function normalizeNodes(nodes, toAddProperties) {
     `)
 
     /** @type {Id2UidMap} */
-    const id2UidMap = Object.fromEntries(nodes.map(x => [x.id, [x.uid, x.order]]));
+    const id2UidMap = Object.fromEntries(nodes.map(x => [x.id, [x.uid, x.order]]))
     console.log(`normalizeNodes: id2UidMap = ${JSON.stringify(id2UidMap)}`)
 
     // all of the nodes that do not have a title property will be successively
     // mapped to the "undefined" property
-     /** @type {Title2UidMap} */
-     let title2UidMap = new Map(nodes.map(x => [x.title, x.uid]));
+    /** @type {Title2UidMap} */
+    let title2UidMap = new Map(nodes.map(x => [x.title, x.uid]))
     // remove the bogus "undefined" property that corresponds to nodes with no titles
-    delete title2UidMap["undefined"];
+    delete title2UidMap["undefined"]
 
     console.log(`normalizeNodes: title2UidMap = ${JSON.stringify(title2UidMap)}`)
 
-    // the type here is not quite Vertex, because 'vertex-type', 'media-type' aren't present yet
-    /** @type {Vertex[]} */
-    const normalizedNodes = nodes.map(node => normalizeNode(node, id2UidMap, title2UidMap))
-    return addProperties(normalizedNodes, toAddProperties)
+    /** @type {EnrichedNode[]} */
+    const enrichedNodes = addProperties(nodes, toAddProperties)
+    return enrichedNodes.map(node => normalizeNode(node, id2UidMap, title2UidMap))
 }
-
 /**
  * Adds the specified JS properties to each of the Objects in nodes
  *
- * @param {Vertex[]} nodes
+ * @param {RoamNode[]} nodes
  * @param {string[]} toAddProperties
- * @returns {Vertex[]}
+ * @returns {EnrichedNode[]}
  */
 function addProperties(nodes, toAddProperties) {
     console.log(`
@@ -217,14 +237,13 @@ function addProperties(nodes, toAddProperties) {
     if (!(Array.isArray(toAddProperties) && toAddProperties.length))
         return nodes
 
-    // the type here is not quite Vertex, because 'vertex-type', 'media-type' aren't present yet
-    /** @type {Vertex[]} */
-    var vertices = nodes
+    /** @type {EnrichedNode[]} */
+    var enrichedNodes = nodes
     toAddProperties.forEach((propKey) => {
-        vertices = vertices.map(getAddPropertyFunction(propKey))
+        enrichedNodes = enrichedNodes.map(getAddPropertyFunction(propKey))
     })
 
-    return vertices
+    return enrichedNodes
 }
 
 /**
@@ -248,8 +267,8 @@ function getAddPropertyFunction(propertyName) {
  * Add a "media-type" property to the JS Object 'node'. The media-type is derived from the content
  * in the Node: https://www.iana.org/assignments/media-types/media-types.xhtml
  *
- * @param {Vertex} node
- * @returns {Vertex}
+ * @param {RoamNode} node
+ * @returns {EnrichedNode}
  */
 function addMediaType(node) {
     console.log(`addMediaType: node = ${JSON.stringify(node)}`)
@@ -263,18 +282,18 @@ function addMediaType(node) {
         throw Error(`unrecognized media type for node: ${JSON.stringify(node)}`)
 
     // clone the node argument
-    /** @type {Vertex} */
-    const vertex = Object.assign({}, node)
-    vertex[`media-type`] = mediaType
-    return vertex
+    /** @type {EnrichedNode} */
+    const enrichedNode = Object.assign({}, node)
+    enrichedNode[`media-type`] = mediaType
+    return enrichedNode
 }
 
 /**
  * Add a "vertex-type" property to the JS Object 'node'. The vertex-type values come from 
  * from the VertexType enum.
  *
- * @param {Vertex} node
- * @returns {Vertex}
+ * @param {RoamNode} node
+ * @returns {EnrichedNode}
  */
 function addVertexType(node) {
     console.log(`addVertexType: node = ${JSON.stringify(node)}`)
@@ -298,15 +317,15 @@ function addVertexType(node) {
         throw Error(`unrecognized Node type`)
 
     // clone the node argument
-    /** @type {Vertex} */
-    const vertex = Object.assign({}, node)
-    vertex[`vertex-type`] = vertexType.description
-    return vertex
+    /** @type {EnrichedNode} */
+    const enrichedNode = Object.assign({}, node)
+    enrichedNode[`vertex-type`] = vertexType.description
+    return enrichedNode
 }
 
 /**
  *
- * @param {RoamNode} node
+ * @param {EnrichedNode} node
  * @param {Id2UidMap} id2UidMap
  * @param {Title2UidMap} title2UidMap
  * @returns {Vertex}
@@ -344,8 +363,10 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     `)
 
     switch (key) {
+        case "title":
+            return normalizeTitle()
         case "string":
-            return [key, normalizeString()]
+            return normalizeString()
         case "children":
             return [key, normalizeChildren()]
         case "refs":
@@ -355,10 +376,23 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     }
 
     /**
-     * replace page-refs based on page "title", with page-refs based on page "uid"
+     * replace the 'title' key with 'text'
      *
+     * @param {string} key - captured from enclosing function (closure)
      * @param {string} value - captured from enclosing function (closure)
-     * @returns {string} - a new value to replace input value
+     * @returns {['text', *]} a new key-value pair that replaces the input key-value pair
+     */
+    function normalizeTitle() {
+        return ['text', value]
+    }
+
+    /**
+     * replace page-refs based on page 'title, with page-refs based on page 'uid'
+     * replace the 'string' key with 'text'
+     *
+     * @param {string} key - captured from enclosing function (closure)
+     * @param {string} value - captured from enclosing function (closure)
+     * @returns {['text', *]} a new key-value pair that replaces the input key-value pair
      */
     function normalizeString() {
         // regex to match page reference
@@ -370,12 +404,13 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
         matches.forEach((match) => {
             normalized = normalized.replaceAll(match[0], `[[${title2UidMap[match[1]]}]]`)
         })
-        return normalized
+        return ['text', normalized]
     }
 
     /**
      * @param {raw_children} value - captured from enclosing function
      * @param {Id2UidMap} id2UidMap - captured from enclosing function
+     * @returns {normal_children}
      */
     function normalizeChildren() {
         // this creates an array of pairs/tuples/2elementarrays: [uid(String), order(int)]
@@ -390,6 +425,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     /**
      * @param {raw_refs} value - captured from enclosing function
      * @param {Id2UidMap} id2UidMap - captured from enclosing function
+     * @returns {normal_refs}
      */
     function normalizeRefs() {
         return value.map(e => id2UidMap[e["id"]][0])
@@ -436,10 +472,6 @@ function pick(obj, props) {
 /**
  * @param {title} pageTitle
  * @param {DumpConfig} config
- * @param {FollowLinksDirective} config.followChildren
- * @param {FollowLinksDirective} config.followRefs
- * @param {string[]} config.includeProperties
- * @param {string[]} config.addProperties
  * @param {JSEnvironment} env
  * @returns {RoamNode[]}
  */
@@ -519,8 +551,8 @@ function pullPageNodesFromRoam(pageTitle, followChildren, followRefs) {
 
     // the nature of this query is to return an array of arrays, where each nested array
     // contains a single node
-     /** @type {RoamNode[][]} */
-     const nodesRaw = window.roamAlphaAPI.q(query, pageTitle, rules)
+    /** @type {RoamNode[][]} */
+    const nodesRaw = window.roamAlphaAPI.q(query, pageTitle, rules)
     // flatten array of arrays of nodes -> array of nodes
     return nodesRaw.flat()
 }
@@ -651,7 +683,7 @@ function writeJSONFromNodeJS(fileName, json) {
 
     const outputDir = './out/'
     const outputPath = outputDir + fileName
-    const fs = require('fs');
+    const fs = require('fs')
 
     if (!fs.existsSync(outputDir))
         fs.mkdirSync(outputDir)
