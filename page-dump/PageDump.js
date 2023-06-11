@@ -5,16 +5,30 @@
  */
 /**
  * @overview
- * This is a roam/js script; run within a roam/js... page in RoamResearch (0.9.11+), by pasting this entire script into
+ * This is a roam/js script. Run within a roam/js... page in RoamResearch (0.9.11+), by pasting this entire script into
  * a child block of a '{{[[roam/js]]}}' block
  *
  * Roam/js scripting supports only vanilla, untyped, JavaScript-- it does not support TypeScript.
- * [JSDoc](https://jsdoc.app/tags-type.html) provides a method for adding type anotations to JS code, via special tags
+ * [JSDoc](https://jsdoc.app/tags-type.html) provides a method for adding type annotations to JS code, via special tags
  * (e.g. @typedef) placed in JSDoc style comments. IDEs like VS Code (1.78+) support JSDoc type annotations
  * out-of-the-box, so that the source editors will provide almost all of the type-directed assistance that would be
- * available in Typescript at development time. At runtime, all of these type annotations are
+ * available in Typescript at development time. At runtime, all of these type annotations are invisible to the Roam JS
+ * engine.
  *
+ * JavaScript has evolved several different module systems. The most widely used are: CommonJS
+ * (https://nodejs.org/api/modules.html) and ECMAScript (ES6) modules. CommonJS grew out of Node.js, is the default
+ * module system for Node, and uses module.exports() and require() function calls. ES6 modules are standardized by ECMA
+ * and use export and import statements.
  *
+ * Roam/js scripting does not support any module features, from any module system. The fact that Roam runs on Node.js is
+ * an opaque implementation detail, and no Node.js api are accessible to roam/js scripts. Roam/js scripts are intended
+ * to run as single file, self-contained, code units. But in order to effect unit testing at development time, some
+ * module features are needed, so that the unit test code can access JS language elements (e.g. functions, type
+ * definitions) in this script. So this script needs conditional module support -- module features that can be invoked
+ * only at development time, and completely turned off at runtime. Since CommonJS features are invoked via function
+ * calls, rather than JS language level export/import statements, it is much better suited for dynamic, conditional,
+ * module binding. So this script, and the associated test code, use CommonJS modules if the execution environment is
+ * detected to be 'test'.
  */
 
 /**
@@ -65,15 +79,15 @@
  * 
  * @typedef EnrichedNode - a RoamNode with synthetic properties added
  * @type {RoamNode}
- * @property {VertexType} vertex_type - it's actually 'vertex-type', but JSDoc bug prevents
- * @property {string} media_type - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {VertexType} [vertex_type] - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {string} [media_type] - it's actually 'vertex-type', but JSDoc bug prevents
  * 
  * @typedef Vertex - the normalized shape of Roam elements
  * @type {Object}
  * @property {uid} uid
  * @property {string} text
- * @property {VertexType} [vertex_type] - it's actually 'vertex-type', but JSDoc bug prevents
- * @property {string} [media_type] - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {VertexType} vertex_type - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {string} media_type - it's actually 'vertex-type', but JSDoc bug prevents
  * @property {normal_children} [children] 
  * @property {normal_refs} [refs] 
  */
@@ -100,8 +114,7 @@
  */
 
 /**
- * A poor man's version of Node.js AssertionError:
- * (https://nodejs.org/api/assert.html#class-assertassertionerror). 
+ * A poor man's version of Node.js AssertionError: (https://nodejs.org/api/assert.html#class-assertassertionerror).
  * roam/js scripts do not have access to Node.
  */
 class AssertionError extends Error {
@@ -119,8 +132,8 @@ class NotImplementedError extends Error {
 }
 
 /**
- * This Enum provides type identifiers for the individual elements (vertices) in the output
- * array that represents a Roam graph. Every vertex in the output graph has exactly one VertexType.
+ * This Enum provides type identifiers for the individual elements (vertices) in the output array that represents a Roam
+ * graph. Every vertex in the output graph has exactly one VertexType.
  */
 const VertexType = Object.freeze(
     {
@@ -134,8 +147,8 @@ const VertexType = Object.freeze(
 )
 
 /**
- * This Enum is used to configure how the Roam hierarchical query (Datomic) 
- * will join (follow) the Nodes in the children/ and refs/ branches.
+ * This Enum is used to configure how the Roam hierarchical query (Datomic) will join (follow) the Nodes in the
+ * children/ and refs/ branches.
  */
 const FollowLinksDirective = Object.freeze(
     {
@@ -207,8 +220,7 @@ function normalizeNodes(nodes, toAddProperties) {
     const id2UidMap = Object.fromEntries(nodes.map(x => [x.id, [x.uid, x.order]]))
     console.log(`normalizeNodes: id2UidMap = ${JSON.stringify(id2UidMap)}`)
 
-    // all of the nodes that do not have a title property will be successively
-    // mapped to the "undefined" property
+    // all of the nodes that do not have a title property will be successively mapped to the "undefined" property
     /** @type {Title2UidMap} */
     let title2UidMap = new Map(nodes.map(x => [x.title, x.uid]))
     // remove the bogus "undefined" property that corresponds to nodes with no titles
@@ -264,8 +276,8 @@ function getAddPropertyFunction(propertyName) {
 }
 
 /**
- * Add a "media-type" property to the JS Object 'node'. The media-type is derived from the content
- * in the Node: https://www.iana.org/assignments/media-types/media-types.xhtml
+ * Add a "media-type" property to the JS Object 'node'. The media-type is derived from the content in the Node:
+ * https://www.iana.org/assignments/media-types/media-types.xhtml
  *
  * @param {RoamNode} node
  * @returns {EnrichedNode}
@@ -289,8 +301,7 @@ function addMediaType(node) {
 }
 
 /**
- * Add a "vertex-type" property to the JS Object 'node'. The vertex-type values come from 
- * from the VertexType enum.
+ * Add a "vertex-type" property to the JS Object 'node'. The vertex-type values come from from the VertexType enum.
  *
  * @param {RoamNode} node
  * @returns {EnrichedNode}
@@ -387,8 +398,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     }
 
     /**
-     * replace page-refs based on page 'title, with page-refs based on page 'uid'
-     * replace the 'string' key with 'text'
+     * replace page-refs based on page 'title, with page-refs based on page 'uid' replace the 'string' key with 'text'
      *
      * @param {string} key - captured from enclosing function (closure)
      * @param {string} value - captured from enclosing function (closure)
@@ -456,8 +466,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
 }
 
 /**
- * create a new Object that contains a subset of properties 
- * (only those listed in the props param) from obj
+ * create a new Object that contains a subset of properties (only those listed in the props param) from obj
  *
  * @param {Object} obj
  * @param {string[]} props
@@ -549,8 +558,7 @@ function pullPageNodesFromRoam(pageTitle, followChildren, followRefs) {
     const rules = buildRules(followChildren, followRefs)
     console.log(`pullPageNodesFromRoam: query = ${query}, rules = ${rules}`)
 
-    // the nature of this query is to return an array of arrays, where each nested array
-    // contains a single node
+    // the nature of this query is to return an array of arrays, where each nested array contains a single node
     /** @type {RoamNode[][]} */
     const nodesRaw = window.roamAlphaAPI.q(query, pageTitle, rules)
     // flatten array of arrays of nodes -> array of nodes
@@ -637,8 +645,7 @@ function buildQuery(followChildren, followRefs) {
  * @param {*} obj
  * @param {string} fileName
  * @param {JSEnvironment} env
- * @returns {string|undefined} - if the environment isNode, then will return the 
- *                                path at which the file was saved
+ * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
  */
 function saveAsJSONFile(obj, fileName, env) {
     console.log(`saveAsJSONFile: nodeCount = ${obj.length}, fileName = ${fileName}, env = ${JSON.stringify(env)}`)
