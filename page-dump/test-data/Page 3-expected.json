@@ -42,7 +42,7 @@
         "media-type": "text/plain"
     },
     {
-        "text": "{{[[undefined]]: ((YMkrw0y7Y))}}",
+        "text": "{{[[o2hTH3dbf]]: ((YMkrw0y7Y))}}",
         "refs": [
             "o2hTH3dbf",
             "YMkrw0y7Y"
@@ -91,18 +91,38 @@
         "media-type": "text/plain"
     },
     {
+        "text": "![A flower](<<9b673aae-8089-4a91-84df-9dac152a7f94>>)",
+        "uid": "lreFpitoR",
+        "vertex-type": "roam/block",
+        "media-type": "text/plain"
+    },
+    {
+        "uid": "9b673aae-8089-4a91-84df-9dac152a7f94",
+        "source": "https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2F-9owRBegJ8.jpeg.enc?alt=media&token=9b673aae-8089-4a91-84df-9dac152a7f94",
+        "vertex-type": "roam/file"
+    },
+    {
         "text": "Block 3.2.1.1",
         "uid": "nvZuZUSrh",
         "vertex-type": "roam/block",
         "media-type": "text/plain"
     },
     {
-        "text": "Block 3.1.1-- page-refs:[[undefined]], [[undefined]]",
+        "text": "Block 3.1.1-- page-refs:[[Qb2JOnrUQ]], [[Pvyh6q_ag]]",
         "refs": [
             "Qb2JOnrUQ",
             "Pvyh6q_ag"
         ],
         "uid": "q1qajG3Zk",
+        "vertex-type": "roam/block",
+        "media-type": "text/plain"
+    },
+    {
+        "text": "Block 3.3",
+        "children": [
+            "lreFpitoR"
+        ],
+        "uid": "LXoC6aV1-",
         "vertex-type": "roam/block",
         "media-type": "text/plain"
     },
@@ -170,7 +190,7 @@
         "media-type": "text/plain"
     },
     {
-        "text": "Block 1.1.1 -- page-ref-> [[undefined]]",
+        "text": "Block 1.1.1 -- page-ref-> [[Pvyh6q_ag]]",
         "refs": [
             "Pvyh6q_ag"
         ],
@@ -196,6 +216,26 @@
             "Ww_4xiPko"
         ],
         "uid": "YMkrw0y7Y",
+        "vertex-type": "roam/block",
+        "media-type": "text/plain"
+    },
+    {
+        "text": "<<9b673aae-8089-4a91-84df-9dac152a7f94>>",
+        "uid": "yiZaMqbAz",
+        "vertex-type": "roam/block",
+        "media-type": "text/plain"
+    },
+    {
+        "uid": "9b673aae-8089-4a91-84df-9dac152a7f94",
+        "source": "https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2F-9owRBegJ8.jpeg.enc?alt=media&token=9b673aae-8089-4a91-84df-9dac152a7f94",
+        "vertex-type": "roam/file"
+    },
+    {
+        "text": "Block 3.4",
+        "children": [
+            "yiZaMqbAz"
+        ],
+        "uid": "dftwwQg-V",
         "vertex-type": "roam/block",
         "media-type": "text/plain"
     },

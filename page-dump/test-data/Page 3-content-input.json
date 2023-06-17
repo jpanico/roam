@@ -77,7 +77,7 @@
         ],
         "uid": "Pvyh6q_ag",
         "id": 700,
-        "sidebar": 5
+        "sidebar": 6
     },
     {
         "user": {
@@ -222,6 +222,32 @@
         }
     },
     {
+        "string": "![A flower](https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2F-9owRBegJ8.jpeg.enc?alt=media&token=9b673aae-8089-4a91-84df-9dac152a7f94)",
+        "seen-by": [
+            {
+                "id": 3
+            }
+        ],
+        "user": {
+            "id": 3
+        },
+        "uid": "lreFpitoR",
+        "time": 1686398247030,
+        "id": 993,
+        "parents": [
+            {
+                "id": 709
+            },
+            {
+                "id": 992
+            }
+        ],
+        "order": 0,
+        "page": {
+            "id": 709
+        }
+    },
+    {
         "user": {
             "id": 3
         },
@@ -280,6 +306,35 @@
         "user": {
             "id": 3
         },
+        "string": "Block 3.3",
+        "seen-by": [
+            {
+                "id": 3
+            }
+        ],
+        "time": 1686398007214,
+        "children": [
+            {
+                "id": 993
+            }
+        ],
+        "uid": "LXoC6aV1-",
+        "open": true,
+        "id": 992,
+        "parents": [
+            {
+                "id": 709
+            }
+        ],
+        "order": 2,
+        "page": {
+            "id": 709
+        }
+    },
+    {
+        "user": {
+            "id": 3
+        },
         "time": 1684845469293,
         "title": "Page 1",
         "children": [
@@ -292,7 +347,7 @@
         ],
         "uid": "Qb2JOnrUQ",
         "id": 697,
-        "sidebar": 6
+        "sidebar": 7
     },
     {
         "id": 867,
@@ -549,6 +604,61 @@
         "order": 1,
         "page": {
             "id": 697
+        }
+    },
+    {
+        "string": "https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2F-9owRBegJ8.jpeg.enc?alt=media&token=9b673aae-8089-4a91-84df-9dac152a7f94",
+        "seen-by": [
+            {
+                "id": 3
+            }
+        ],
+        "user": {
+            "id": 3
+        },
+        "uid": "yiZaMqbAz",
+        "time": 1686398799040,
+        "id": 995,
+        "parents": [
+            {
+                "id": 709
+            },
+            {
+                "id": 994
+            }
+        ],
+        "order": 0,
+        "page": {
+            "id": 709
+        }
+    },
+    {
+        "user": {
+            "id": 3
+        },
+        "string": "Block 3.4",
+        "seen-by": [
+            {
+                "id": 3
+            }
+        ],
+        "time": 1686398649932,
+        "children": [
+            {
+                "id": 995
+            }
+        ],
+        "uid": "dftwwQg-V",
+        "open": true,
+        "id": 994,
+        "parents": [
+            {
+                "id": 709
+            }
+        ],
+        "order": 3,
+        "page": {
+            "id": 709
         }
     },
     {

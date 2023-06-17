@@ -6,7 +6,7 @@
 /**
  * @overview
  * This is a roam/js script. Run within a roam/js... page in RoamResearch (0.9.11+), by pasting this entire script into
- * a child block of a '{{[[roam/js]]}}' block
+ * a child block of a '{{[[roam/js]]}}' block.
  *
  * Roam/js scripting supports only vanilla, untyped, JavaScript-- it does not support TypeScript.
  * [JSDoc](https://jsdoc.app/tags-type.html) provides a method for adding type annotations to JS code, via special tags
@@ -15,20 +15,20 @@
  * available in Typescript at development time. At runtime, all of these type annotations are invisible to the Roam JS
  * engine.
  *
- * JavaScript has evolved several different module systems. The most widely used are: CommonJS
- * (https://nodejs.org/api/modules.html) and ECMAScript (ES6) modules. CommonJS grew out of Node.js, is the default
- * module system for Node, and uses module.exports() and require() function calls. ES6 modules are standardized by ECMA
- * and use export and import statements.
+ * JavaScript has evolved several different module systems. The most widely used are:
+ * [CommonJS](https://nodejs.org/api/modules.html), and ECMAScript (ES6) modules. CommonJS grew out of Node.js, is the
+ * default module system for Node, and uses module.exports() and require() function calls. ES6 modules are standardized
+ * by ECMA and use export and import statements.
  *
  * Roam/js scripting does not support any module features, from any module system. The fact that Roam runs on Node.js is
  * an opaque implementation detail, and no Node.js api are accessible to roam/js scripts. Roam/js scripts are intended
  * to run as single file, self-contained, code units. But in order to effect unit testing at development time, some
  * module features are needed, so that the unit test code can access JS language elements (e.g. functions, type
- * definitions) in this script. So this script needs conditional module support -- module features that can be invoked
- * only at development time, and completely turned off at runtime. Since CommonJS features are invoked via function
- * calls, rather than JS language level export/import statements, it is much better suited for dynamic, conditional,
- * module binding. So this script, and the associated test code, use CommonJS modules if the execution environment is
- * detected to be 'test'.
+ * definitions) in this script. As a result, this script needs conditional module support -- module features that can be
+ * invoked only at development time, and completely turned off at runtime. Since CommonJS features are invoked via
+ * function calls, rather than JS language level export/import statements, it is much better suited for dynamic,
+ * conditional, module binding. So this script, and the associated test code, use CommonJS modules if the execution
+ * environment is detected to be 'test'.
  */
 
 /**
@@ -37,9 +37,10 @@
  * @typedef {integer} order
  * @typedef {string} title
  * 
- * @typedef {['uid', uid]} UidTuple
+ * @typedef {['uid', uid]} UidPair
  * @typedef {[uid, order]} OrderedUid
  * @typedef {[*, order]} OrderedValue
+ * @typedef {[string, *]} KeyValuePair
  * 
  * @typedef IdObject
  * @type {Object}
@@ -47,8 +48,8 @@
  * 
  * @typedef LinkObject
  * @type {Object}
- * @property {UidTuple} source
- * @property {UidTuple} value
+ * @property {UidPair} source
+ * @property {UidPair} value
  * 
  * @typedef {IdObject[]} raw_children
  * @typedef {IdObject[]} raw_refs
@@ -80,14 +81,14 @@
  * @typedef EnrichedNode - a RoamNode with synthetic properties added
  * @type {RoamNode}
  * @property {VertexType} [vertex_type] - it's actually 'vertex-type', but JSDoc bug prevents
- * @property {string} [media_type] - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {string} [media_type] - it's actually 'media-type', but JSDoc bug prevents
  * 
  * @typedef Vertex - the normalized shape of Roam elements
  * @type {Object}
  * @property {uid} uid
- * @property {string} text
  * @property {VertexType} vertex_type - it's actually 'vertex-type', but JSDoc bug prevents
  * @property {string} media_type - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {string} [text]
  * @property {normal_children} [children] 
  * @property {normal_refs} [refs] 
  */
@@ -196,10 +197,10 @@ function dumpPage(pageTitle, config, env) {
     /** @type {RoamNode[]} */
     const pageNodes = pullAllPageNodes(pageTitle, config, env)
     /** @type {RoamNode[]} */
-    const pageNodesReshaped = pageNodes.map(e => pick(e, config.includeProperties))
+    const thinnedPageNodes = pageNodes.map(e => pick(e, config.includeProperties))
     /** @type {Vertex[]} */
-    const vertices = normalizeNodes(pageNodesReshaped, config.addProperties)
-    const outputFileName = pageTitle + `.json`
+    const vertices = normalizeNodes(thinnedPageNodes, config.addProperties)
+    const outputFileName = pageTitle + `.dump.json`
 
     return saveAsJSONFile(vertices, outputFileName, env)
 }
@@ -222,7 +223,7 @@ function normalizeNodes(nodes, toAddProperties) {
 
     // all of the nodes that do not have a title property will be successively mapped to the "undefined" property
     /** @type {Title2UidMap} */
-    let title2UidMap = new Map(nodes.map(x => [x.title, x.uid]))
+    let title2UidMap = Object.fromEntries(nodes.map(x => [x.title, x.uid]))
     // remove the bogus "undefined" property that corresponds to nodes with no titles
     delete title2UidMap["undefined"]
 
@@ -230,7 +231,11 @@ function normalizeNodes(nodes, toAddProperties) {
 
     /** @type {EnrichedNode[]} */
     const enrichedNodes = addProperties(nodes, toAddProperties)
-    return enrichedNodes.map(node => normalizeNode(node, id2UidMap, title2UidMap))
+    /** @type {Vertex[][]} */
+    const vertices = enrichedNodes.map(node => normalizeNode(node, id2UidMap, title2UidMap))
+    console.log(`normalizeNodes: vertices = ${JSON.stringify(vertices)}`)
+
+    return vertices.flat()
 }
 /**
  * Adds the specified JS properties to each of the Objects in nodes
@@ -262,7 +267,7 @@ function addProperties(nodes, toAddProperties) {
  * Returns one of the add... functions
  *
  * @param {string} propertyName
- * @returns { (vertex:Vertex) => Vertex }
+ * @returns { (node:RoamNode) => EnrichedNode }
  */
 function getAddPropertyFunction(propertyName) {
     switch (propertyName) {
@@ -339,7 +344,8 @@ function addVertexType(node) {
  * @param {EnrichedNode} node
  * @param {Id2UidMap} id2UidMap
  * @param {Title2UidMap} title2UidMap
- * @returns {Vertex}
+ * @returns {Vertex[]} - an array of Vertex that replaces the "node" param in the normalized graph. A single input Node
+ * can normalize to multiple Vertices
  */
 function normalizeNode(node, id2UidMap, title2UidMap) {
     console.log(`
@@ -349,12 +355,24 @@ function normalizeNode(node, id2UidMap, title2UidMap) {
         title2UidMap = ${JSON.stringify(title2UidMap)}
     `)
     // we don't have to carry:
-    // 1. "order" property, because we are going to order the uids in the children property
+    // 1. "order" property, because we are going to order the uids in the "children" property of the parent
     // 2. "id" property, because the normalized form uses uid as PK
     const keys = Object.keys(node).filter(key => !["order", "id"].includes(key))
-    console.log(`keys: ${JSON.stringify(keys)}`)
+    console.log(`normalizeNode: keys= ${JSON.stringify(keys)}`)
 
-    return Object.fromEntries(keys.map(key => normalizeProperty(key, node[key], id2UidMap, title2UidMap)))
+    /** @type {[ [KeyValuePair[], ?Vertex[]] ]} */
+    const normalized = keys.map(key => normalizeProperty(key, node[key], id2UidMap, title2UidMap))
+    console.log(`normalizeNode: normalized= ${JSON.stringify(normalized)}`)
+    /** @type {KeyValuePair[]} */
+    const allKVs = normalized.map(elem => elem[0]).flat()
+    console.log(`normalizeNode: allKVs= ${JSON.stringify(allKVs)}`)
+    /** @type {Vertex} */
+    const vertexForNode = Object.fromEntries(allKVs)
+    /** @type {Vertex[]} */
+    const derivedVertices = (normalized.map(elem => elem[1])).flat()
+    console.log(`normalizeNode: derivedVertices= ${JSON.stringify(derivedVertices)}`)
+
+    return [vertexForNode].concat(derivedVertices.filter(e => e != null))
 }
 
 /**
@@ -362,7 +380,8 @@ function normalizeNode(node, id2UidMap, title2UidMap) {
  * @param {*} value
  * @param {Id2UidMap} id2UidMap
  * @param {Title2UidMap} title2UidMap
- * @returns {[string, *]} a new key-value pair that replaces the input key-value pair
+ * @returns {[KeyValuePair[], ?Vertex[]]} a new Array of key-value pairs to replace the single input key-value pair, and
+ * an optional array of new Vertices that are derived from normalizing the property
  */
 function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     console.log(`
@@ -373,25 +392,33 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
         title2UidMap = ${JSON.stringify(title2UidMap)}
     `)
 
+    let normalized
     switch (key) {
         case "title":
-            return normalizeTitle()
+            normalized = [ [normalizeTitle()] , null ]
+            break
         case "string":
-            return normalizeString()
+            normalized = normalizeString()
+            break
         case "children":
-            return [key, normalizeChildren()]
+            normalized = [ [ [key, normalizeChildren()] ], null ]
+            break
         case "refs":
-            return [key, normalizeRefs()]
+            normalized = [ [ [key, normalizeRefs()] ], null ]
+            break
         default:
-            return [key, value]
+            normalized = [ [ [key, value] ], null ]
+            break
     }
+    console.log(`normalizeProperty: normalized = ${JSON.stringify(normalized)}`)
+    return normalized
 
     /**
      * replace the 'title' key with 'text'
      *
      * @param {string} key - captured from enclosing function (closure)
      * @param {string} value - captured from enclosing function (closure)
-     * @returns {['text', *]} a new key-value pair that replaces the input key-value pair
+     * @returns {KeyValuePair} a new key-value pair that replaces the input key-value pair
      */
     function normalizeTitle() {
         return ['text', value]
@@ -402,21 +429,87 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
      *
      * @param {string} key - captured from enclosing function (closure)
      * @param {string} value - captured from enclosing function (closure)
-     * @returns {['text', *]} a new key-value pair that replaces the input key-value pair
+     * @param {Title2UidMap} title2UidMap - captured from enclosing function (closure)
+     * @returns {[KeyValuePair[], ?Vertex[]]} a new Array of key-value pairs to replace the single input key-value pair,
+     *        and an optional array of new Vertices that are derived from normalizing the property
      */
     function normalizeString() {
+        /** @type {string} */
+        const normal1 = normalizePageRefs(value, title2UidMap)
+        console.log(`normalizeString: normal1 = ${JSON.stringify(normal1)}`)
+        /** @type {[string, ?Vertex[]]} */
+        const normal2 = normalizeRoamFileUrls(normal1)
+        console.log(`normalizeString: normal2 = ${JSON.stringify(normal2)}`)
+
+        return [ [ ['text', normal2[0]] ] , normal2[1] ]
+    }
+
+    /**
+     * applied to the 'string' property of roam/block nodes. Replace Firebase URLs with a random uid 
+     * (using Firebase token for now) and create a roam/file type node to standin for each of those URLs.
+     *
+     * @param {string} target 
+     * @returns {[string, ?Vertex[]]} a new "string" value to replace the input "string" value,
+     *        and an optional array of new Vertices that are derived from normalizing the property
+     */
+    function normalizeRoamFileUrls(target) {
+        // regex to match Firebase URLs for files stored by Roam
+        /** @type {RegExp} */
+        const fireRegex = /https:\/\/firebasestorage\.[\w.]+\.com\/[-a-zA-Z0-9@:%_\+.~#?&//=]*(&token=[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+)/g
+        const matches = [...target.matchAll(fireRegex)]
+        console.log(`normalizeRoamFileUrls: matches = ${JSON.stringify(matches)}`)
+        if(!matches.length)
+            return [target, null]
+        
+        /** @type {string} */
+        let normalized = target
+        let fileVertices = []
+        matches.forEach((match) => {
+            const url = match[0]
+            // remove the '&token=' literal prefix from the regex group-1 match
+            const uid = match[1].slice("&token=".length)
+            const fileVertex = createRoamFileVertex(uid, url)
+
+            fileVertices.push(fileVertex)
+            normalized = normalized.replaceAll(url, "<<"+uid+">>")
+        })
+        return [ normalized, fileVertices ]    
+    }
+
+    /**
+     * @param {uid} uid 
+     * @param {string} source 
+     * @returns {Vertex}
+     */
+    function createRoamFileVertex(uid, source) {
+        console.log(`createRoamFileVertex: uid = ${uid}, source = ${source}`)
+
+        return {
+            "uid": uid, "source": source, "vertex-type": VertexType.ROAM_FILE.description
+        }
+    }
+ 
+    /**
+     * applied to the 'string' property of roam/block nodes. Replace page-refs based on page 'title, with page-refs
+     * based on page 'uid'; replace the 'string' key with 'text'
+     *
+     * @param {string} target 
+     * @param {Title2UidMap} title2UidMap
+     * @returns {string} the normalized value
+     */
+    function normalizePageRefs(target, title2UidMap) {
         // regex to match page reference
-        const pageRefPattern = `\\[\\[([\\w\\s]+)\\]\\]`
-        const matches = Array.from(value.matchAll(pageRefPattern))
-        console.log(`normalizeString: matches = ${JSON.stringify(matches)}`)
+        const pageRefRegex = /\[\[([\w\s]+)\]\]/g
+        const matches = [...value.matchAll(pageRefRegex)]
+        console.log(`normalizePageRefs: matches = ${JSON.stringify(matches)}`)
 
         let normalized = value
         matches.forEach((match) => {
             normalized = normalized.replaceAll(match[0], `[[${title2UidMap[match[1]]}]]`)
         })
-        return ['text', normalized]
+        return normalized
     }
-
+    
     /**
      * @param {raw_children} value - captured from enclosing function
      * @param {Id2UidMap} id2UidMap - captured from enclosing function
@@ -442,7 +535,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
     }
 
     /**
-     * compare 2 JS tuples that have "order" integer value at index 1 
+     * compare 2 JS 2-tuples that have "order" integer value at index 1 
      *
      * @param {OrderedValue} lhs
      * @param {OrderedValue} rhs
@@ -561,7 +654,7 @@ function pullPageNodesFromRoam(pageTitle, followChildren, followRefs) {
     // the nature of this query is to return an array of arrays, where each nested array contains a single node
     /** @type {RoamNode[][]} */
     const nodesRaw = window.roamAlphaAPI.q(query, pageTitle, rules)
-    // flatten array of arrays of nodes -> array of nodes
+    // flatten array of arrays of Nodes -> array of Nodes
     return nodesRaw.flat()
 }
 
