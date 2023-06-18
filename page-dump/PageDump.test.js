@@ -21,6 +21,26 @@ test('dumped "Page 3.json" matches "Page 3-expected.json"', () => {
     expect(dumpedJSON).toMatch(expectedJSON)
 })
 
+
+test('merge nested KV arrays', () => {
+
+    const nested = [
+        [["text", "Block 1.2"], ["uid", "mvVww9zGd"]],
+        [["refs", ["refs.1"]]],
+        [["children", ["Wu-bKjjdJ"]]],
+        [["vertex-type", "roam/block"]],
+        [["refs", ["refs.2"]]]
+    ]
+    console.log(`nested= ${JSON.stringify(nested)}`)
+    const flat = nested.flat()
+    console.log(`flat= ${JSON.stringify(flat)}`)
+    const merged = pageDump.objectFromEntriesWithMerge(flat)
+    console.log(`merged= ${JSON.stringify(merged)}`)
+
+    expect(merged).toMatchObject({ "text": "Block 1.2", "uid": "mvVww9zGd", "refs": ["refs.1", "refs.2"], "children": ["Wu-bKjjdJ"], "vertex-type": "roam/block" })
+
+})
+
 test('flat', () => {
 
     const normalized = [[[["text","Block 1.2"]],null],[[["children",["Wu-bKjjdJ"]]],null],[[["uid","mvVww9zGd"]],null],[[["vertex-type","roam/block"]],null],[[["media-type","text/plain"]],null]]

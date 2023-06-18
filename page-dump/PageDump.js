@@ -180,7 +180,8 @@ if (env.isRoam) {
 } else if (env.isTest) {
     module.exports = {
         FollowLinksDirective: FollowLinksDirective,
-        dumpPage: dumpPage
+        dumpPage: dumpPage,
+        objectFromEntriesWithMerge: objectFromEntriesWithMerge
     }
 }
 
@@ -367,7 +368,7 @@ function normalizeNode(node, id2UidMap, title2UidMap) {
     const allKVs = normalized.map(elem => elem[0]).flat()
     console.log(`normalizeNode: allKVs= ${JSON.stringify(allKVs)}`)
     /** @type {Vertex} */
-    const vertexForNode = Object.fromEntries(allKVs)
+    const vertexForNode = objectFromEntriesWithMerge(allKVs)
     /** @type {Vertex[]} */
     const derivedVertices = (normalized.map(elem => elem[1])).flat()
     console.log(`normalizeNode: derivedVertices= ${JSON.stringify(derivedVertices)}`)
@@ -790,6 +791,45 @@ function writeJSONFromNodeJS(fileName, json) {
     fs.writeFileSync(outputPath, json)
 
     return outputPath
+}
+
+/**
+ * like Object.fromEntries(), except if entries argument contains multiple KeyValuePairs having same key, will
+ * attempt to merge the associated values into a single Array
+ * 
+ * @param {KeyValuePair[]} entries
+ * @returns {Object}
+ */
+function objectFromEntriesWithMerge(entries) {
+    console.log(`objectFromEntriesWithMerge: entries = ${JSON.stringify(entries)}`)
+
+    if( (entries==null) || (entries==undefined) )
+        return null
+
+    if(! Array.isArray(entries))
+        throw TypeError()
+
+    if(entries.length==0)
+        return {}
+
+     /** @type {Object} */
+     const result = entries.reduce((accumulator, [key, value]) => {
+        /** @type {boolean} */
+        const hasKey = accumulator.hasOwnProperty(key)
+        if(!hasKey) 
+            accumulator[key]=value
+        else if(!Array.isArray(accumulator[key])) 
+            accumulator[key]=[accumulator[key],value]
+        else if(!Array.isArray(value)) 
+            accumulator[key]= accumulator[key].push(value)
+        else 
+            accumulator[key]= accumulator[key].concat(value)
+
+        return accumulator
+    }, {})
+    console.log(`objectFromEntriesWithMerge: result = ${JSON.stringify(result)}`)
+    
+    return result
 }
 
 /**
