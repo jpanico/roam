@@ -31,11 +31,15 @@
  * environment is detected to be 'test'.
  */
 
+// Whole-script strict mode syntax
+"use strict";
+
 /**
  * @typedef {string} uid
  * @typedef {integer} id
  * @typedef {integer} order
  * @typedef {string} title
+ * @typedef {string} url
  * 
  * @typedef {['uid', uid]} UidPair
  * @typedef {[uid, order]} OrderedUid
@@ -58,6 +62,8 @@
  * 
  * @typedef {Object.<string, OrderedUid>} Id2UidMap - key is id (as string)
  * @typedef {Object.<title, uid>} Title2UidMap - 
+ * @typedef {Object.<uid, RoamFileReference>} Uid2FileRefMap - 
+ * @typedef {Object.<uid, RoamFile>} Uid2RoamFileMap - 
  * 
  * @typedef RoamNode - the raw shape of Block/Page elements returned from Roam queries
  * @type {Object}
@@ -87,10 +93,20 @@
  * @type {Object}
  * @property {uid} uid
  * @property {VertexType} vertex_type - it's actually 'vertex-type', but JSDoc bug prevents
- * @property {string} media_type - it's actually 'vertex-type', but JSDoc bug prevents
+ * @property {string} [media_type] - it's actually 'media-type', but JSDoc bug prevents
  * @property {string} [text]
  * @property {normal_children} [children] 
- * @property {normal_refs} [refs] 
+ * @property {normal_refs} [refs]
+ * @property {url} [source]
+ * 
+ * @typedef RoamFileReference
+ * @type {Object}
+ * @property {uid} uid
+ * @property {url} url
+ * 
+ * @typedef RoamFile
+ * @type {RoamFileReference}
+ * @property {WebFile} file
  */
 
 /**
@@ -129,6 +145,25 @@ class NotImplementedError extends Error {
     constructor(value) {
         super(`"${value}"`)
         this.name = 'NotImplementedError'
+    }
+}
+
+/**
+ * The File "Web api" (https://developer.mozilla.org/en-US/docs/Web/API/File) is the most convenient struct for handling
+ * Roam managed files in this script. But that api is only present in web environments (Roam), and is not supported in
+ * Node.js. However, the Blob api is supported in both Web envs and Node.js. Hence, this class.
+ * 
+ * @property {string} fileName
+ * @property {BigInt} lastModified
+ * @property {string} type -- the mime-type
+ * @property {Blob} blob
+ */
+class WebFile {
+    constructor(fileName, lastModified, type, blob){
+        this.fileName = fileName;
+        this.lastModified = lastModified; 
+        this.type = type;
+        this.blob = blob;
     }
 }
 
@@ -196,11 +231,17 @@ function dumpPage(pageTitle, config, env) {
         env = checkEnvironment()
 
     /** @type {RoamNode[]} */
-    const pageNodes = pullAllPageNodes(pageTitle, config, env)
+    const nodes = pullAllNodesFromPage(pageTitle, config, env)
     /** @type {RoamNode[]} */
-    const thinnedPageNodes = pageNodes.map(e => pick(e, config.includeProperties))
+    const thinnedNodes = nodes.map(e => pick(e, config.includeProperties))
     /** @type {Vertex[]} */
-    const vertices = normalizeNodes(thinnedPageNodes, config.addProperties)
+    const vertices = normalizeNodes(thinnedNodes, config.addProperties)
+    /** @type {Uid2FileRefMap} */
+    const roamFileRefs = createFileRefMap(vertices)
+    /** @type {Uid2RoamFileMap} */
+    const roamFiles = fetchRoamFiles(roamFileRefs, env)
+    console.log(`dumpPage: roamFiles = ${JSON.stringify(roamFiles)}`)
+
     const outputFileName = pageTitle + `.dump.json`
 
     return saveAsJSONFile(vertices, outputFileName, env)
@@ -256,7 +297,7 @@ function addProperties(nodes, toAddProperties) {
         return nodes
 
     /** @type {EnrichedNode[]} */
-    var enrichedNodes = nodes
+    let enrichedNodes = nodes
     toAddProperties.forEach((propKey) => {
         enrichedNodes = enrichedNodes.map(getAddPropertyFunction(propKey))
     })
@@ -292,7 +333,7 @@ function addMediaType(node) {
     console.log(`addMediaType: node = ${JSON.stringify(node)}`)
 
     /** @type {string} */
-    var mediaType
+    let mediaType
     if ([VertexType.ROAM_PAGE.description, VertexType.ROAM_BLOCK.description].includes(node["vertex-type"]))
         mediaType = "text/plain"
 
@@ -325,7 +366,7 @@ function addVertexType(node) {
         `one and only one condition must be true: hasTitle|hasString`
     )
     /** @type {VertexType} */
-    var vertexType
+    let vertexType
     if (hasTitle)
         vertexType = VertexType.ROAM_PAGE
     else if (hasString)
@@ -442,7 +483,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
         const normal2 = normalizeRoamFileUrls(normal1)
         console.log(`normalizeString: normal2 = ${JSON.stringify(normal2)}`)
 
-        return [ [ ['text', normal2[0]] ] , normal2[1] ]
+        return normal2
     }
 
     /**
@@ -450,7 +491,7 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
      * (using Firebase token for now) and create a roam/file type node to standin for each of those URLs.
      *
      * @param {string} target 
-     * @returns {[string, ?Vertex[]]} a new "string" value to replace the input "string" value,
+     * @returns {[KeyValuePair[], ?Vertex[]]} a new "string" value to replace the input "string" value,
      *        and an optional array of new Vertices that are derived from normalizing the property
      */
     function normalizeRoamFileUrls(target) {
@@ -460,21 +501,28 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
         const matches = [...target.matchAll(fireRegex)]
         console.log(`normalizeRoamFileUrls: matches = ${JSON.stringify(matches)}`)
         if(!matches.length)
-            return [target, null]
+            return [ [ ['text', target] ], null ] 
         
         /** @type {string} */
         let normalized = target
+        /** @type {normal_refs} */
+        let refs = []
+        /** @type {Vertex[]} */
         let fileVertices = []
         matches.forEach((match) => {
+            /** @type {string} */
             const url = match[0]
             // remove the '&token=' literal prefix from the regex group-1 match
+            /** @type {uid} */
             const uid = match[1].slice("&token=".length)
+            /** @type {Vertex} */
             const fileVertex = createRoamFileVertex(uid, url)
 
+            refs.push(uid)
             fileVertices.push(fileVertex)
             normalized = normalized.replaceAll(url, "<<"+uid+">>")
         })
-        return [ normalized, fileVertices ]    
+        return [ [ ['text', normalized], ['refs', refs] ], fileVertices ]    
     }
 
     /**
@@ -549,14 +597,127 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
         if ((lhs == null) || (rhs == null))
             throw "null argument"
 
-        lhsOrder = lhs[1]
-        rhsOrder = rhs[1]
+        const lhsOrder = lhs[1]
+        const rhsOrder = rhs[1]
 
         if ((!Number.isInteger(lhsOrder)) || (!Number.isInteger(rhsOrder)))
             throw "order not an integer"
 
         return lhsOrder - rhsOrder
     }
+}
+
+/**
+ * @param {Uid2FileRefMap} fileRefMap
+ * @param {JSEnvironment} env
+ * @returns {Uid2RoamFileMap}
+ */
+function fetchRoamFiles(fileRefMap, env) {
+    console.log(`fetchRoamFiles: fileRefMap = ${JSON.stringify(fileRefMap)}, env = ${JSON.stringify(env)}`)
+
+    if (env.isRoam) {
+        return getFilesFromRoam(fileRefMap)
+    } else if (env.isTest) {
+        return getFilesFromFilesystem(fileRefMap)
+    }
+    else
+        throw `unsupported env: ${JSON.stringify(env)} `
+}
+
+/**
+ * @param {Uid2FileRefMap} fileRefMap
+ * @returns {Uid2RoamFileMap}
+ */
+function getFilesFromRoam(fileRefMap) {
+    console.log(`getFilesFromRoam: fileRefMap = ${JSON.stringify(fileRefMap)}`)
+
+}
+
+/**
+ * @param {Uid2FileRefMap} fileRefMap
+ * @returns {Uid2RoamFileMap}
+ */
+function getFilesFromFilesystem(fileRefMap) {
+    console.log(`getFilesFromFilesystem: fileRefMap = ${JSON.stringify(fileRefMap)}`)
+
+    return Object.fromEntries(
+        Object.entries(fileRefMap).map( ([uid, fileRef]) =>
+            [
+                uid,
+                Object.fromEntries(
+                    [
+                        ['uid', fileRef.uid],
+                        ['url', fileRef.url],
+                        ['file', getFileFromFilesystem(fileRef)]
+                    ]
+                )
+            ]
+        )
+    )
+}
+
+/**
+ * @param {RoamFileReference} fileRef
+ * @returns {RoamFile}
+ */
+function getFileFromFilesystem(fileRef) {
+    console.log(`getFileFromFilesystem: fileRef = ${JSON.stringify(fileRef)}`)
+
+    /** @type {string} */
+    const testDataFilesPath = './test-data/files/'
+    const fs = require('fs');
+    /** @type {string[]} */
+     const allTestFileNames = fs.readdirSync(testDataFilesPath)
+    console.log(`getFileFromFilesystem: allTestFileNames= ${allTestFileNames}`)
+    /** @type {string} */
+    const refFileName = allTestFileNames.find(fname => fname.startsWith(fileRef.uid))
+    console.log(`getFileFromFilesystem: refFileName = ${JSON.stringify(refFileName)} `)
+    if(!refFileName)
+        throw   `can't find file for ` +
+                `fileRef.uid: ${JSON.stringify(fileRef.uid)}, ` +
+                `in testDataFilesPath: ${JSON.stringify(testDataFilesPath)}`
+
+    /** @type {string} */
+    const refFilePath = testDataFilesPath + refFileName
+    /** @type {Buffer} -- if no options are passed to readFileSync, defaults to return a raw Buffer  */
+    const fileContents = fs.readFileSync(refFilePath)
+    // console.log(`getFileFromFilesystem: fileContents = ${fileContents} `)
+
+    // Roam files are stored in test directory with filename: uid + '_' + original-file-name
+    /** @type {string} */
+    const originalFileName = refFileName.split('_')[1]
+    /** @type {string} */
+    const fileNameExt = originalFileName.split('.').at(-1)
+    const mime = require('mime')
+    /** @type {string} */
+    const mimeType = mime.getType(fileNameExt)
+    console.log(`getFileFromFilesystem: fileNameExt= ${fileNameExt}, mimeType= ${mimeType}`)
+    return new WebFile(originalFileName, 0, mimeType, new Blob([fileContents], {type: mimeType}))
+}
+
+/**
+ * @param {Vertex[]} vertices
+ * @returns {Uid2FileRefMap}
+ */
+function createFileRefMap(vertices) {
+    console.log(`createFileRefMap: vertices = ${JSON.stringify(vertices)}`)
+
+    /** @type {Vertex[]} */
+    const roamFileVertices = vertices.filter(vertex => vertex['vertex-type'] === VertexType.ROAM_FILE.description)
+    console.log(`createFileRefMap: roamFileVertices = ${JSON.stringify(roamFileVertices)}`)
+
+    /** @type {Uid2FileRefMap} */
+    const fileRefMap = Object.fromEntries(
+                            roamFileVertices.map( v => 
+                                [
+                                    v.uid, 
+                                    Object.fromEntries( [ ['uid', v.uid], ['url', v.source] ] )
+                                ]
+                            )
+                        )
+    console.log(`createFileRefMap: fileRefMap = ${JSON.stringify(fileRefMap)}`)
+
+    return fileRefMap
 }
 
 /**
@@ -578,8 +739,8 @@ function pick(obj, props) {
  * @param {JSEnvironment} env
  * @returns {RoamNode[]}
  */
-function pullAllPageNodes(pageTitle, config, env) {
-    console.log(`pullAllPageNodes: 
+function pullAllNodesFromPage(pageTitle, config, env) {
+    console.log(`pullAllNodesFromPage: 
         pageTitle = ${pageTitle}, config = ${JSON.stringify(config)}, env= ${JSON.stringify(env)}`)
 
     /** @type {RoamNode[]} */
@@ -750,7 +911,7 @@ function saveAsJSONFile(obj, fileName, env) {
     console.log(`saveAsJSONFile: json = ${json}`)
 
     /** @type {string} */
-    var writePath
+    let writePath
     if (env.isRoam)
         writeJSONFromBrowser(fileName, json)
     else if (env.isNode)
@@ -805,10 +966,8 @@ function objectFromEntriesWithMerge(entries) {
 
     if( (entries==null) || (entries==undefined) )
         return null
-
     if(! Array.isArray(entries))
         throw TypeError()
-
     if(entries.length==0)
         return {}
 
@@ -818,8 +977,12 @@ function objectFromEntriesWithMerge(entries) {
         const hasKey = accumulator.hasOwnProperty(key)
         if(!hasKey) 
             accumulator[key]=value
-        else if(!Array.isArray(accumulator[key])) 
-            accumulator[key]=[accumulator[key],value]
+        else if(!Array.isArray(accumulator[key])) {
+            if(!Array.isArray(value))
+                accumulator[key]=[accumulator[key],value]
+            else
+               accumulator[key]=[accumulator[key]].concat(value)
+        }
         else if(!Array.isArray(value)) 
             accumulator[key]= accumulator[key].push(value)
         else 

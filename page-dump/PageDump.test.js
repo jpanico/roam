@@ -1,29 +1,55 @@
 
-const fs = require("fs");
-const pageDump = require('./PageDump.js')
-
-const config = {
-    "followChildren": pageDump.FollowLinksDirective.DEEP,
-    "followRefs": pageDump.FollowLinksDirective.DEEP,
-    "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id"],
-    "addProperties": ["vertex-type", "media-type"]
-}
 
 test('dumped "Page 3.json" matches "Page 3-expected.json"', () => {
 
+    const pageDump = require('./PageDump.js')
+
+    const config = {
+        "followChildren": pageDump.FollowLinksDirective.DEEP,
+        "followRefs": pageDump.FollowLinksDirective.DEEP,
+        "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id"],
+        "addProperties": ["vertex-type", "media-type"]
+    }
+    
     dumpPath = pageDump.dumpPage("Page 3", config)
     expectedPath = "./test-data/Page 3-expected.json"
     console.log(`dumpPath = ${dumpPath}, expectedPath = ${expectedPath}`)
 
+    const fs = require("fs");
     const dumpedJSON = fs.readFileSync(dumpPath, { encoding: 'utf8', flag: 'r' })
     const expectedJSON = fs.readFileSync(expectedPath, { encoding: 'utf8', flag: 'r' })
 
     expect(dumpedJSON).toMatch(expectedJSON)
 })
 
+/**
+ * Blob api seems to be built into either Node.js or core JS
+ */
+test('Node.js Blob api', () => {
+    const obj = { hello: "world" };
+    const blob = new Blob([JSON.stringify(obj, null, 2)], {
+      type: "application/json",
+    });
+    console.log(blob)
+    console.log(`blob.stringify= ${JSON.stringify(blob)}`)
+})
+
+test('JS classes, properties, constructors', () => {
+    class WebFile {
+        constructor(name, color, price){
+            this.name = name;
+            this.color = color; 
+            this.price = price;
+        }
+    }
+    const webFile = new WebFile('test', 'red', 100)
+    console.log(`webFile= ${JSON.stringify(webFile)}`)
+    console.log(`webFile.properties= ${JSON.stringify(Object.getOwnPropertyNames(webFile))}`)
+})
 
 test('merge nested KV arrays', () => {
 
+    const pageDump = require('./PageDump.js')
     const nested = [
         [["text", "Block 1.2"], ["uid", "mvVww9zGd"]],
         [["refs", ["refs.1"]]],

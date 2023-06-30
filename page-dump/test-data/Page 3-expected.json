@@ -42,7 +42,7 @@
         "media-type": "text/plain"
     },
     {
-        "text": "{{[[o2hTH3dbf]]: ((YMkrw0y7Y))}}",
+        "text": "this text before embed: {{[[o2hTH3dbf]]: ((YMkrw0y7Y))}}",
         "refs": [
             "o2hTH3dbf",
             "YMkrw0y7Y"
@@ -92,6 +92,9 @@
     },
     {
         "text": "![A flower](<<9b673aae-8089-4a91-84df-9dac152a7f94>>)",
+        "refs": [
+            "9b673aae-8089-4a91-84df-9dac152a7f94"
+        ],
         "uid": "lreFpitoR",
         "vertex-type": "roam/block",
         "media-type": "text/plain"
@@ -220,14 +223,17 @@
         "media-type": "text/plain"
     },
     {
-        "text": "<<9b673aae-8089-4a91-84df-9dac152a7f94>>",
+        "text": "<<81770416-701c-4099-b585-ff0988894cc9>>",
+        "refs": [
+            "81770416-701c-4099-b585-ff0988894cc9"
+        ],
         "uid": "yiZaMqbAz",
         "vertex-type": "roam/block",
         "media-type": "text/plain"
     },
     {
-        "uid": "9b673aae-8089-4a91-84df-9dac152a7f94",
-        "source": "https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2F-9owRBegJ8.jpeg.enc?alt=media&token=9b673aae-8089-4a91-84df-9dac152a7f94",
+        "uid": "81770416-701c-4099-b585-ff0988894cc9",
+        "source": "https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2FjiaXYFyOYv.md.enc?alt=media&token=81770416-701c-4099-b585-ff0988894cc9",
         "vertex-type": "roam/file"
     },
     {
