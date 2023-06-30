@@ -102,7 +102,9 @@
     {
         "uid": "9b673aae-8089-4a91-84df-9dac152a7f94",
         "source": "https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2F-9owRBegJ8.jpeg.enc?alt=media&token=9b673aae-8089-4a91-84df-9dac152a7f94",
-        "vertex-type": "roam/file"
+        "vertex-type": "roam/file",
+        "media-type": "image/jpeg",
+        "file-name": "flower.jpeg"
     },
     {
         "text": "Block 3.2.1.1",
@@ -234,7 +236,9 @@
     {
         "uid": "81770416-701c-4099-b585-ff0988894cc9",
         "source": "https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2FSCFH%2FjiaXYFyOYv.md.enc?alt=media&token=81770416-701c-4099-b585-ff0988894cc9",
-        "vertex-type": "roam/file"
+        "vertex-type": "roam/file",
+        "media-type": "text/markdown",
+        "file-name": "readme.md"
     },
     {
         "text": "Block 3.4",

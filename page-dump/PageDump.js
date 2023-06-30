@@ -41,6 +41,10 @@
  * @typedef {string} title
  * @typedef {string} url
  * 
+ * https://en.wikipedia.org/wiki/Media_type
+ * https://www.iana.org/assignments/media-types/media-types.xhtml
+ * @typedef {string} media_type
+ * 
  * @typedef {['uid', uid]} UidPair
  * @typedef {[uid, order]} OrderedUid
  * @typedef {[*, order]} OrderedValue
@@ -87,17 +91,18 @@
  * @typedef EnrichedNode - a RoamNode with synthetic properties added
  * @type {RoamNode}
  * @property {VertexType} [vertex_type] - it's actually 'vertex-type', but JSDoc bug prevents
- * @property {string} [media_type] - it's actually 'media-type', but JSDoc bug prevents
+ * @property {media_type} [media_type] - it's actually 'media-type', but JSDoc bug prevents
  * 
  * @typedef Vertex - the normalized shape of Roam elements
  * @type {Object}
  * @property {uid} uid
  * @property {VertexType} vertex_type - it's actually 'vertex-type', but JSDoc bug prevents
- * @property {string} [media_type] - it's actually 'media-type', but JSDoc bug prevents
+ * @property {media_type} [media_type] - it's actually 'media-type', but JSDoc bug prevents
  * @property {string} [text]
  * @property {normal_children} [children] 
  * @property {normal_refs} [refs]
  * @property {url} [source]
+ * @property {string} [file_name]
  * 
  * @typedef RoamFileReference
  * @type {Object}
@@ -155,14 +160,14 @@ class NotImplementedError extends Error {
  * 
  * @property {string} fileName
  * @property {BigInt} lastModified
- * @property {string} type -- the mime-type
+ * @property {string} mediaType 
  * @property {Blob} blob
  */
 class WebFile {
-    constructor(fileName, lastModified, type, blob){
+    constructor(fileName, lastModified, mediaType, blob){
         this.fileName = fileName;
         this.lastModified = lastModified; 
-        this.type = type;
+        this.mediaType = mediaType;
         this.blob = blob;
     }
 }
@@ -202,7 +207,7 @@ const config = {
     "addProperties": ["vertex-type", "media-type"]
 }
 
-// disable all console logging
+// uncomment to disable all console logging
 // console.log = function() {}
 
 
@@ -218,7 +223,9 @@ if (env.isRoam) {
         dumpPage: dumpPage,
         objectFromEntriesWithMerge: objectFromEntriesWithMerge
     }
-}
+} else
+    throw `unsupported env: ${JSON.stringify(env)} `
+
 
 /**
  * @param {string} pageTitle
@@ -235,12 +242,15 @@ function dumpPage(pageTitle, config, env) {
     /** @type {RoamNode[]} */
     const thinnedNodes = nodes.map(e => pick(e, config.includeProperties))
     /** @type {Vertex[]} */
-    const vertices = normalizeNodes(thinnedNodes, config.addProperties)
+    let vertices = normalizeNodes(thinnedNodes, config.addProperties)
     /** @type {Uid2FileRefMap} */
     const roamFileRefs = createFileRefMap(vertices)
     /** @type {Uid2RoamFileMap} */
     const roamFiles = fetchRoamFiles(roamFileRefs, env)
     console.log(`dumpPage: roamFiles = ${JSON.stringify(roamFiles)}`)
+
+    vertices = addPropertiesToFileVertices(vertices, roamFiles)
+    console.log(`dumpPage: vertices = ${JSON.stringify(vertices)}`)
 
     const outputFileName = pageTitle + `.dump.json`
 
@@ -306,6 +316,51 @@ function addProperties(nodes, toAddProperties) {
 }
 
 /**
+ * To all of the elements in vertices where vertex_type == ROAM_FILE, add file-name and media-type properties
+ *
+ * @param {Vertex[]} vertices
+ * @param {Uid2RoamFileMap} roamFiles
+ * @returns {Vertex[]}
+ */
+function addPropertiesToFileVertices(vertices, roamFiles) {
+    console.log(`
+        addPropertiesToFileVertices: 
+        vertices = ${JSON.stringify(vertices)}, 
+        roamFiles = ${JSON.stringify(roamFiles)}
+    `)
+
+    return vertices.map( v => addFileProperties(v, roamFiles[v.uid]))
+ }
+
+ /**
+ * add file-name and media-type properties to vertex if vertex['media-type']== ROAM_FILE by creating a copy of vertex.
+ * otherwise, just return vertex
+ *
+ * @param {Vertex} vertex
+ * @param {RoamFile} roamFile
+ * @returns {Vertex}
+ */
+function addFileProperties(vertex, roamFile) {
+    console.log(`addFileProperties: vertex = ${JSON.stringify(vertex)}, roamFile = ${JSON.stringify(roamFile)}`)
+
+    if (vertex == null)
+        throw "null argument"
+    if (!vertex.hasOwnProperty('vertex-type'))
+        throw TypeError()
+    if(vertex['vertex-type'] != VertexType.ROAM_FILE.description)
+        return vertex
+    if (roamFile == null)
+        throw "null argument"
+
+    // clone vertex
+    const newVertex = Object.assign({}, vertex);
+    newVertex['media-type'] = roamFile.file.mediaType
+    newVertex['file-name'] = roamFile.file.fileName
+
+    return newVertex
+ }
+
+/**
  * Returns one of the add... functions
  *
  * @param {string} propertyName
@@ -323,8 +378,7 @@ function getAddPropertyFunction(propertyName) {
 }
 
 /**
- * Add a "media-type" property to the JS Object 'node'. The media-type is derived from the content in the Node:
- * https://www.iana.org/assignments/media-types/media-types.xhtml
+ * Add a "media-type" property to the JS Object 'node'. The media-type value is derived from the content in the Node.
  *
  * @param {RoamNode} node
  * @returns {EnrichedNode}
@@ -338,7 +392,7 @@ function addMediaType(node) {
         mediaType = "text/plain"
 
     if (mediaType === undefined)
-        throw Error(`unrecognized media type for node: ${JSON.stringify(node)}`)
+        throw Error(`unrecognized media-type for node: ${JSON.stringify(node)}`)
 
     // clone the node argument
     /** @type {EnrichedNode} */
@@ -894,6 +948,16 @@ function buildQuery(followChildren, followRefs) {
                 ${linkerClause}
         ]`
     return query
+}
+
+/**
+ * @param {Vertex[]} vertices
+ * @param {Uid2RoamFileMap} roamFiles
+ * @param {string} fileName
+ * @param {JSEnvironment} env
+ * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
+ */
+function saveToFile(vertices, roamFiles, fileName, env) {
 }
 
 /**
