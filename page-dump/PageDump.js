@@ -252,9 +252,7 @@ function dumpPage(pageTitle, config, env) {
     vertices = addPropertiesToFileVertices(vertices, roamFiles)
     console.log(`dumpPage: vertices = ${JSON.stringify(vertices)}`)
 
-    const outputFileName = pageTitle + `.dump.json`
-
-    return saveAsJSONFile(vertices, outputFileName, env)
+    return saveToFile(vertices, roamFiles, pageTitle, env)
 }
 
 /**
@@ -719,9 +717,9 @@ function getFileFromFilesystem(fileRef) {
 
     /** @type {string} */
     const testDataFilesPath = './test-data/files/'
-    const fs = require('fs');
+    const fs = require('fs')
     /** @type {string[]} */
-     const allTestFileNames = fs.readdirSync(testDataFilesPath)
+    const allTestFileNames = fs.readdirSync(testDataFilesPath)
     console.log(`getFileFromFilesystem: allTestFileNames= ${allTestFileNames}`)
     /** @type {string} */
     const refFileName = allTestFileNames.find(fname => fname.startsWith(fileRef.uid))
@@ -737,6 +735,7 @@ function getFileFromFilesystem(fileRef) {
     const fileContents = fs.readFileSync(refFilePath)
     // console.log(`getFileFromFilesystem: fileContents = ${fileContents} `)
 
+    
     // Roam files are stored in test directory with filename: uid + '_' + original-file-name
     /** @type {string} */
     const originalFileName = refFileName.split('_')[1]
@@ -761,14 +760,15 @@ function createFileRefMap(vertices) {
     console.log(`createFileRefMap: roamFileVertices = ${JSON.stringify(roamFileVertices)}`)
 
     /** @type {Uid2FileRefMap} */
-    const fileRefMap = Object.fromEntries(
-                            roamFileVertices.map( v => 
-                                [
-                                    v.uid, 
-                                    Object.fromEntries( [ ['uid', v.uid], ['url', v.source] ] )
-                                ]
-                            )
-                        )
+    const fileRefMap =
+        Object.fromEntries(
+            roamFileVertices.map(v =>
+                [
+                    v.uid,
+                    Object.fromEntries([['uid', v.uid], ['url', v.source]])
+                ]
+            )
+        )
     console.log(`createFileRefMap: fileRefMap = ${JSON.stringify(fileRefMap)}`)
 
     return fileRefMap
@@ -957,7 +957,39 @@ function buildQuery(followChildren, followRefs) {
  * @param {JSEnvironment} env
  * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
  */
-function saveToFile(vertices, roamFiles, fileName, env) {
+function saveToFile(vertices, roamFiles, pageTitle, env) {
+    console.log(`
+        saveToFile: 
+        vertices = ${JSON.stringify(vertices)}, 
+        roamFiles = ${JSON.stringify(roamFiles)},
+        pageTitle = ${pageTitle},
+        env = ${JSON.stringify(env)}
+    `)
+
+    const outputFileName = pageTitle + `.dump.json`
+
+    if(!roamFiles)
+        return saveAsJSONFile(vertices, outputFileName, env)
+
+    return saveAsZipFile(vertices, roamFiles, pageTitle, env)
+}
+
+/**
+ * @param {Vertex[]} vertices
+ * @param {Uid2RoamFileMap} roamFiles
+ * @param {string} fileName
+ * @param {JSEnvironment} env
+ * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
+ */
+function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
+    console.log(`
+        saveAsZipFile: 
+        vertices = ${JSON.stringify(vertices)}, 
+        roamFiles = ${JSON.stringify(roamFiles)},
+        pageTitle = ${pageTitle},
+        env = ${JSON.stringify(env)}
+    `)
+
 }
 
 /**
