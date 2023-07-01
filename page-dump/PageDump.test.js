@@ -22,6 +22,37 @@ test('dumped "Page 3.json" matches "Page 3-expected.json"', () => {
     expect(dumpedJSON).toMatch(expectedJSON)
 })
 
+test('JSZip', () => {
+(async () => {
+
+    const fs = require("fs");
+    /** @type {string} */
+    const testDataFilesPath = './test-data/files/'
+    /** @type {[string,Buffer]} */
+    const fileName2Buff =
+        Object.fromEntries(
+            fs.readdirSync(testDataFilesPath).map(fname => [fname, fs.readFileSync(testDataFilesPath + fname)])
+        )
+    // console.log(`fileName2Buff = ${JSON.stringify(fileName2Buff)}`)
+
+    const JSZip = require("jszip");
+    const zip = new JSZip();
+    const zipEnvelope = zip.folder('Page 3')
+    const zipFilesDir = zipEnvelope.folder('files')
+
+    zipEnvelope.file("hello.txt", "Hello World\n");
+    Object.entries(fileName2Buff).forEach( ([fname, buff]) => zipFilesDir.file(fname, buff))
+    
+    /** @type {Blob} */
+    let zipBlob = await zip.generateAsync({type:"blob"})
+    /** @type {ArrayBuffer} */
+    let arrayBuff = await zipBlob.arrayBuffer()
+
+    fs.writeFileSync('./out/Page 3.zip', Buffer.from(arrayBuff))
+
+})()
+})
+
 /**
  * Blob api seems to be built into either Node.js or core JS
  */
