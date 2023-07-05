@@ -10,8 +10,8 @@
  *
  * Roam/js scripting supports only vanilla, untyped, JavaScript-- it does not support TypeScript.
  * [JSDoc](https://jsdoc.app/tags-type.html) provides a method for adding type annotations to JS code, via special tags
- * (e.g. @typedef) placed in JSDoc style comments. IDEs like VS Code (1.78+) support JSDoc type annotations
- * out-of-the-box, so that the source editors will provide almost all of the type-directed assistance that would be
+ * (e.g. @typedef) placed 
+ *  the source editors will provide almost all of the type-directed assistance that would be
  * available in Typescript at development time. At runtime, all of these type annotations are invisible to the Roam JS
  * engine.
  *
@@ -156,19 +156,19 @@ class NotImplementedError extends Error {
 /**
  * The File "Web api" (https://developer.mozilla.org/en-US/docs/Web/API/File) is the most convenient struct for handling
  * Roam managed files in this script. But that api is only present in web environments (Roam), and is not supported in
- * Node.js. However, the Blob api is supported in both Web envs and Node.js. Hence, this class.
+ * Node.js. However, the Buffer api is supported in both Web envs and Node.js. Hence, this class.
  * 
  * @property {string} fileName
  * @property {BigInt} lastModified
  * @property {string} mediaType 
- * @property {Blob} blob
+ * @property {Buffer} contents
  */
 class WebFile {
-    constructor(fileName, lastModified, mediaType, blob){
+    constructor(fileName, lastModified, mediaType, contents){
         this.fileName = fileName;
         this.lastModified = lastModified; 
         this.mediaType = mediaType;
-        this.blob = blob;
+        this.contents = contents;
     }
 }
 
@@ -231,9 +231,9 @@ if (env.isRoam) {
  * @param {string} pageTitle
  * @param {DumpConfig} config
  * @param {JSEnvironment} env
- * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
+ * @returns {Promise<string|undefined>} - if the environment isNode, then will return the path at which the file was saved
  */
-function dumpPage(pageTitle, config, env) {
+async function dumpPage(pageTitle, config, env) {
     if (env == undefined)
         env = checkEnvironment()
 
@@ -252,7 +252,7 @@ function dumpPage(pageTitle, config, env) {
     vertices = addPropertiesToFileVertices(vertices, roamFiles)
     console.log(`dumpPage: vertices = ${JSON.stringify(vertices)}`)
 
-    return saveToFile(vertices, roamFiles, pageTitle, env)
+    return await saveToFile(vertices, roamFiles, pageTitle, env)
 }
 
 /**
@@ -271,7 +271,7 @@ function normalizeNodes(nodes, toAddProperties) {
     const id2UidMap = Object.fromEntries(nodes.map(x => [x.id, [x.uid, x.order]]))
     console.log(`normalizeNodes: id2UidMap = ${JSON.stringify(id2UidMap)}`)
 
-    // all of the nodes that do not have a title property will be successively mapped to the "undefined" property
+    // all of the nodes that do not have a 'title' property will be successively mapped to the 'undefined' property
     /** @type {Title2UidMap} */
     let title2UidMap = Object.fromEntries(nodes.map(x => [x.title, x.uid]))
     // remove the bogus "undefined" property that corresponds to nodes with no titles
@@ -331,8 +331,8 @@ function addPropertiesToFileVertices(vertices, roamFiles) {
  }
 
  /**
- * add file-name and media-type properties to vertex if vertex['media-type']== ROAM_FILE by creating a copy of vertex.
- * otherwise, just return vertex
+ * add file-name and media-type properties from roamFile to vertex if vertex['media-type']== ROAM_FILE by creating a
+ * copy of vertex. otherwise, just return vertex
  *
  * @param {Vertex} vertex
  * @param {RoamFile} roamFile
@@ -408,9 +408,9 @@ function addMediaType(node) {
 function addVertexType(node) {
     console.log(`addVertexType: node = ${JSON.stringify(node)}`)
 
-    /** @type {string} */
+    /** @type {boolean} */
     const hasTitle = node.hasOwnProperty('title')
-    /** @type {string} */
+    /** @type {boolean} */
     const hasString = node.hasOwnProperty('string')
     assert(
         (hasTitle && !hasString) ||
@@ -735,7 +735,7 @@ function getFileFromFilesystem(fileRef) {
     const fileContents = fs.readFileSync(refFilePath)
     // console.log(`getFileFromFilesystem: fileContents = ${fileContents} `)
 
-    
+
     // Roam files are stored in test directory with filename: uid + '_' + original-file-name
     /** @type {string} */
     const originalFileName = refFileName.split('_')[1]
@@ -745,7 +745,7 @@ function getFileFromFilesystem(fileRef) {
     /** @type {string} */
     const mimeType = mime.getType(fileNameExt)
     console.log(`getFileFromFilesystem: fileNameExt= ${fileNameExt}, mimeType= ${mimeType}`)
-    return new WebFile(originalFileName, 0, mimeType, new Blob([fileContents], {type: mimeType}))
+    return new WebFile(originalFileName, 0, mimeType, fileContents)
 }
 
 /**
@@ -763,10 +763,7 @@ function createFileRefMap(vertices) {
     const fileRefMap =
         Object.fromEntries(
             roamFileVertices.map(v =>
-                [
-                    v.uid,
-                    Object.fromEntries([['uid', v.uid], ['url', v.source]])
-                ]
+                [v.uid, Object.fromEntries([['uid', v.uid], ['url', v.source]]) ]
             )
         )
     console.log(`createFileRefMap: fileRefMap = ${JSON.stringify(fileRefMap)}`)
@@ -875,6 +872,8 @@ function pullPageNodesFromRoam(pageTitle, followChildren, followRefs) {
 }
 
 /**
+ * build 'rules' string that is used in Roam/Datomic query
+ * 
  * @param {FollowLinksDirective} followChildren
  * @param {FollowLinksDirective} followRefs
  * @returns {string}
@@ -922,6 +921,8 @@ function buildRules(followChildren, followRefs) {
 }
 
 /**
+ * build 'query' string that is used in Roam/Datomic query
+ * 
  * @param {FollowLinksDirective} followChildren
  * @param {FollowLinksDirective} followRefs
  * @returns {string}
@@ -953,11 +954,11 @@ function buildQuery(followChildren, followRefs) {
 /**
  * @param {Vertex[]} vertices
  * @param {Uid2RoamFileMap} roamFiles
- * @param {string} fileName
+ * @param {string} pageTitle
  * @param {JSEnvironment} env
- * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
+ * @returns {Promise<string|undefined>} - if the environment isNode, then will return the path at which the file was saved
  */
-function saveToFile(vertices, roamFiles, pageTitle, env) {
+async function saveToFile(vertices, roamFiles, pageTitle, env) {
     console.log(`
         saveToFile: 
         vertices = ${JSON.stringify(vertices)}, 
@@ -966,22 +967,21 @@ function saveToFile(vertices, roamFiles, pageTitle, env) {
         env = ${JSON.stringify(env)}
     `)
 
-    const outputFileName = pageTitle + `.dump.json`
-
     if(!roamFiles)
-        return saveAsJSONFile(vertices, outputFileName, env)
+        return saveAsJSONFile(vertices, pageTitle, env)
 
-    return saveAsZipFile(vertices, roamFiles, pageTitle, env)
+    return await saveAsZipFile(vertices, roamFiles, pageTitle, env)
 }
 
 /**
  * @param {Vertex[]} vertices
  * @param {Uid2RoamFileMap} roamFiles
- * @param {string} fileName
+ * @param {string} pageTitle
  * @param {JSEnvironment} env
- * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
+ * @returns {Promise<string|undefined>} - if the environment isNode, then will return the path at which the file was
+ * saved
  */
-function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
+async function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
     console.log(`
         saveAsZipFile: 
         vertices = ${JSON.stringify(vertices)}, 
@@ -989,6 +989,46 @@ function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
         pageTitle = ${pageTitle},
         env = ${JSON.stringify(env)}
     `)
+
+    const JSZip = await getJSZipModule(env)
+    console.log(`JSZip = ${JSZip}`)    
+
+    /** @type {JSZip} */
+    const zip = new JSZip();
+    const zipEnvelope = zip.folder(pageTitle)
+    const zipFilesDir = zipEnvelope.folder('files')
+    
+    /** @type {string} */
+    const graphJSON = JSON.stringify(vertices, null, 4)
+    zipEnvelope.file(pageTitle + '.json', graphJSON)
+    Object.entries(roamFiles).forEach(([uid, roamFile]) => {
+        zipFilesDir.file(roamFile.file.fileName, roamFile.file.contents)
+    })
+        
+    /** @type {Blob} */
+    let zipBlob = await zip.generateAsync({type:"blob"})
+    /** @type {ArrayBuffer} */
+    let arrayBuff = await zipBlob.arrayBuffer()
+
+    const writePath = `./out/${pageTitle}.zip`
+    const fs = require("fs");
+    fs.writeFileSync(writePath, Buffer.from(arrayBuff))
+
+    return writePath
+}
+
+/**
+ * @param {JSEnvironment} env
+ * @returns {Promise<any>}
+ */
+async function getJSZipModule(env) {
+
+    if(env.isRoam) {
+        return await window.RoamLazy.JSZip()
+    } else if (env.isTest) {
+        return require("jszip");
+    } else
+        throw `unsupported env: ${JSON.stringify(env)}`
 
 }
 
@@ -998,20 +1038,22 @@ function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
  * @param {JSEnvironment} env
  * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
  */
-function saveAsJSONFile(obj, fileName, env) {
-    console.log(`saveAsJSONFile: nodeCount = ${obj.length}, fileName = ${fileName}, env = ${JSON.stringify(env)}`)
+function saveAsJSONFile(obj, pageTitle, env) {
+    console.log(`saveAsJSONFile: nodeCount = ${obj.length}, pageTitle = ${pageTitle}, env = ${JSON.stringify(env)}`)
 
     // 3rd arg triggers pretty formatting: number of spaces per level of indent
     /** @type {string} */
     const json = JSON.stringify(obj, null, 4)
     console.log(`saveAsJSONFile: json = ${json}`)
 
+    const outputFileName = pageTitle + `.dump.json`
+
     /** @type {string} */
     let writePath
     if (env.isRoam)
-        writeJSONFromBrowser(fileName, json)
+        writeJSONFromBrowser(outputFileName, json)
     else if (env.isNode)
-        writePath = writeJSONFromNodeJS(fileName, json)
+        writePath = writeJSONFromNodeJS(outputFileName, json)
     else
         throw `unsupported env: ${JSON.stringify(env)} `
 
