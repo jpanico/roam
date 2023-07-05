@@ -170,6 +170,13 @@ class WebFile {
         this.mediaType = mediaType;
         this.contents = contents;
     }
+
+    /**
+     * @returns {string}
+     */
+    toShortString() {
+        return this.fileName
+    }
 }
 
 /**
@@ -247,7 +254,7 @@ async function dumpPage(pageTitle, config, env) {
     const roamFileRefs = createFileRefMap(vertices)
     /** @type {Uid2RoamFileMap} */
     const roamFiles = fetchRoamFiles(roamFileRefs, env)
-    console.log(`dumpPage: roamFiles = ${JSON.stringify(roamFiles)}`)
+    console.log(`dumpPage: roamFiles = ${JSON.stringify(Object.values(roamFiles).map(e => RoamFileToShortString(e)))}`)
 
     vertices = addPropertiesToFileVertices(vertices, roamFiles)
     console.log(`dumpPage: vertices = ${JSON.stringify(vertices)}`)
@@ -324,7 +331,7 @@ function addPropertiesToFileVertices(vertices, roamFiles) {
     console.log(`
         addPropertiesToFileVertices: 
         vertices = ${JSON.stringify(vertices)}, 
-        roamFiles = ${JSON.stringify(roamFiles)}
+        roamFiles = ${JSON.stringify(Object.values(roamFiles).map(e => RoamFileToShortString(e)))},
     `)
 
     return vertices.map( v => addFileProperties(v, roamFiles[v.uid]))
@@ -339,7 +346,10 @@ function addPropertiesToFileVertices(vertices, roamFiles) {
  * @returns {Vertex}
  */
 function addFileProperties(vertex, roamFile) {
-    console.log(`addFileProperties: vertex = ${JSON.stringify(vertex)}, roamFile = ${JSON.stringify(roamFile)}`)
+    console.log(`addFileProperties: 
+        vertex = ${JSON.stringify(vertex)}, 
+        roamFile = ${JSON.stringify(RoamFileToShortString(roamFile))}
+    `)
 
     if (vertex == null)
         throw "null argument"
@@ -962,7 +972,7 @@ async function saveToFile(vertices, roamFiles, pageTitle, env) {
     console.log(`
         saveToFile: 
         vertices = ${JSON.stringify(vertices)}, 
-        roamFiles = ${JSON.stringify(roamFiles)},
+        roamFiles = ${JSON.stringify(Object.values(roamFiles).map(e => RoamFileToShortString(e)))},
         pageTitle = ${pageTitle},
         env = ${JSON.stringify(env)}
     `)
@@ -985,7 +995,7 @@ async function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
     console.log(`
         saveAsZipFile: 
         vertices = ${JSON.stringify(vertices)}, 
-        roamFiles = ${JSON.stringify(roamFiles)},
+        roamFiles = ${JSON.stringify(Object.values(roamFiles).map(e => RoamFileToShortString(e)))},
         pageTitle = ${pageTitle},
         env = ${JSON.stringify(env)}
     `)
@@ -1191,4 +1201,17 @@ function checkEnvironment() {
         isBrowser: isBrowser, isNode: isNode, isWebWorker: isWebWorker, isJsDom: isJsDom, isDeno: isDeno,
         isRoam: isRoam, isTest: isTest
     }
+}
+
+/**
+ * @param {RoamFile} roamFile
+ * @returns {string}
+ */
+function RoamFileToShortString(roamFile) {
+    if(roamFile == undefined)
+        return undefined
+    if(roamFile == null)
+        return undefined
+
+    return `RoamFile{uid=${roamFile.uid}, file=${roamFile.file.toShortString()}}`
 }

@@ -1,6 +1,6 @@
 
 
-test('dumped "Page 3.json" matches "Page 3-expected.json"', async () => {
+test('dumped "Page 3.zip" matches "Page 3-expected.zip"', async () => {
 
     const pageDump = require('./PageDump.js')
 
@@ -20,11 +20,17 @@ test('dumped "Page 3.json" matches "Page 3-expected.json"', async () => {
     expectedPath = "./test-data/Page 3-expected.zip"
     console.log(`dumpPath = ${dumpPath}, expectedPath = ${expectedPath}`)
 
-    const fs = require("fs");
-    const dumpedJSON = fs.readFileSync(dumpPath, { encoding: 'utf8', flag: 'r' })
-    const expectedJSON = fs.readFileSync(expectedPath, { encoding: 'utf8', flag: 'r' })
+    const JSZipUtils = require('./JSZipUtils.js')
+    /** @type {JSZip} */
+    const expected = await JSZipUtils.loadZip(expectedPath)
+    /** @type {JSZip} */
+    const dumped = await JSZipUtils.loadZip(dumpPath)
 
-    expect(dumpedJSON).toMatch(expectedJSON)
+    const diff= JSZipUtils.diffZipArchives(expected, dumped)
+    console.log(`diff = ${diff}`)
+    
+    expect(diff).toBeNull()
+    
 })
 
 /**
