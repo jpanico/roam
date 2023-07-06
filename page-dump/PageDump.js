@@ -156,12 +156,12 @@ class NotImplementedError extends Error {
 /**
  * The File "Web api" (https://developer.mozilla.org/en-US/docs/Web/API/File) is the most convenient struct for handling
  * Roam managed files in this script. But that api is only present in web environments (Roam), and is not supported in
- * Node.js. However, the Buffer api is supported in both Web envs and Node.js. Hence, this class.
+ * Node.js. However, the ArrayBuffer api is supported in both Web envs and Node.js. Hence, this class.
  * 
  * @property {string} fileName
  * @property {BigInt} lastModified
  * @property {string} mediaType 
- * @property {Buffer} contents
+ * @property {ArrayBuffer} contents
  */
 class WebFile {
     constructor(fileName, lastModified, mediaType, contents){
@@ -171,6 +171,20 @@ class WebFile {
         this.contents = contents;
     }
 
+    /**
+     * factory method
+     *
+     * @param {File} file
+     * @returns { WebFile }
+     */
+    static async fromFile(file) {
+        console.log(`fromFile: file = ${file}`)
+        // type "File" in Web API "is a specific kind of Blob, and can be used in any context that a Blob can."
+        /** @type {ArrayBuffer} */
+        const arrayBuffer = await file.arrayBuffer()
+        return new WebFile(file.name, file.lastModified, file.type, arrayBuffer)
+    }
+    
     /**
      * @returns {string}
      */
@@ -221,9 +235,11 @@ const config = {
 /** @type {JSEnvironment} */
 const env = checkEnvironment()
 if (env.isRoam) {
+(async () => {
     const pageTitle = "Page 3"
-    const dumpPath = dumpPage(pageTitle, config, env)
+    const dumpPath = await dumpPage(pageTitle, config, env)
     console.log(`dumpPath = ${dumpPath}`)
+})()
 } else if (env.isTest) {
     module.exports = {
         FollowLinksDirective: FollowLinksDirective,
@@ -253,13 +269,23 @@ async function dumpPage(pageTitle, config, env) {
     /** @type {Uid2FileRefMap} */
     const roamFileRefs = createFileRefMap(vertices)
     /** @type {Uid2RoamFileMap} */
-    const roamFiles = fetchRoamFiles(roamFileRefs, env)
-    console.log(`dumpPage: roamFiles = ${JSON.stringify(Object.values(roamFiles).map(e => RoamFileToShortString(e)))}`)
-
+    const roamFiles = await fetchRoamFiles(roamFileRefs, env)
+    console.log(`dumpPage: roamFiles = `)
+    console.log(Object.values(roamFiles))
     vertices = addPropertiesToFileVertices(vertices, roamFiles)
     console.log(`dumpPage: vertices = ${JSON.stringify(vertices)}`)
 
-    return await saveToFile(vertices, roamFiles, pageTitle, env)
+    // I don't even know how to type this
+    const JSZip = await getJSZipModule(env)
+    console.log(`dumpPage: JSZip = ${JSZip}`) 
+    /** @type {Blob} */
+    let zipBlob = await createZipArchive(vertices, roamFiles, pageTitle, JSZip)
+
+    const zipFileName = `${pageTitle}.zip`
+    let writePath = await writeFile(zipFileName, zipBlob, env)
+    console.log(`dumpPage: writePath= ${writePath}`)
+
+    return writePath
 }
 
 /**
@@ -674,15 +700,14 @@ function normalizeProperty(key, value, id2UidMap, title2UidMap) {
  * @param {JSEnvironment} env
  * @returns {Uid2RoamFileMap}
  */
-function fetchRoamFiles(fileRefMap, env) {
+async function fetchRoamFiles(fileRefMap, env) {
     console.log(`fetchRoamFiles: fileRefMap = ${JSON.stringify(fileRefMap)}, env = ${JSON.stringify(env)}`)
 
     if (env.isRoam) {
-        return getFilesFromRoam(fileRefMap)
+        return await getFilesFromRoam(fileRefMap)
     } else if (env.isTest) {
         return getFilesFromFilesystem(fileRefMap)
-    }
-    else
+    } else
         throw `unsupported env: ${JSON.stringify(env)} `
 }
 
@@ -690,11 +715,63 @@ function fetchRoamFiles(fileRefMap, env) {
  * @param {Uid2FileRefMap} fileRefMap
  * @returns {Uid2RoamFileMap}
  */
-function getFilesFromRoam(fileRefMap) {
+async function getFilesFromRoam(fileRefMap) {
     console.log(`getFilesFromRoam: fileRefMap = ${JSON.stringify(fileRefMap)}`)
 
+    /** @type {RoamFileReference[]}  */
+    const fileRefs = Object.values(fileRefMap)
+    console.log(`getFilesFromRoam: fileRefs = ${JSON.stringify(fileRefs)}`)
+    /** @type {Promise<File>[]}  */
+    const filePromises = fileRefs.map( (fileRef) => getFileFromRoam(fileRef))
+    console.log(filePromises)
+
+    /** @type {File[]}  */
+    const rawFiles = await Promise.all(filePromises)
+    console.log(`getFilesFromRoam: rawFiles = ${JSON.stringify(rawFiles)}`)
+    console.log(rawFiles)
+
+    /** @type {WebFile[]}  */
+    const webFiles = await Promise.all(rawFiles.map( rawFile => WebFile.fromFile(rawFile)))
+    console.log(`getFilesFromRoam: webFiles = ${JSON.stringify(webFiles)}`)
+    console.log(webFiles)
+    
+    /** @type {RoamFile[]}  */
+    let roamFiles = []
+
+    fileRefs.forEach( (fileRef, index) => {
+        /** @type {WebFile}  */
+        const webFile = webFiles[index]
+        console.log(`getFilesFromRoam: rawFile = ${JSON.stringify(webFile)}`)
+        /** @type {RoamFile}  */
+        const roamFile =                
+                Object.fromEntries(
+                    [
+                        ['uid', fileRef.uid],
+                        ['url', fileRef.url],
+                        ['file', webFile]
+                    ]
+                )
+        console.log(`getFilesFromRoam: roamFile = ${JSON.stringify(roamFile)}`)
+        roamFiles.push(roamFile)
+    })
+
+    /** @type {Uid2RoamFileMap} */
+    const uid2RoamFileMap = Object.fromEntries(roamFiles.map(roamFile => [roamFile.uid, roamFile]))
+
+    console.log(`getFilesFromRoam: uid2RoamFileMap = ${JSON.stringify(uid2RoamFileMap)}}`)
+    return uid2RoamFileMap
 }
 
+/**
+ * @param {RoamFileReference} fileRef
+ * @returns {Promise<File>}
+ */
+async function getFileFromRoam(fileRef) {
+    console.log(`getFileFromRoam: fileRef = ${JSON.stringify(fileRef)}`)
+    const filePromise = roamAlphaAPI.file.get({url: fileRef.url})
+    console.log(`getFileFromRoam: filePromise = ${filePromise.toString()}`)
+    return filePromise
+}
 /**
  * @param {Uid2FileRefMap} fileRefMap
  * @returns {Uid2RoamFileMap}
@@ -755,7 +832,7 @@ function getFileFromFilesystem(fileRef) {
     /** @type {string} */
     const mimeType = mime.getType(fileNameExt)
     console.log(`getFileFromFilesystem: fileNameExt= ${fileNameExt}, mimeType= ${mimeType}`)
-    return new WebFile(originalFileName, 0, mimeType, fileContents)
+    return new WebFile(originalFileName, 0, mimeType, BufferToArrayBuffer(fileContents))
 }
 
 /**
@@ -965,46 +1042,20 @@ function buildQuery(followChildren, followRefs) {
  * @param {Vertex[]} vertices
  * @param {Uid2RoamFileMap} roamFiles
  * @param {string} pageTitle
- * @param {JSEnvironment} env
- * @returns {Promise<string|undefined>} - if the environment isNode, then will return the path at which the file was saved
+ * @param {any} zipModule
+ * @returns {Promise<Blob>} 
  */
-async function saveToFile(vertices, roamFiles, pageTitle, env) {
-    console.log(`
-        saveToFile: 
-        vertices = ${JSON.stringify(vertices)}, 
-        roamFiles = ${JSON.stringify(Object.values(roamFiles).map(e => RoamFileToShortString(e)))},
-        pageTitle = ${pageTitle},
-        env = ${JSON.stringify(env)}
-    `)
-
-    if(!roamFiles)
-        return saveAsJSONFile(vertices, pageTitle, env)
-
-    return await saveAsZipFile(vertices, roamFiles, pageTitle, env)
-}
-
-/**
- * @param {Vertex[]} vertices
- * @param {Uid2RoamFileMap} roamFiles
- * @param {string} pageTitle
- * @param {JSEnvironment} env
- * @returns {Promise<string|undefined>} - if the environment isNode, then will return the path at which the file was
- * saved
- */
-async function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
+async function createZipArchive(vertices, roamFiles, pageTitle, zipModule) {
     console.log(`
         saveAsZipFile: 
         vertices = ${JSON.stringify(vertices)}, 
         roamFiles = ${JSON.stringify(Object.values(roamFiles).map(e => RoamFileToShortString(e)))},
         pageTitle = ${pageTitle},
-        env = ${JSON.stringify(env)}
-    `)
-
-    const JSZip = await getJSZipModule(env)
-    console.log(`JSZip = ${JSZip}`)    
+        zipModule = ${JSON.stringify(zipModule)}
+    `)   
 
     /** @type {JSZip} */
-    const zip = new JSZip();
+    const zip = new zipModule();
     const zipEnvelope = zip.folder(pageTitle)
     const zipFilesDir = zipEnvelope.folder('files')
     
@@ -1017,14 +1068,7 @@ async function saveAsZipFile(vertices, roamFiles, pageTitle, env) {
         
     /** @type {Blob} */
     let zipBlob = await zip.generateAsync({type:"blob"})
-    /** @type {ArrayBuffer} */
-    let arrayBuff = await zipBlob.arrayBuffer()
-
-    const writePath = `./out/${pageTitle}.zip`
-    const fs = require("fs");
-    fs.writeFileSync(writePath, Buffer.from(arrayBuff))
-
-    return writePath
+    return zipBlob
 }
 
 /**
@@ -1043,27 +1087,20 @@ async function getJSZipModule(env) {
 }
 
 /**
- * @param {*} obj
  * @param {string} fileName
+ * @param {Blob} blob
  * @param {JSEnvironment} env
  * @returns {string|undefined} - if the environment isNode, then will return the path at which the file was saved
  */
-function saveAsJSONFile(obj, pageTitle, env) {
-    console.log(`saveAsJSONFile: nodeCount = ${obj.length}, pageTitle = ${pageTitle}, env = ${JSON.stringify(env)}`)
-
-    // 3rd arg triggers pretty formatting: number of spaces per level of indent
-    /** @type {string} */
-    const json = JSON.stringify(obj, null, 4)
-    console.log(`saveAsJSONFile: json = ${json}`)
-
-    const outputFileName = pageTitle + `.dump.json`
+function writeFile(fileName, blob, env) {
+    console.log(`writeFile: fileName = ${fileName}, blob = ${JSON.stringify(blob)}, env = ${JSON.stringify(env)}`)
 
     /** @type {string} */
     let writePath
     if (env.isRoam)
-        writeJSONFromBrowser(outputFileName, json)
+        writeFileFromBrowser(fileName, blob)
     else if (env.isNode)
-        writePath = writeJSONFromNodeJS(outputFileName, json)
+        writePath = writeFileFromNodeJS(fileName, blob)
     else
         throw `unsupported env: ${JSON.stringify(env)} `
 
@@ -1072,34 +1109,33 @@ function saveAsJSONFile(obj, pageTitle, env) {
 
 /**
  * @param {string} fileName
- * @param {string} json
+ * @param {Blob} blob
  * @returns {undefined} - no return; void
  */
-function writeJSONFromBrowser(fileName, json) {
-    console.log(`writeJSONFromBrowser: fileName = ${fileName}, json = ${json}`)
-
-    const options = { type: "application/json" }
-    const blob = new Blob([json], options)
+function writeFileFromBrowser(fileName, blob) {
+    console.log(`writeFileFromBrowser: fileName = ${fileName}, blob = ${blob}`)
     window.saveAs(blob, fileName)
 }
 
 /**
  * @param {string} fileName
- * @param {string} json
+ * @param {Blob} blob
  * @returns {string} - the path at which the file was written
  */
-function writeJSONFromNodeJS(fileName, json) {
-    console.log(`writeJSONFromNodeJS: fileName = ${fileName}, json = ${json}`)
+async function writeFileFromNodeJS(fileName, blob) {
+    console.log(`writeFileFromNodeJS: fileName = ${fileName}, blob = ${blob}`)
 
-    const outputDir = './out/'
-    const outputPath = outputDir + fileName
+    const writeDir = './out/'
+    const writePath = writeDir + fileName
+    /** @type {ArrayBuffer} */
+    let arrayBuff = await blob.arrayBuffer()
+    
     const fs = require('fs')
+    if (!fs.existsSync(writeDir))
+        fs.mkdirSync(writeDir)
+    fs.writeFileSync(writePath,  Buffer.from(arrayBuff))
 
-    if (!fs.existsSync(outputDir))
-        fs.mkdirSync(outputDir)
-    fs.writeFileSync(outputPath, json)
-
-    return outputPath
+    return writePath
 }
 
 /**
@@ -1213,5 +1249,20 @@ function RoamFileToShortString(roamFile) {
     if(roamFile == null)
         return undefined
 
-    return `RoamFile{uid=${roamFile.uid}, file=${roamFile.file.toShortString()}}`
+    return `RoamFile{uid=${roamFile.uid}, file=${roamFile.file.fileName}}`
+}
+
+/**
+ * convert Node.js Buffer to Web API ArrayBuffer
+ * 
+ * @param {Buffer} buffer
+ * @returns {ArrayBuffer}
+ */
+function BufferToArrayBuffer(buffer) {
+    const arrayBuffer = new ArrayBuffer(buffer.length);
+    const view = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < buffer.length; ++i) {
+      view[i] = buffer[i];
+    }
+    return arrayBuffer;
 }
