@@ -1,0 +1,10 @@
+.DS_Store
+
+# Python local virtual environment
+.venv/
+
+# compiled Python bytecodes
+**/__pycache__
+
+# VS Code stuff
+.vscode/
