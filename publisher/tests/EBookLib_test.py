@@ -1,13 +1,65 @@
+import string
+from typing import TextIO
 import unittest
 
-from ebooklib.epub import read_epub, EpubBook, EpubItem
+from ebooklib.epub import read_epub, write_epub, EpubBook, EpubItem, EpubHtml, Link, EpubNav, EpubNcx, Section
 from ebooklib import ITEM_DOCUMENT
 
 from common.LoggingConfig import logging, configure_logging
 
 class EBookLib_test(unittest.TestCase):
 
-    def test_items(self):
+    # https://github.com/aerkalov/ebooklib/blob/master/samples/01_basic_create/create.py
+    def test_create_1(self):
+        book = EpubBook()
+
+        # add metadata
+        book.set_identifier('sample123456')
+        book.set_title('Sample book')
+        book.set_language('en')
+
+        book.add_author('Aleksandar Erkalovic')
+
+        # intro chapter
+        c1 = EpubHtml(title='Introduction', file_name='intro.xhtml', lang='en')
+        c1.content=u'<html><head></head><body><h1>Introduction</h1><p>Introduction paragraph where i explain what is happening.</p></body></html>'
+
+        # about chapter
+        c2 = EpubHtml(title='About this book', file_name='about.xhtml')
+        c2.content='<h1>About this book</h1><p>Helou, this is my book! There are many books, but this one is mine.</p>'
+
+        # add chapters to the book
+        book.add_item(c1)
+        book.add_item(c2)
+        
+        # create table of contents
+        # - add section
+        # - add auto created links to chapters
+
+        book.toc = (Link('intro.xhtml', 'Introduction', 'intro'),
+                    (Section('Languages'),
+                    (c1, c2))
+                    )
+
+        # add navigation files
+        book.add_item(EpubNcx())
+        book.add_item(EpubNav())
+
+        nav_css_iostream: TextIO = open("./tests/sample_nav.css", "r")
+        nav_css_content: string = nav_css_iostream.read()
+        logging.debug(f"nav_css_content: {nav_css_content}")
+        # add css file
+        nav_css = EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=nav_css_content)
+        book.add_item(nav_css)
+
+        # create spine
+        book.spine = ['nav', c1, c2]
+
+        # create epub file
+        write_epub('test.epub', book, {})
+
+
+    def test_read_items(self):
         book: EpubBook = read_epub('./tests/data/childrens-literature.epub')
         logging.debug(f"book: {book}")
         items: tuple[EpubItem] = book.get_items()

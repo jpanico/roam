@@ -9,8 +9,6 @@ class JSON_test(unittest.TestCase):
     def test_read(self):
         jsonFile = open("./tests/data/Page 3.json")
 
-        # returns JSON object as 
-        # a dictionary
         jsonObj: list[dict] = json.load(jsonFile)
 
         logging.debug(f"jsonObj: {jsonObj}, len: {len(jsonObj)}")
