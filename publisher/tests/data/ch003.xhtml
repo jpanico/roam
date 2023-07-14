@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>Algebraic data types and generic representations</title>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; background-color: #f8f8f8; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+pre, code { background-color: #f8f8f8; }
+code > span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code > span.dt { color: #204a87; } /* DataType */
+code > span.dv { color: #0000cf; } /* DecVal */
+code > span.bn { color: #0000cf; } /* BaseN */
+code > span.fl { color: #0000cf; } /* Float */
+code > span.ch { color: #4e9a06; } /* Char */
+code > span.st { color: #4e9a06; } /* String */
+code > span.co { color: #8f5902; font-style: italic; } /* Comment */
+code > span.ot { color: #8f5902; } /* Other */
+code > span.al { color: #ef2929; } /* Alert */
+code > span.fu { color: #000000; } /* Function */
+code > span.er { color: #a40000; font-weight: bold; } /* Error */
+code > span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #000000; } /* Constant */
+code > span.sc { color: #000000; } /* SpecialChar */
+code > span.vs { color: #4e9a06; } /* VerbatimString */
+code > span.ss { color: #4e9a06; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #000000; } /* Variable */
+code > span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code > span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code > span.ex { } /* Extension */
+code > span.at { color: #c4a000; } /* Attribute */
+code > span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code > span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" type="text/css" href="stylesheet.css" />
+</head>
+<body>
+<div id="sec:representations" class="section level1">
+<h1><span class="header-section-number">2</span> Algebraic data types and generic representations</h1>
+<p>The main idea behind generic programming is to solve problems for a wide variety of types by writing a small amount of generic code. Shapeless provides two sets of tools to this end:</p>
+<ol style="list-style-type: decimal">
+<li><p>a set of generic data types that can be inspected, traversed, and manipulated at the type level;</p></li>
+<li><p>automatic mapping between <em>algebraic data types (ADTs)</em> (encoded in Scala as case classes and sealed traits) and these generic representations.</p></li>
+</ol>
+<p>In this chapter we will start with a recap of the theory of algebraic data types and why they might be familiar to Scala developers. Then we will look at generic representations used by shapeless and discuss how they map on to concrete ADTs. Finally, we will introduce a type class called <code>Generic</code> that provides automatic mapping back and forth between ADTs and generic representations. We will finish with some simple examples using <code>Generic</code> to convert values from one type to another.</p>
+<div id="recap-algebraic-data-types" class="section level2">
+<h2><span class="header-section-number">2.1</span> Recap: algebraic data types</h2>
+<p><em>Algebraic data types (ADTs)</em><a href="#fn1" class="footnoteRef" id="fnref1">1</a> are a functional programming concept with a fancy name but a very simple meaning. They are an idiomatic way of representing data using “ands” and “ors”. For example:</p>
+<ul>
+<li>a shape is a rectangle <strong>or</strong> a circle</li>
+<li>a rectangle has a width <strong>and</strong> a height</li>
+<li>a circle has a radius</li>
+</ul>
+<p>In ADT terminology, “and” types such as rectangle and circle are called <em>products</em> and “or” types such as shape are called <em>coproducts</em>. In Scala we typically represent products using case classes and coproducts using sealed traits:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">sealed</span> <span class="kw">trait</span> Shape
+<span class="kw">final</span> <span class="kw">case</span> <span class="kw">class</span> Rectangle(width: Double, height: Double) <span class="kw">extends</span> Shape
+<span class="kw">final</span> <span class="kw">case</span> <span class="kw">class</span> <span class="fu">Circle</span>(radius: Double) <span class="kw">extends</span> Shape
+
+<span class="kw">val</span> rect: Shape = Rectangle(<span class="fl">3.0</span>, <span class="fl">4.0</span>)
+<span class="kw">val</span> circ: Shape = <span class="fu">Circle</span>(<span class="fl">1.0</span>)</code></pre></div>
+<p>The beauty of ADTs is that they are completely type safe. The compiler has complete knowledge of the algebras<a href="#fn2" class="footnoteRef" id="fnref2">2</a> we define, so it can help us write complete, correctly typed methods involving our types:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">area</span>(shape: Shape): Double =
+  shape <span class="kw">match</span> {
+    <span class="kw">case</span> Rectangle(w, h) =&gt; w * h
+    <span class="kw">case</span> <span class="fu">Circle</span>(r)       =&gt; math.<span class="fu">Pi</span> * r * r
+  }
+
+<span class="fu">area</span>(rect)
+<span class="co">// res1: Double = 12.0</span>
+
+<span class="fu">area</span>(circ)
+<span class="co">// res2: Double = 3.141592653589793</span></code></pre></div>
+<div id="alternative-encodings" class="section level3">
+<h3><span class="header-section-number">2.1.1</span> Alternative encodings</h3>
+<p>Sealed traits and case classes are undoubtedly the most convenient encoding of ADTs in Scala. However, they aren’t the <em>only</em> encoding. For example, the Scala standard library provides generic products in the form of <code>Tuples</code> and a generic coproduct in the form of <code>Either</code>. We could have chosen these to encode our <code>Shape</code>:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">type</span> Rectangle2 = (Double, Double)
+<span class="kw">type</span> Circle2    = Double
+<span class="kw">type</span> Shape2     = Either[Rectangle2, Circle2]
+
+<span class="kw">val</span> rect2: Shape2 = <span class="fu">Left</span>((<span class="fl">3.0</span>, <span class="fl">4.0</span>))
+<span class="kw">val</span> circ2: Shape2 = <span class="fu">Right</span>(<span class="fl">1.0</span>)</code></pre></div>
+<p>While this encoding is less readable than the case class encoding above, it does have some of the same desirable properties. We can still write completely type safe operations involving <code>Shape2</code>:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">area2</span>(shape: Shape2): Double =
+  shape <span class="kw">match</span> {
+    <span class="kw">case</span> <span class="fu">Left</span>((w, h)) =&gt; w * h
+    <span class="kw">case</span> <span class="fu">Right</span>(r)     =&gt; math.<span class="fu">Pi</span> * r * r
+  }
+
+<span class="fu">area2</span>(rect2)
+<span class="co">// res4: Double = 12.0</span>
+
+<span class="fu">area2</span>(circ2)
+<span class="co">// res5: Double = 3.141592653589793</span></code></pre></div>
+<p>Importantly, <code>Shape2</code> is a more <em>generic</em> encoding than <code>Shape</code><a href="#fn3" class="footnoteRef" id="fnref3">3</a>. Any code that operates on a pair of <code>Doubles</code> will be able to operate on a <code>Rectangle2</code> and vice versa. As Scala developers we tend to prefer semantic types like <code>Rectangle</code> and <code>Circle</code> to generic ones like <code>Rectangle2</code> and <code>Circle2</code> precisely because of their specialised nature. However, in some cases generality is desirable. For example, if we’re serializing data to disk, we don’t care about the difference between a pair of <code>Doubles</code> and a <code>Rectangle2</code>. We just write two numbers and we’re done.</p>
+<p>Shapeless gives us the best of both worlds: we can use friendly semantic types by default and switch to generic representations when we want interoperability (more on this later). However, instead of using <code>Tuples</code> and <code>Either</code>, shapeless uses its own data types to represent generic products and coproducts. We’ll introduce these types in the next sections.</p>
+</div>
+</div>
+<div id="generic-product-encodings" class="section level2">
+<h2><span class="header-section-number">2.2</span> Generic product encodings</h2>
+<p>In the previous section we introduced tuples as a generic representation of products. Unfortunately, Scala’s built-in tuples have a couple of disadvantages that make them unsuitable for shapeless’ purposes:</p>
+<ol style="list-style-type: decimal">
+<li><p>Each size of tuple has a different, unrelated type, making it difficult to write code that abstracts over sizes.</p></li>
+<li><p>There is no type for zero-length tuples, which are important for representing products with zero fields. We could arguably use <code>Unit</code>, but we ideally want all generic representations to have a sensible common supertype. The least upper bound of <code>Unit</code> and <code>Tuple2</code> is <code>Any</code> so a combination of the two is impractical.</p></li>
+</ol>
+<p>For these reasons, shapeless uses a different generic encoding for product types called <em>heterogeneous lists</em> or <code>HLists</code><a href="#fn4" class="footnoteRef" id="fnref4">4</a>.</p>
+<p>An <code>HList</code> is either the empty list <code>HNil</code>, or a pair <code>::[H, T]</code> where <code>H</code> is an arbitrary type and <code>T</code> is another <code>HList</code>. Because every <code>::</code> has its own <code>H</code> and <code>T</code>, the type of each element is encoded separately in the type of the overall list:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">import</span> shapeless.{HList, ::, HNil}
+
+<span class="kw">val</span> product: String :: Int :: Boolean :: HNil =
+  <span class="st">&quot;Sunday&quot;</span> :: <span class="dv">1</span> :: <span class="kw">false</span> :: HNil</code></pre></div>
+<p>The type and value of the <code>HList</code> above mirror one another. Both represent three members: a <code>String</code>, an <code>Int</code>, and a <code>Boolean</code>. We can retrieve the <code>head</code> and <code>tail</code> and the types of the elements are preserved:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> first = product.<span class="fu">head</span>
+<span class="co">// first: String = Sunday</span>
+
+<span class="kw">val</span> second = product.<span class="fu">tail</span>.<span class="fu">head</span>
+<span class="co">// second: Int = 1</span>
+
+<span class="kw">val</span> rest = product.<span class="fu">tail</span>.<span class="fu">tail</span>
+<span class="co">// rest: Boolean :: shapeless.HNil = false :: HNil</span></code></pre></div>
+<p>The compiler knows the exact length of each <code>HList</code>, so it becomes a compilation error to take the <code>head</code> or <code>tail</code> of an empty list:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala">product.<span class="fu">tail</span>.<span class="fu">tail</span>.<span class="fu">tail</span>.<span class="fu">head</span>
+<span class="co">// &lt;console&gt;:15: error: could not find implicit value for parameter c: shapeless.ops.hlist.IsHCons[shapeless.HNil]</span>
+<span class="co">//        product.tail.tail.tail.head</span>
+<span class="co">//                               ^</span></code></pre></div>
+<p>We can manipulate and transform <code>HLists</code> in addition to being able to inspect and traverse them. For example, we can prepend an element with the <code>::</code> method. Again, notice how the type of the result reflects the number and types of its elements:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> newProduct = 42L :: product</code></pre></div>
+<p>Shapeless also provides tools for performing more complex operations such as mapping, filtering, and concatenating lists. We’ll discuss these in more detail in Part II.</p>
+<p>The behaviour we get from <code>HLists</code> isn’t magic. We could have achieved all of this functionality using <code>(A, B)</code> and <code>Unit</code> as alternatives to <code>::</code> and <code>HNil</code>. However, there is an advantage in keeping our representation types separate from the semantic types used in our applications. <code>HList</code> provides this separation.</p>
+<div id="switching-representations-using-generic" class="section level3">
+<h3><span class="header-section-number">2.2.1</span> Switching representations using <em>Generic</em></h3>
+<p>Shapeless provides a type class called <code>Generic</code> that allows us to switch back and forth between a concrete ADT and its generic representation. Some behind-the-scenes macro magic allows us to summon instances of <code>Generic</code> without boilerplate:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">import</span> shapeless.<span class="fu">Generic</span>
+
+<span class="kw">case</span> <span class="kw">class</span> <span class="fu">IceCream</span>(name: String, numCherries: Int, inCone: Boolean)
+
+<span class="kw">val</span> iceCreamGen = Generic[IceCream]
+<span class="co">// iceCreamGen: shapeless.Generic[IceCream]{type Repr = String :: Int :: Boolean :: shapeless.HNil} = anon$macro$4$1@6b9323fe</span></code></pre></div>
+<p>Note that the instance of <code>Generic</code> has a type member <code>Repr</code> containing the type of its generic representation. In this case <code>iceCreamGen.Repr</code> is <code>String :: Int :: Boolean :: HNil</code>. Instances of <code>Generic</code> have two methods: one for converting <code>to</code> the <code>Repr</code> type and one for converting <code>from</code> it:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> iceCream = <span class="fu">IceCream</span>(<span class="st">&quot;Sundae&quot;</span>, <span class="dv">1</span>, <span class="kw">false</span>)
+<span class="co">// iceCream: IceCream = IceCream(Sundae,1,false)</span>
+
+<span class="kw">val</span> repr = iceCreamGen.<span class="fu">to</span>(iceCream)
+<span class="co">// repr: iceCreamGen.Repr = Sundae :: 1 :: false :: HNil</span>
+
+<span class="kw">val</span> iceCream2 = iceCreamGen.<span class="fu">from</span>(repr)
+<span class="co">// iceCream2: IceCream = IceCream(Sundae,1,false)</span></code></pre></div>
+<p>If two ADTs have the same <code>Repr</code>, we can convert back and forth between them using their <code>Generics</code>:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">case</span> <span class="kw">class</span> <span class="fu">Employee</span>(name: String, number: Int, manager: Boolean)
+
+<span class="co">// Create an employee from an ice cream:</span>
+<span class="kw">val</span> employee = Generic[Employee].<span class="fu">from</span>(Generic[IceCream].<span class="fu">to</span>(iceCream))
+<span class="co">// employee: Employee = Employee(Sundae,1,false)</span></code></pre></div>
+<div class="callout callout-info">
+<p><em>Other product types</em></p>
+<p>It’s worth noting that Scala tuples are actually case classes, so <code>Generic</code> works with them just fine:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> tupleGen = Generic[(String, Int, Boolean)]
+
+tupleGen.<span class="fu">to</span>((<span class="st">&quot;Hello&quot;</span>, <span class="dv">123</span>, <span class="kw">true</span>))
+<span class="co">// res4: tupleGen.Repr = Hello :: 123 :: true :: HNil</span>
+
+tupleGen.<span class="fu">from</span>(<span class="st">&quot;Hello&quot;</span> :: <span class="dv">123</span> :: <span class="kw">true</span> :: HNil)
+<span class="co">// res5: (String, Int, Boolean) = (Hello,123,true)</span></code></pre></div>
+<p>It also works with case classes of more than 22 fields:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">case</span> <span class="kw">class</span> <span class="fu">BigData</span>(
+  a:Int,b:Int,c:Int,d:Int,e:Int,f:Int,g:Int,h:Int,i:Int,j:Int,
+  k:Int,l:Int,m:Int,n:Int,o:Int,p:Int,q:Int,r:Int,s:Int,t:Int,
+  u:Int,v:Int,w:Int)
+
+Generic[BigData].<span class="fu">from</span>(Generic[BigData].<span class="fu">to</span>(<span class="fu">BigData</span>(
+  <span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>,<span class="dv">13</span>,<span class="dv">14</span>,<span class="dv">15</span>,<span class="dv">16</span>,<span class="dv">17</span>,<span class="dv">18</span>,<span class="dv">19</span>,<span class="dv">20</span>,<span class="dv">21</span>,<span class="dv">22</span>,<span class="dv">23</span>)))
+<span class="co">// res6: BigData = BigData(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)</span></code></pre></div>
+<p>In versions 2.10 and earlier, Scala had a limit of 22 fields for case classes. This limit was nominally fixed in 2.11, but using <code>HLists</code> will help avoid the remaining <a href="http://underscore.io/blog/posts/2016/10/11/twenty-two.html">limitations of 22 fields in Scala</a>.</p>
+</div>
+</div>
+</div>
+<div id="generic-coproducts" class="section level2">
+<h2><span class="header-section-number">2.3</span> Generic coproducts</h2>
+<p>Now we know how shapeless encodes product types. What about coproducts? We looked at <code>Either</code> earlier but that suffers from similar drawbacks to tuples. Again, shapeless provides its own encoding that is similar to <code>HList</code>:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">import</span> shapeless.{Coproduct, :+:, CNil, Inl, Inr}
+
+<span class="kw">case</span> <span class="kw">class</span> <span class="fu">Red</span>()
+<span class="kw">case</span> <span class="kw">class</span> <span class="fu">Amber</span>()
+<span class="kw">case</span> <span class="kw">class</span> <span class="fu">Green</span>()
+
+<span class="kw">type</span> Light = Red :+: Amber :+: Green :+: CNil</code></pre></div>
+<p>In general coproducts take the form <code>A :+: B :+: C :+: CNil</code> meaning “A or B or C”, where <code>:+:</code> can be loosely interpreted as <code>Either</code>. The overall type of a coproduct encodes all the possible types in the disjunction, but each concrete instance contains a value for just one of the possibilities. <code>:+:</code> has two subtypes, <code>Inl</code> and <code>Inr</code>, that correspond loosely to <code>Left</code> and <code>Right</code>. We create instances of a coproduct by nesting <code>Inl</code> and <code>Inr</code> constructors:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> red: Light = <span class="fu">Inl</span>(<span class="fu">Red</span>())
+<span class="co">// red: Light = Inl(Red())</span>
+
+<span class="kw">val</span> green: Light = <span class="fu">Inr</span>(<span class="fu">Inr</span>(<span class="fu">Inl</span>(<span class="fu">Green</span>())))
+<span class="co">// green: Light = Inr(Inr(Inl(Green())))</span></code></pre></div>
+<p>Every coproduct type is terminated with <code>CNil</code>, which is an empty type with no values, similar to <code>Nothing</code>. We can’t instantiate <code>CNil</code> or build a <code>Coproduct</code> purely from instances of <code>Inr</code>. We always have exactly one <code>Inl</code> in a value.</p>
+<p>Again, it’s worth stating that <code>Coproducts</code> aren’t particularly special. The functionality above can be achieved using <code>Either</code> and <code>Nothing</code> in place of <code>:+:</code> and <code>CNil</code>. There are technical difficulties with using <code>Nothing</code>, but we could have used any other uninhabited or arbitrary singleton type in place of <code>CNil</code>.</p>
+<div id="switching-encodings-using-generic" class="section level3">
+<h3><span class="header-section-number">2.3.1</span> Switching encodings using <em>Generic</em></h3>
+<p><code>Coproduct</code> types are difficult to parse on first glance. However, we can see how they fit into the larger picture of generic encodings. In addition to understanding case classes and case objects, shapeless’ <code>Generic</code> type class also understands sealed traits and abstract classes:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">import</span> shapeless.<span class="fu">Generic</span>
+
+<span class="kw">sealed</span> <span class="kw">trait</span> Shape
+<span class="kw">final</span> <span class="kw">case</span> <span class="kw">class</span> Rectangle(width: Double, height: Double) <span class="kw">extends</span> Shape
+<span class="kw">final</span> <span class="kw">case</span> <span class="kw">class</span> <span class="fu">Circle</span>(radius: Double) <span class="kw">extends</span> Shape
+
+<span class="kw">val</span> gen = Generic[Shape]
+<span class="co">// gen: shapeless.Generic[Shape]{type Repr = Rectangle :+: Circle :+: shapeless.CNil} = anon$macro$1$1@1a28fc61</span></code></pre></div>
+<p>The <code>Repr</code> of the <code>Generic</code> for <code>Shape</code> is a <code>Coproduct</code> of the subtypes of the sealed trait: <code>Rectangle :+: Circle :+: CNil</code>. We can use the <code>to</code> and <code>from</code> methods of the generic to map back and forth between <code>Shape</code> and <code>gen.Repr</code>:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala">gen.<span class="fu">to</span>(Rectangle(<span class="fl">3.0</span>, <span class="fl">4.0</span>))
+<span class="co">// res3: gen.Repr = Inl(Rectangle(3.0,4.0))</span>
+
+gen.<span class="fu">to</span>(<span class="fu">Circle</span>(<span class="fl">1.0</span>))
+<span class="co">// res4: gen.Repr = Inr(Inl(Circle(1.0)))</span></code></pre></div>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2><span class="header-section-number">2.4</span> Summary</h2>
+<p>In this chapter we discussed the generic representations shapeless provides for algebraic data types in Scala: <code>HLists</code> for product types and <code>Coproducts</code> for coproduct types. We also introduced the <code>Generic</code> type class to map back and forth between concrete ADTs and their generic representations. We haven’t yet discussed why generic encodings are so attractive. The one use case we did cover—converting between ADTs—is fun but not tremendously useful.</p>
+<p>The real power of <code>HLists</code> and <code>Coproducts</code> comes from their recursive structure. We can write code to traverse representations and calculate values from their constituent elements. In the next chapter we will look at our first real use case: automatically deriving type class instances.</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Not to be confused with “abstract data types”, which are a different tool from computer science that has little bearing on the discussion here.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>The word “algebra” meaning: the symbols we define, such as rectangle and circle; and the rules for manipulating those symbols, encoded as methods.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>We’re using “generic” in an informal way here, rather than the conventional meaning of “a type with a type parameter”.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><code>Product</code> is perhaps a better name for <code>HList</code>, but the standard library unfortunately already has a type <code>scala.Product</code>.<a href="#fnref4">↩</a></p></li>
+</ol>
+</div>
+</body>
+</html>
+

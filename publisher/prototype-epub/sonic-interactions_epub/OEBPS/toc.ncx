@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta name="dtb:uid" content="urn:isbn:978-3-031-04021-4"/>
+  </head>
+  <docTitle><text>Sonic Interactions in Virtual Environments</text></docTitle>
+  <docAuthor><text>Michele Geronazzo, Stefania Serafin</text></docAuthor>
+  <navMap>
+    <navPoint id="navpoint-1" playOrder="1">
+      <navLabel><text>Cover</text></navLabel>
+      <content src="html/Cover.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint-2" playOrder="2">
+      <navLabel><text>Front Matter</text></navLabel>
+      <content src="html/478239_1_En_BookFrontmatter_OnlinePDF.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint-3" playOrder="3">
+      <navLabel><text>Part I. Introduction</text></navLabel>
+      <content src="html/Part_1.xhtml"/>
+      <navPoint id="navpoint-4" playOrder="4">
+        <navLabel><text>1. Sonic Interactions in Virtual Environments: The Egocentric Audio Perspective of the Digital Twin</text></navLabel>
+        <content src="html/478239_1_En_1_Chapter.xhtml"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navpoint-5" playOrder="5">
+      <navLabel><text>Part II. Interactive and Immersive Audio</text></navLabel>
+      <content src="html/Part_2.xhtml"/>
+      <navPoint id="navpoint-6" playOrder="6">
+        <navLabel><text>2. Procedural Modeling of Interactive Sound Sources in Virtual Reality</text></navLabel>
+        <content src="html/478239_1_En_2_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-7" playOrder="7">
+        <navLabel><text>3. Interactive and Immersive Auralization</text></navLabel>
+        <content src="html/478239_1_En_3_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-8" playOrder="8">
+        <navLabel><text>4. System-to-User and User-to-System Adaptations in Binaural Audio</text></navLabel>
+        <content src="html/478239_1_En_4_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-9" playOrder="9">
+        <navLabel><text>5. Audio Quality Assessment for Virtual Reality</text></navLabel>
+        <content src="html/478239_1_En_5_Chapter.xhtml"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navpoint-10" playOrder="10">
+      <navLabel><text>Part III. Sonic Interactions</text></navLabel>
+      <content src="html/Part_3.xhtml"/>
+      <navPoint id="navpoint-11" playOrder="11">
+        <navLabel><text>6. Spatial Design Considerations for Interactive Audio in Virtual Reality</text></navLabel>
+        <content src="html/478239_1_En_6_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-12" playOrder="12">
+        <navLabel><text>7. Embodied and Sonic Interactions in Virtual Environments: Tactics and Exemplars</text></navLabel>
+        <content src="html/478239_1_En_7_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-13" playOrder="13">
+        <navLabel><text>8. Supporting Sonic Interaction in Creative, Shared Virtual Environments</text></navLabel>
+        <content src="html/478239_1_En_8_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-14" playOrder="14">
+        <navLabel><text>9. Spatial Audio Mixing in Virtual Reality</text></navLabel>
+        <content src="html/478239_1_En_9_Chapter.xhtml"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navpoint-15" playOrder="15">
+      <navLabel><text>Part IV. Sonic Experiences</text></navLabel>
+      <content src="html/Part_4.xhtml"/>
+      <navPoint id="navpoint-16" playOrder="16">
+        <navLabel><text>10. Audio in Multisensory Interactions: From Experiments to Experiences</text></navLabel>
+        <content src="html/478239_1_En_10_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-17" playOrder="17">
+        <navLabel><text>11. Immersion in Audiovisual Experiences</text></navLabel>
+        <content src="html/478239_1_En_11_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-18" playOrder="18">
+        <navLabel><text>12. Augmenting Sonic Experiences Through Haptic Feedback</text></navLabel>
+        <content src="html/478239_1_En_12_Chapter.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint-19" playOrder="19">
+        <navLabel><text>13. From the Lab to the Stage: Practical Considerations on Designing Performances with Immersive Virtual Musical Instruments</text></navLabel>
+        <content src="html/478239_1_En_13_Chapter.xhtml"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navpoint-20" playOrder="20">
+      <navLabel><text>Back Matter</text></navLabel>
+      <content src="html/478239_1_En_BookBackmatter_OnlinePDF.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>
