@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+
+	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
+    <dc:identifier id="pub-identifier">urn:isbn:XXX-X-XX-XXXXXX-X</dc:identifier>
+    <meta property="dcterms:modified">2022-10-13T19:27:45Z</meta>
+
+		<dc:title id="t1">Source Code for Humans</dc:title>
+		<meta refines="#t1" property="title-type">main</meta>
+		<meta refines="#t1" property="display-seq">1</meta>
+
+		<dc:title id="t2">Ergomics of Source Code</dc:title>
+		<meta refines="#t2" property="title-type">subtitle</meta>
+		<meta refines="#t2" property="display-seq">2</meta>
+
+		<dc:creator id="panico">Joe Panico</dc:creator>
+		<meta property="file-as" refines="#panico">Panico, Joseph William</meta>
+    <!-- <meta property="role" refines="#panico">???</meta>  -->
+		<dc:language>en</dc:language>
+
+		<dc:date>2023-10-1</dc:date>
+
+    <!--- BISAC codes: https://www.bisg.org/computers -->
+		<dc:subject>COMPUTERS / Programming / General</dc:subject>
+		<dc:subject>COMPUTERS / Software Development &amp; Engineering / General</dc:subject>
+
+    <dc:publisher>RoamPub</dc:publisher>
+    <dc:rights>Copyright &#x00A9; Joe Panico</dc:rights>
+
+    <!-- don't know what this stuff is, but it looks pretty cool
+    <meta property="schema:accessMode">textual</meta>
+    <meta property="schema:accessMode">visual</meta>
+    <meta property="schema:accessModeSufficient">textual,visual</meta>
+    <meta property="schema:accessibilityFeature">structuralNavigation</meta>
+    <meta property="schema:accessibilityFeature">readingOrder</meta>
+    <meta property="schema:accessibilityFeature">tableOfContents</meta>
+    <meta property="schema:accessibilityHazard">none</meta>
+    -->
+  </metadata>
+
+  <manifest>
+    <!-- navigation -->
+    <item id="nav" properties="nav" href="navigation.xhtml" media-type="application/xhtml+xml"/>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+
+    <!-- content -->
+    <item id="cover" href="html/cover.xhtml" media-type="application/xhtml+xml"/>
+    <item id="book_frontmatter" href="html/book_frontmatter.xhtml" media-type="application/xhtml+xml"/>
+    <item id="part_1" href="html/part_1.xhtml" media-type="application/xhtml+xml"/>
+    <item id="chapter_1" href="html/chapter_1.xhtml" media-type="application/xhtml+xml"/>
+    <item id="part_2" href="html/part_2.xhtml" media-type="application/xhtml+xml"/>
+    <item id="chapter_2" href="html/chapter_2.xhtml" media-type="application/xhtml+xml"/>
+    <item id="book_backmatter" href="html/book_backmatter.xhtml" media-type="application/xhtml+xml"/>
+
+    <!-- styling -->
+    <item id="base_css" href="css/base.css" media-type="text/css"/>
+
+    <!-- media -->
+    <item id="cover_image" href="images/cover.jpg" media-type="image/jpeg"/>
+  </manifest>
+
+  <spine toc="ncx">
+    <itemref idref="cover" linear="no"/>
+    <itemref idref="book_frontmatter"/>
+    <itemref idref="part_1"/>
+    <itemref idref="chapter_1"/>
+    <itemref idref="part_2"/>
+    <itemref idref="chapter_2"/>
+    <itemref idref="book_backmatter"/>
+  </spine>
+
+</package>

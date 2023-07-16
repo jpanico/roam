@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+
+<head>
+	<title>Sonic Interactions in Virtual Environments</title>
+	<meta content="text/html; charset=utf-8" http-equiv="content-type" />
+	<link href="../css/springer_epub.css" rel="styleSheet" type="text/css" />
+</head>
+
+<body>
+	<div epub:type="frontmatter">
+		<div class="BookFrontmatter">
+			<div class="SeriesTitlePage"><span class="SeriesTitle" lang="en">Human–Computer Interaction Series</span>
+				<div class="CollaboratorSection CollaboratorsEditorInChiefs"><span
+						class="CollaboratorDesignation">Editors-in-Chief</span>
+					<div class="Collaborators"><span class="CollaboratorName">Jean Vanderdonckt</span>
+						<div class="Affiliation">
+							<div class="AffiliationText">Louvain School of Management, Université catholique de Louvain,
+								Louvain-La-Neuve, Belgium</div>
+						</div><span class="CollaboratorName">Q. Vera Liao</span>
+						<div class="Affiliation">
+							<div class="AffiliationText">Microsoft Research Canada, Montréal, Canada</div>
+						</div>
+					</div>
+				</div>
+				<div class="SeriesInformationText">
+					<p class="Para"><em class="EmphasisTypeItalic ">The Human</em> – <em
+							class="EmphasisTypeItalic ">Computer Interaction Series,</em> launched in 2004, publishes
+						books that advance the science and technology of developing systems which are effective and
+						satisfying for people in a wide variety of contexts. Titles focus on theoretical perspectives
+						(such as formal approaches drawn from a variety of behavioural sciences), practical approaches
+						(such as techniques for effectively int
+       egrating user needs in system development), and social
+						issues (such as the determinants of utility, usability and acceptability).</p>
+					<p class="Para">HCI is a multidisciplinary field and focuses on the human aspects in the development
+						of computer technology. As technology becomes increasingly more pervasive the need to take a
+						human-centred approach in the design and development of computer-based systems becomes ever more
+						important.</p>
+					<p class="Para">Titles published within the Human–Computer Interaction Series are included in
+						Thomson Reuters’ Book Citation Index, The DBLP Computer Science Bibliography and The HCI
+						Bibliography.</p>
+				</div>
+			</div>
+			<div class="BookTitlePage BookTitlePageAfterSeriesTitlePage" epub:type="titlepage">
+				<div class="BookEditorGroup"><span class="CollaboratorDesignation">Editors</span>
+					<div class="BookEditors"><span class="Editor"><span class="EditorName">Michele Geronazzo</span> and
+						</span><span class="Editor"><span class="EditorName">Stefania Serafin</span></span></div>
+				</div>
+				<div class="MainTitleSection" epub:type="fulltitle">
+					<h1 class="BookTitle" epub:type="title" lang="en">Sonic Interactions in Virtual Environments</h1>
+				</div>
+				<div class="PublisherLogo">
+					<figure class="Figure" id="Figa">
+						<div class="MediaObject" id="MO1"><img alt="" aria-describedby="d64e12"
+								src="../images/478239_1_En_BookFrontmatter_Figa_HTML.png" style="width:9.1em" />
+							<div class="TextObject" id="d64e12">Logo of the publisher</div>
+						</div>
+					</figure>
+				</div>
+			</div>
+			<div class="CopyrightPage" epub:type="copyright-page">
+				<div class="CopyrightPageOriginators"><span class="CollaboratorDesignation">Editors</span>
+					<div class="EditorGroup">
+						<div class="Editor"><span class="EditorName">Michele Geronazzo</span>
+							<div class="Affiliation" id="Aff3">
+								<div class="AffiliationText">Department of Engineering and Management, University of
+									Padova, Padova, Italy</div>
+							</div>
+							<div class="Affiliation" id="Aff4">
+								<div class="AffiliationText">Dyson School of Design Engineering, Imperial College
+									London, London, UK</div>
+							</div>
+							<div class="Affiliation" id="Aff5">
+								<div class="AffiliationText">Department of Humanities and Cultural Heritage, University
+									of Udine, Udine, Italy</div>
+							</div>
+						</div>
+						<div class="Editor"><span class="EditorName">Stefania Serafin</span>
+							<div class="Affiliation" id="Aff6">
+								<div class="AffiliationText">Aalborg University, København SV, Denmark</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="License LicenseSubType-cc-by"><a href="https://creativecommons.org/licenses/by/4.0"><img
+							alt="Creative Commons" src="../css/cc-by.png" /></a></div>
+				<div class="CopyrightPageISSNs"><span class="CopyrightPagePrintISSN">ISSN 1571-5035</span><span
+						class="CopyrightPageElectronicISSN">e-ISSN 2524-4477</span></div><span class="SeriesTitle"
+					lang="en">Human–Computer Interaction Series</span>
+				<div class="CopyrightPageISBNs"><span class="CopyrightPagePrintISBN">
+						ISBN 978-3-031-04020-7</span><span class="CopyrightPageElectronicISBN">e-ISBN
+						978-3-031-04021-4</span></div>
+				<div class="BookDOI"><a
+						href="https://doi.org/10.1007/978-3-031-04021-4">https://doi.org/10.1007/978-3-031-04021-4</a>
+				</div>
+				<div class="BookFundingInformation">
+					<p class="SimplePara">Nordic SMC University Hub, NordForsk, Stensberggata 27, 0170 Oslo, Norway
+						represented by: Hans Jørgen Andersen, Professor</p>
+					<p class="SimplePara">Università degli Studi di Udine, Dipartimento di Studi Umanistici e del
+						Patrimonio Culturale, Vicolo Florio n. 2/B, 33100 Udine, Italy represented by: Prof. Andrea
+						Zannini, Department Director</p>
+					<p class="SimplePara">EU project SONICOM, funded by the Horizon 2020 research and innovation
+						programme (grant agreement No 101017743), represented by: Dr. Lorenzo Picinali, Reader</p>
+				</div>
+				<div class="CopyrightLine">© The Editor(s) (if applicable) and The Author(s) 2023</div>
+				<div class="License LicenseSubType-cc-by">
+					<p class="SimplePara"><strong class="EmphasisTypeBold ">Open Access</strong> This book is licensed
+						under the terms of the Creative Commons Attribution 4.0 International License (<span
+							class="ExternalRef"><a href="http://creativecommons.org/licenses/by/4.0/"><span
+									class="RefSource">http://​creativecommons.​org/​licenses/​by/​4.​0/​</span></a></span>),
+						which permits use, sharing, adaptation, distribution and reproduction in any medium or format,
+						as long as you give appropriate credit to the original author(s) and the source, provide a link
+						to the Creative Commons license and indicate if changes were made.</p>
+					<p class="SimplePara">The images or other third party material in this book are included in the
+						book's Creative Commons license, unless indicated otherwise in a credit line to the material. If
+						material is not included in the book's Creative Commons license and your intended use is not
+						permitted by statutory regulation or exceeds the permitted use, you will need to obtain
+						permission directly from the copyright holder.</p>
+				</div>
+				<div class="TrademarkQualifierText" lang="en">The use of general descriptive names, registered names,
+					trademarks, service marks, etc. in this publication does not imply, even in the absence of a
+					specific statement, that such names are exempt from the relevant protective laws and regulations and
+					therefore free for general use.</div>
+				<div class="ProductLiability" lang="en">The publisher, the authors, and the editors are safe to assume
+					that the advice and information in this book are believed to be true and accurate at the date of
+					publication. Neither the publisher nor the authors or the editors give a warranty, expressed or
+					implied, with respect to the material contained herein or for any errors or omissions that may have
+					been made. The publisher remains neutral with regard to jurisdictional claims in published maps and
+					institutional affiliations.</div>
+				<div class="SpringerReferenceLine" lang="en">
+					<p class="SimplePara">This Springer imprint is published by the registered company Springer Nature
+						Switzerland AG</p>
+					<p class="SimplePara">The registered company address is: Gewerbestrasse 11, 6330 Cham, Switzerland
+					</p>
+				</div>
+			</div>
+			<div class="Preface" epub:type="preface" role="doc-preface">
+				<div class="PrefaceTitle" lang="en">Preface</div>
+				<div class="PrefaceBody">
+					<p class="Para" id="Par1">Sonic Interaction Design (SID) is the study and exploitation of sound
+						being one of the principal channels conveying information, meaning, esthetic, and emotional
+						qualities in interactive contexts. The field of <em class="EmphasisTypeItalic ">Sonic
+							Interactions in Virtual Environments</em> (SIVE) extends SID to immersive media, i.e.,
+						virtual/augmented/mixed reality (XR). Considering a virtuality continuum, this book mainly
+						focused on virtual reality (VR) also facing occasionally mixed and hybrid reality settings.</p>
+					<p class="Para" id="Par2">The basic and most obvious assumption that motivates this volume is: it is
+						hard to live in a world without sound and it is hard in virtual environments (VE) too. VR
+						without plausible and convincing sounds feels unnatural to users. Auditory information is a
+						powerful omnidirectional source of learning for our interaction in real and virtual
+						environments. The good news brought by this book is that VR finally sounds plausible. Advances
+						in several fields are now able to provide an immersive listening experience that is perceptually
+						indistinguishable from reality which means that immersive sounds could make interaction
+						intrinsically natural. Auralization and spatial audio technologies play a fundamental role in
+						providing immersion and presence in VR applications at an unprecedented level. The combination
+						of recent developments in VR headsets and earables further strengthens the perceptual validity
+						of multimodal virtual environments and experiences.</p>
+					<p class="Para" id="Par3">We can therefore promote a true audio-centered and audio-first design for
+						VR with levels of realism and immersiveness that can even surpass the visual counterpart.
+						Visuals, although rightly emphasized by many studies and products, are often not very
+						effectively enhanced and strengthened by sound. The final result is a weakening of multisensory
+						integration and the corresponding VR potentials that strongly determine the quality and
+						durability of the experience.</p>
+					<p class="Para" id="Par4">The editors would like to identify two starting points in the past 10
+						years that have given rise and awareness to the SIVE research area and studies. The first
+						episode is symbolic: we would like to anecdotally bring back from our memories the first meeting
+						between us, the two editors of the book. The year was 2011, exactly 10 years ago. Michele had
+						recently started his Ph.D. at the Sound and Music Computing Group of the Department of
+						Information Engineering at the University of Padua, under the supervision of Dr. Avanzini. The
+						Italian Association of Musical Informatics (AIMI) organized the workshop “Sound and Music
+						Computing for Human-Computer Interaction” at the ninth edition of the Biannual Conference of the
+						Italian ACM SIGCHI Chapter (CHItaly) at the beautiful Alghero in Sardinia in early September. A
+						great period for the seaside.</p>
+					<p class="Para" id="Par5">Michele was asked to write his first conference paper to be presented at
+						the workshop entitled “Customized 3D Sound for Innovative Interaction Design,” An article with a
+						high-sounding title that promises a lot but provides little: in short, an article of which not
+						to be proud. On the other hand, there were some valuable references to the <em
+							class="EmphasisTypeItalic ">egocentric audio perspective </em>that will be formalized in the
+						introductory chapter of this book. However, the reason why we tell this anecdote is that at his
+						first presentation at a scientific conference for the Ph.D. student Michele Geronazzo, among the
+						very small audience, there was Dr. Stefania Serafin. Ten years ago, we began to discuss issues
+						that connected sonic interaction design with immersive 3D audio in VR. The AIMI president of
+						that time failed to get the workshop’s contributions included in the official ACM CHItaly
+						proceedings despite a regular peer-review process. The poor Ph.D. student Michele found himself
+						without an official publication, at his first conference, in an unknown scientific community. We
+						like to think that at that event and with that meeting started something much more relevant and
+						impactful: SIVE. We are here to give it a shape in this book edited and structured together.</p>
+					<p class="Para" id="Par6">Another temporal coincidence brings us to connect this story with the
+						second and official starting point of this adventure. Michele’s unpublished conference paper was
+						finally published within his doctoral thesis, defended in 2014, the year in which the <em
+							class="EmphasisTypeItalic ">IEEE Virtual Reality</em> workshop series “<em
+							class="EmphasisTypeItalic ">Sonic Interactions in Virtual Environments (SIVE)</em>” started
+						(<span class="ExternalRef"><a href="https://sive.create.aau.dk/"><span
+									class="RefSource">https://​sive.​create.​aau.​dk/​</span></a></span>). The mission
+						of IEEE VR SIVE was to increase among the virtual reality community and junior researchers the
+						awareness of the importance of sonic elements when designing immersive XR environments. However,
+						we can also identify a certain degree of reciprocity while considering the fragmented nature and
+						specificity of those studies aim at developing immersive XR environments for sound and music.
+						First, we, therefore, refer to our beloved Sound and Music Computing (SMC) network, and then we
+						consider the International Community for Auditory Display (ICAD), the Audio Engineering Society
+						(AES), and the communities linked to the International Conference on New Interfaces for Musical
+						Expression (NIME), the Digital Audio Effects (DAFX), and the Sonic Interaction Design COST
+						Action (COST-SID IC601, ended in 2012). All these communities address aspects of the SIVE topics
+						according to their specificities. No institutional nor contextual references that collect
+						technological developments, best practices, and creative efforts related to the peculiarities of
+						immersive VEs existed before the SIVE workshop. The book follows a similar philosophy trying to
+						give an exhaustive view of those multidisciplinary topics already mentioned in our two recent
+						reviews.<sup><a epub:type="noteref" href="#Fn1" id="Fn1_source" role="doc-noteref">1</a></sup>
+						It features state-of-the-art research on real-time auralization, sonic interaction design in VR,
+						quality of the experience in multimodal environments, and applications. We aim to provide an
+						organized starting point on which to develop a new generation of immersive experiences and
+						applications. Since the editors are aware of the very fast social transformation by the
+						acceleration in the development of digital technologies, all chapters should be read as entry
+						points. Future scenarios and solutions will necessarily evolve by combining emerging research
+						areas such as artificial intelligence, ubiquitous and pervasive computing, quantum technologies,
+						as well as continuous discoveries in the neuroscientific field and anthropological reflections
+						on the authenticity of the experience in VR.</p>
+					<p class="Para" id="Par9">For this reason, contributing authors and editors include
+						interdisciplinary experts from the fields of computer science, engineering, acoustics,
+						psychology, design, humanities, and beyond. So that we can give to the reader a broad view and a
+						clear introduction to the state-of-the-art technologies and design principles, and to the
+						challenges that might be awaiting us in the future.</p>
+					<p class="Para" id="Par10">Through an overview of emerging topics, theories, methods, tools, and
+						practices in sonic interactions in virtual environments research, the book aims to establish the
+						basis for further development of this new research area. The authors were invited to contribute
+						to specific topics according to their well-known expertise. They followed a predefined structure
+						outlined by the editors.</p>
+					<p class="Para" id="Par010">The book is divided into four parts:</p>
+					<p class="Para" id="Par11"><strong class="EmphasisTypeBold ">Part I, Introduction:</strong> this
+						theoretical part frames the background and the key themes in SIVE. The editors address several
+						phenomenological foundational issues intending to shape a new research field from an archipelago
+						of studies scattered in different research communities.</p>
+					<p class="Para" id="Par12"><strong class="EmphasisTypeBold ">Part II, Interactive and Immersive
+							Audio:</strong> we cover the system requirement part with four chapters introducing and
+						analyzing audio-related technological aspects and challenges. With some overlaps and
+						connections, the four chapters deal with the plausibility of an immersive rendering able to
+						tackle the computational burden. To do so, we deal with methods and algorithms for real-time
+						rendering considering sound production, propagation, and spatialization, respectively. Finally,
+						the reproduction and evaluation phase allows closing the development loop of new audio
+						technologies.</p>
+					<p class="Para" id="Par13"><strong class="EmphasisTypeBold ">Part III,</strong> <strong
+							class="EmphasisTypeBold ">Sonic Interactions:</strong> a sonic interaction design part
+						devoted to emphasizing the peculiar aspects of sound in immersive media. In particular, spatial
+						interactions are important where we would like to produce and transform ideas and actions to
+						create meaning with VR, as well as the virtual auditory space is an information container that
+						could be shaped by users. As the VR systems enter people’s lives, manufacturers, developers, and
+						creators should carefully consider an embodied experience ready to share a common space with
+						peers, collaboratively.</p>
+					<p class="Para" id="Par14"><strong class="EmphasisTypeBold ">Part IV, Sonic Experiences:</strong>
+						the last part focuses on multimodal integration for sonic experiences in VR with the help of
+						several case studies. Starting from a literature review of multimodal experiments and
+						experiences with sound, this last part offers some reflections on the concept of audio-visual
+						immersion and audio-haptic integration able to form our ecology of everyday or musical sounds.
+						Finally, the potentials of VR to transport artists and spectators into a world of imagination
+						and unprecedented expression is taken as an exemplar of what multimodal and immersive
+						experiences can elicit in terms of emotional and rational engagement.</p>
+					<p class="Para" id="Par15">In the following, a summary for each chapter is provided to help the
+						reader to follow the proposed narrative structure.</p>
+					<section class="Section1 RenderAsSection1" id="Sec1">
+						<h2 class="Heading">Part I</h2>
+						<p class="Para" id="Par16">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_1_Chapter.xhtml"><span class="RefSource">1</span></a></span>
+							illustrates the editors’ vision of the SIVE research field. The main concept introduced here
+							is the egocentric audio perspective in a technologically mediated environment. The listeners
+							should be entangled with their auditory digital twins in a participatory and enacted
+							exploration for sense-making characterized by a personalized and multisensory first-person
+							spatial reference frame. Intra-actions between humans and non-human agents/actors
+							dynamically and fluidly determine immersion and coherence of the experience,
+							participatively. SID aims to facilitate the diffraction of knowledge in different tasks and
+							contexts.</p>
+					</section>
+					<section class="Section1 RenderAsSection1" id="Sec2">
+						<h2 class="Heading">Part II</h2>
+						<p class="Para" id="Par17">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_2_Chapter.xhtml"><span class="RefSource">2</span></a></span>
+							addresses the first building block of SIVE, i.e., the modeling and synthesis of sound
+							sources, focusing on procedural approaches. Special emphasis is placed on physics-based
+							sound synthesis methods and their potential for improved interactivity concerning the sense
+							of presence and embodiment of a user in a virtual environment.</p>
+						<p class="Para" id="Par18">In Chap. <span class="ExternalRef"><a
+									href="478239_1_En_3_Chapter.xhtml"><span class="RefSource">3</span></a></span>,
+							critical challenges in auralization systems in virtual reality and games are identified,
+							including progressing from modeling enclosures to complex, general scenes such as a city
+							block with both indoor and outdoor areas. The authors provide a general overview of
+							real-time auralization systems, their historical design and motivations, and how novel
+							systems have been designed to tackle the new challenges.</p>
+						<p class="Para" id="Par19">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_4_Chapter.xhtml"><span class="RefSource">4</span></a></span> deals
+							with the concepts of adaptation in a binaural audio context, considering first the
+							adaptation of the rendering system to the acoustic and perceptual properties of the user,
+							and second the adaptation of the user to the rendering quality of the system. The authors
+							introduce the topics of head-related transfer function (HRTF) selection (system-to-user
+							adaptation) and HRTF accommodation (user-to-system adaptation).</p>
+						<p class="Para" id="Par20">Finally, Chap. <span class="ExternalRef"><a
+									href="478239_1_En_5_Chapter.xhtml"><span class="RefSource">5</span></a></span>
+							concludes the second part of the book by introducing audio reproduction techniques for
+							virtual reality, the concepts of audio quality, and quality of the experience in VR.</p>
+					</section>
+					<section class="Section1 RenderAsSection1" id="Sec3">
+						<h2 class="Heading">Part III</h2>
+						<p class="Para" id="Par21">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_6_Chapter.xhtml"><span class="RefSource">6</span></a></span> opens
+							the third part of the book devoted to SID within virtual environments. In particular, it
+							deals with space, a fundamental feature of VR systems, and more generally, human experience.
+							In this chapter, the authors propose a typology of VR interactive audio systems, focusing on
+							the function of systems and the role of space in their design. Spatial categories are
+							proposed to be able to analyze the role of space within existing interactive audio VR
+							products.</p>
+						<p class="Para" id="Par22">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_7_Chapter.xhtml"><span class="RefSource">7</span></a></span>
+							promotes the following great opportunities offered by VR systems: to bring experiences,
+							technologies, and users’ physical and experiential bodies (soma) together, and to study and
+							teach these open-ended relationships of enaction and meaning-making in the framework of soma
+							design. In this chapter, the authors introduce soma design and focus on design exemplars
+							that come from physical rehabilitation applied to sonic interaction strategies.</p>
+						<p class="Para" id="Par23">Then, Chap. <span class="ExternalRef"><a
+									href="478239_1_En_8_Chapter.xhtml"><span class="RefSource">8</span></a></span>
+							investigates how to design the user experience without being detrimental to the creative
+							output, and how to design spatial configurations to support both individual creativity and
+							collaboration. The authors examine user experience design for collaborative music-making in
+							shared virtual environments, giving design implications for the auditory information and the
+							collaborative facilitation.</p>
+						<p class="Para" id="Par24">Finally, Chap. <span class="ExternalRef"><a
+									href="478239_1_En_9_Chapter.xhtml"><span class="RefSource">9</span></a></span>
+							explores the possibilities in content creation like spatial music mixing, be it in virtual
+							spaces or for surround sound in film and music, offered by the development of VR systems and
+							multimodal simulations. Authors present some design aspects for mixing in VR, investigating
+							existing virtual music mixing products, and creating a framework for a virtual spatial-music
+							mixing tool.</p>
+					</section>
+					<section class="Section1 RenderAsSection1" id="Sec4">
+						<h2 class="Heading">Part IV</h2>
+						<p class="Para" id="Par25">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_10_Chapter.xhtml"><span class="RefSource">10</span></a></span>
+							helps the reader to understand how sound enhances, substitutes, or modifies the way we
+							perceive and interact with the world. This is an important element when designing
+							interactive multimodal experiences. In this chapter, Stefania presents an overview of sound
+							in a multimodal context, ranging from basic experiments in multimodal perception to more
+							advanced interactive experiences.</p>
+						<p class="Para" id="Par26">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_11_Chapter.xhtml"><span class="RefSource">11</span></a></span>
+							focuses on audiovisual experiences, by discussing the idea of immersion, and by providing an
+							experimental paradigm that can be used for assessing immersion. The authors highlight the
+							factors that can influence immersion and they differentiate immersion from the quality of
+							experience (QoE). The theoretical implications for conducting experiments on these aspects
+							are presented, and the authors provide a case study for subjective evaluation after
+							assessing the merits and demerits of subjective and objective measures.</p>
+						<p class="Para" id="Par27">Chapter <span class="ExternalRef"><a
+									href="478239_1_En_12_Chapter.xhtml"><span class="RefSource">12</span></a></span>
+							focuses on audio-haptic experiences, being concerned with haptic augmentations having
+							effects on auditory perception, for example, about how different vibrotactile cues may
+							affect the perceived sound quality. The authors review the results of different experiments
+							showing that the auditory and somatosensory channels together can produce constructive
+							effects resulting in a measurable perceptual enhancement.</p>
+						<p class="Para" id="Par28">Finally, Chap. <span class="ExternalRef"><a
+									href="478239_1_En_13_Chapter.xhtml"><span class="RefSource">13</span></a></span>
+							examines the special case of virtual music experiences, with particular emphasis on the
+							performance with Immersive Virtual Musical Instruments (IVMI) and the relation between
+							musicians and spectators. The authors assess in detail the several technical and conceptual
+							challenges linked to the composition of IVMI performances on stage (i.e., their
+							scenography), providing a new critical perspective.</p>
+						<p class="Para" id="Par29">We hope the reader finds this book informative and useful for both
+							research and practice with sound.</p>
+					</section>
+				</div>
+				<div class="AuthorName"><span class="AuthorName">Michele Geronazzo</span></div>
+				<div class="AuthorName"><span class="AuthorName">Stefania Serafin</span></div>
+				<div class="PrefaceLocations"><span class="PrefaceLocation">Udine, Copenhagen</span></div>
+				<div class="PrefaceDate">September 2021</div>
+			</div>
+			<aside aria-label="Article Note 1" class="ArticleNote ArticleNoteMisc BookFrontmatterArticleNote">
+				<p class="SimplePara">
+					<em class="EmphasisTypeItalic ">Between stimulus and response there is a space. In that space is our
+						power to choose our response. In our response lies our growth and our freedom.</em>
+				</p>
+				<p class="SimplePara">
+					<em class="EmphasisTypeItalic ">—Viktor E. Frankl</em>
+				</p>
+			</aside>
+			<div class="BookAcknowledgments" epub:type="acknowledgments" role="doc-acknowledgments">
+				<div class="BookAcknowledgmentsTitle" lang="en">Acknowledgements</div>
+				<div class="BookAcknowledgmentsBody">
+					<p class="Para" id="Par30">We would like to thank all authors and people involved in the book for
+						their time and effort. In particular, the co-organizers of the IEEE Virtual Reality Workshop
+						SIVE participated, in different ways, in this book project. Special thanks to Helen Desmond
+						(Springer Computer Science Editor) and the Springer team for allowing us to prepare this volume.
+					</p>
+					<p class="Para" id="Par31"><strong class="EmphasisTypeBold ">Michele:</strong> I take my place, I
+						have been creating my place in SIVE. This book project closes my first 10 years of academic
+						activities, It has allowed me to reflect on my path and interdisciplinary education, challenging
+						my knowledge extraction process. I went through the three “HCI waves” with my own time:
+						ergonomics and engineering in Padova, psychology, and cognition in Verona, embodied design and
+						UX in Copenhagen. I found recognition and maturity in London, and, finally, Udine gave me the
+						time to find my identity. I would like to thank all my mentors and peers who made me grow in the
+						research jungle, on numerous occasions and at different moments in my life. A big thanks go to
+						my beloved family who supports me and always brings me back down to earth.</p>
+					<p class="Para" id="Par32">New challenges in VR are on the horizon and I am ready to make resonate
+						our audio perspective!</p>
+					<p class="Para" id="Par33"><strong class="EmphasisTypeBold ">Stefania:</strong> This year I have
+						been recognized with the Danish Sound Award, for being pivotal in securing Denmark’s role as a
+						leader in fields such as sonic interaction design, sound, and music computing and developing the
+						role of sound in international virtual reality research. This award and this book would not have
+						been possible without the wonderful colleagues and students of the Multisensory Experience Lab
+						at Aalborg University in Copenhagen, who keep me motivated and inspired on a daily basis. It was
+						a pleasure to host Michele as a postdoc in the lab for 2 years, and this book is a result of
+						that. The lab is my second family, that wonderfully complements my first beloved family, both in
+						Italy and in Denmark, that I thank with all my heart for everything they mean to me.</p>
+					<p class="Para" id="Par34"><strong class="EmphasisTypeBold ">List of expert readers:</strong> we
+						thank the following researchers to be our first critical readers, providing valuable comments
+						for specific chapters within their area of expertise:</p>
+					<p class="Para" id="Par35">Roberto Barumerli, Acoustics Research Institute, Vienna, Austria</p>
+					<p class="Para" id="Par36">Braxton Boren, American University, Washington, DC, US</p>
+					<p class="Para" id="Par37">Enzo De Sena, University of Surrey, Guildford, Surrey, UK</p>
+					<p class="Para" id="Par38">Michele Ducceschi, University of Bologna, Bologna, Italy</p>
+					<p class="Para" id="Par39">Isaac Engel, Imperial College London, London, UK</p>
+					<p class="Para" id="Par40">Floriana Ferro, University of Udine, Udine, Italy</p>
+					<p class="Para" id="Par41">Amalia de Götzen, Aalborg University Copenhagen, Copenhagen, Denmark</p>
+					<p class="Para" id="Par42">Marcella Mandanici, Music Conservatory “Luca Marenzio”, Brescia, Italy
+					</p>
+					<p class="Para" id="Par43">Raul Masu, Universidade NOVA de Lisboa, Lisbon, Spain</p>
+					<p class="Para" id="Par44">Catarina Mendonça, University of Azores, Ponta Delgada, Portugal</p>
+					<p class="Para" id="Par45">Fabio Morreale, University of Auckland, Auckland, New Zealand</p>
+					<p class="Para" id="Par46">Niels Christian Nilsson, Aalborg University Copenhagen, Copenhagen,
+						Denmark</p>
+					<p class="Para" id="Par47">Dan Overholt, Aalborg University Copenhagen, Copenhagen, Denmark</p>
+					<p class="Para" id="Par48">Archontis Politis, Tampere University, Tampere, Finland</p>
+					<p class="Para" id="Par49">Sebastian Prepelita, Facebook Reality Labs, Redmond, WA, US</p>
+					<p class="Para" id="Par50">Giorgio Presti, University of Milano, Milano, Italy</p>
+					<p class="Para" id="Par51">Davide Rocchesso, University of Palermo, Palermo, Italy</p>
+					<p class="Para" id="Par52">Lauri Savioja, Aalto University, Espoo, Finland</p>
+					<p class="Para" id="Par53">Bernhard Seeber, Technische Universität München, Munich, Germany</p>
+					<p class="Para" id="Par54">Ana Tajadura-Jiménez, University College London, London, UK</p>
+					<p class="Para" id="Par55">Maarten Van Walstijn, Queen’s University Belfast, Belfast, UK</p>
+					<p class="Para" id="Par56">Silvin Willemsen, Aalborg University Copenhagen, Copenhagen, Denmark</p>
+					<section class="Section1 RenderAsSection1" id="Sec5">
+						<h2 class="Heading">Open Access Funding</h2>
+						<div class="Para" id="Par57">This book project was supported by<div class="UnorderedList">
+								<ul class="UnorderedListMarkBullet">
+									<li>
+										<p class="Para" id="Par58">the Nordic Sound and Music Computing Network
+											(NordicSMC)—University hub by Nordforsk (Norway),</p>
+									</li>
+									<li>
+										<p class="Para" id="Par60">the Department of Humanities and Cultural
+											Heritage—University of Udine (Italy) with the recognition of “Department of
+											Excellence” by the Ministry of Education, University and Research (MIUR) of
+											Italy</p>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="Para" id="Par61">that cover the majority of the open-access publishing costs. We are
+							grateful to the EU project SONICOM (grant number: 101017743, RIA action of Horizon 2020) for
+							its sponsorship that contributes to the full transition to open access.<figure
+								class="Figure" id="Figb">
+								<div class="MediaObject" id="MO2"><img alt=""
+										src="../images/478239_1_En_BookFrontmatter_Figb_HTML.png"
+										style="width:32.75em" /></div>
+							</figure>
+						</div>
+					</section>
+				</div>
+			</div>
+			<div class="Toc" epub:type="toc" id="Toc" role="doc-toc">
+				<div class="Headings">
+					<div class="Heading">Contents</div>
+				</div>
+				<div class="TocBody">
+					<div class="TocPart">
+						<div class="TocEntry"><span class="TocItem">Part I Introduction</span></div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_1_Chapter.xhtml"><span
+												class="RefSource">1 Sonic Interactions in Virtual Environments:​ The
+												Egocentric Audio Perspective of the Digital Twin</span></a></span>
+								</span><span class="TocPageNumber">3</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Michele Geronazzo</span> and </span><span
+									class="Author"><span class="AuthorName">Stefania Serafin</span></span></div>
+						</div>
+					</div>
+					<div class="TocPart">
+						<div class="TocEntry"><span class="TocItem">Part II Interactive and Immersive Audio</span></div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_2_Chapter.xhtml"><span
+												class="RefSource">2 Procedural Modeling of Interactive Sound Sources in
+												Virtual Reality</span></a></span>
+								</span><span class="TocPageNumber">49</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Federico Avanzini</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_3_Chapter.xhtml"><span
+												class="RefSource">3 Interactive and Immersive
+												Auralization</span></a></span>
+								</span><span class="TocPageNumber">77</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Nikunj Raghuvanshi</span> and </span><span
+									class="Author"><span class="AuthorName">Hannes Gamper</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_4_Chapter.xhtml"><span
+												class="RefSource">4 System-to-User and User-to-System Adaptations in
+												Binaural Audio</span></a></span>
+								</span><span class="TocPageNumber">115</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Lorenzo Picinali</span> and </span><span class="Author"><span
+										class="AuthorName">Brian F. G. Katz</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_5_Chapter.xhtml"><span
+												class="RefSource">5 Audio Quality Assessment for Virtual
+												Reality</span></a></span>
+								</span><span class="TocPageNumber">145</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Fabian Brinkmann</span> and </span><span class="Author"><span
+										class="AuthorName">Stefan Weinzierl</span></span></div>
+						</div>
+					</div>
+					<div class="TocPart">
+						<div class="TocEntry"><span class="TocItem">Part III Sonic Interactions</span></div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_6_Chapter.xhtml"><span
+												class="RefSource">6 Spatial Design Considerations for Interactive Audio
+												in Virtual Reality</span></a></span>
+								</span><span class="TocPageNumber">181</span></div>
+							<div class="TocAuthors"><span class="Author"><span class="AuthorName">Thomas Deacon</span>
+									and </span><span class="Author"><span
+										class="AuthorName">Mathieu Barthet</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_7_Chapter.xhtml"><span
+												class="RefSource">7 Embodied and Sonic Interactions in Virtual
+												Environments:​ Tactics and Exemplars</span></a></span>
+								</span><span class="TocPageNumber">219</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Sophus Béneé Olsen</span>, </span><span class="Author"><span
+										class="AuthorName">Emil Rosenlund Høeg</span> and </span><span
+									class="Author"><span class="AuthorName">Cumhur Erkut</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_8_Chapter.xhtml"><span
+												class="RefSource">8 Supporting Sonic Interaction in Creative, Shared
+												Virtual Environments</span></a></span>
+								</span><span class="TocPageNumber">237</span></div>
+							<div class="TocAuthors"><span class="Author"><span class="AuthorName">Liang Men</span> and
+								</span><span class="Author"><span class="AuthorName">Nick Bryan-Kinns</span></span>
+							</div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_9_Chapter.xhtml"><span
+												class="RefSource">9 Spatial Audio Mixing in Virtual
+												Reality</span></a></span>
+								</span><span class="TocPageNumber">269</span></div>
+							<div class="TocAuthors"><span class="Author"><span class="AuthorName">Anders Riddershom
+										Bargum</span>, </span><span class="Author"><span class="AuthorName">Oddur Ingi
+										Kristjánsson</span>, </span><span class="Author"><span
+										class="AuthorName">Péter Babó</span>, </span><span class="Author"><span
+										class="AuthorName">Rasmus Eske Waage Nielsen</span>, </span><span
+									class="Author"><span class="AuthorName">Simon Rostami Mosen</span> and </span><span
+									class="Author"><span class="AuthorName">Stefania Serafin</span></span></div>
+						</div>
+					</div>
+					<div class="TocPart">
+						<div class="TocEntry"><span class="TocItem">Part IV Sonic Experiences</span></div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_10_Chapter.xhtml"><span
+												class="RefSource">10 Audio in Multisensory Interactions:​ From
+												Experiments to Experiences</span></a></span>
+								</span><span class="TocPageNumber">305</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Stefania Serafin</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_11_Chapter.xhtml"><span
+												class="RefSource">11 Immersion in Audiovisual
+												Experiences</span></a></span>
+								</span><span class="TocPageNumber">319</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Sarvesh R. Agrawal</span> and </span><span
+									class="Author"><span class="AuthorName">Søren Bech</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_12_Chapter.xhtml"><span
+												class="RefSource">12 Augmenting Sonic Experiences Through Haptic
+												Feedback</span></a></span>
+								</span><span class="TocPageNumber">353</span></div>
+							<div class="TocAuthors"><span class="Author"><span
+										class="AuthorName">Federico Fontana</span>, </span><span class="Author"><span
+										class="AuthorName">Hanna Järveläinen</span> and </span><span
+									class="Author"><span class="AuthorName">Stefano Papetti</span></span></div>
+						</div>
+						<div class="TocChapter">
+							<div class="TocEntry"><span class="TocItem">
+									<span class="ExternalRef"><a href="478239_1_En_13_Chapter.xhtml"><span
+												class="RefSource">13 From the Lab to the Stage:​ Practical
+												Considerations on Designing Performances with Immersive Virtual Musical
+												Instruments</span></a></span>
+								</span><span class="TocPageNumber">383</span></div>
+							<div class="TocAuthors"><span class="Author"><span class="AuthorName">Victor Zappi</span>,
+								</span><span class="Author"><span class="AuthorName">Dario Mazzanti</span> and
+								</span><span class="Author"><span class="AuthorName">Florent Berthaut</span></span>
+							</div>
+						</div>
+					</div>
+					<div class="TocBack"><span class="TocItem">
+							<span class="ExternalRef"><a href="478239_1_En_BookBackmatter_OnlinePDF.xhtml#Ind1"><span
+										class="RefSource">Index</span></a></span>
+						</span><span class="TocPageNumber">425</span></div>
+				</div>
+			</div>
+			<div class="Loc LocWithHeading" epub:type="contributors">
+				<div class="Headings">
+					<div class="Heading">Editors and Contributors</div>
+				</div>
+				<div class="LocBody">
+					<div class="LocDiv">
+						<div class="Headings">
+							<div class="Heading">About the Editors</div>
+						</div>
+						<div class="AuthorGroup">
+							<div class="Biography">
+								<div class="BiographyFigure">
+									<figure class="Figure" id="Figc">
+										<div class="MediaObject" id="MO3"><img alt=""
+												src="../images/478239_1_En_BookFrontmatter_Figc_HTML.jpg"
+												style="width:10.62em" /></div>
+									</figure>
+								</div>
+								<div class="FormalPara FormalParaRenderingStyle1" id="FPar1">
+									<div class="Heading">Michele Geronazzo</div>
+									<div class="Para FirstParaInFormalPara" id="Par64">Ph.D., is an Associate Professor
+										at the University of Padova—Dept. of Management and Engineering, and part of the
+										coordination unit of the EU-H2020 project SONICOM at Imperial College London. He
+										received his M.S. degree in Computer Engineering (2009) and his Ph.D. degree in
+										Information &amp; Communication Technologies (2014) from the University of
+										Padova. Between 2014 and 2021, he worked as an Assistant Professor in Digital
+										Media at the University of Udine and a postdoctoral researcher at Imperial
+										College London, Aalborg University, and the University of Verona in the fields
+										of neurosciences and simulations of complex human–machine systems. His main
+										research interests involve binaural spatial audio modeling and synthesis,
+										virtual/augmented reality, and sound in human–computer interaction.</div>
+									<p class="Para" id="Par65">He is an IEEE Senior Member and part of the organizing
+										committee of the IEEE VR Workshop on Sonic Interactions for Virtual Environments
+										since 2015 (chair of the 2018 and 2020 editions). From September 2019, he has
+										been appointed as an Editorial Board member for Frontiers in Virtual Reality,
+										and he served as guest editor for Wireless Communications and Mobile Computing
+										(John Wiley &amp; Sons and Hindawi publishers, 2019). He is a co-recipient of
+										six best paper/poster awards and co-author of more than 70 scientific
+										publications. In 2015, his Ph.D. thesis was honored by the Acoustic Society of
+										Italy (AIA) with the “G. Sarcedote” award.</p>
+								</div>
+							</div>
+							<div class="ClearBoth"> </div>
+						</div>
+						<div class="AuthorGroup">
+							<div class="Biography">
+								<div class="BiographyFigure">
+									<figure class="Figure" id="Figd">
+										<div class="MediaObject" id="MO4"><img alt=""
+												src="../images/478239_1_En_BookFrontmatter_Figd_HTML.jpg"
+												style="width:10.62em" /></div>
+									</figure>
+								</div>
+								<div class="FormalPara FormalParaRenderingStyle1" id="FPar2">
+									<div class="Heading">Stefania Serafin</div>
+									<div class="Para FirstParaInFormalPara" id="Par66">is a Professor of Sonic
+										interaction design at Aalborg University in Copenhagen and the leader of the
+										Multisensory Experience Lab together with Rolf Nordahl. She was previously
+										appointed as Associate Professor (2006–2013) and Assistant Professor (2003–2006)
+										in the same University. She has been visiting researcher at the University of
+										Cambridge and KTH in Stockholm (2003) and visiting professor at the University
+										of Virginia (2002). Since 2014, she is the President of the Sound and Music
+										Computing association, and since 2018, the Project Leader of the Nordic Sound
+										and Music Computing network supported by Nordforsk. She has been a part of the
+										organizing committee of the IEEE VR Workshop on Sonic Interactions for Virtual
+										Environments since the first edition. She is also the coordinator of the Sound
+										and music computing Master at Aalborg University. She received her Ph.D.
+										entitled “The sound of friction: computer models, playability and musical
+										applications” from Stanford University in 2004, supervised by Professor Julius
+										Smith III. She is the co-author of more than 300 papers in the fields of sound
+										and music computing, sound for virtual and augmented reality, sonic interaction
+										design, and new interfaces for musical expression.</div>
+								</div>
+							</div>
+							<div class="ClearBoth"> </div>
+						</div>
+					</div>
+					<div class="LocDiv">
+						<div class="Headings">
+							<div class="Heading">Contributors</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Sarvesh R. Agrawal</span></span>
+							<div class="Affiliation" id="Aff7">
+								<div class="AffiliationText">Bang &amp; Olufsen, Struer, Denmark</div>
+							</div>
+							<div class="Affiliation" id="Aff8">
+								<div class="AffiliationText">Technical University of Denmark, Department of Photonics
+									Engineering, Lyngby, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Federico Avanzini</span></span>
+							<div class="Affiliation" id="Aff9">
+								<div class="AffiliationText">Laboratory of Music Informatics, Department of Computer
+									Science, University of Milano, Milano, Italy</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span class="AuthorName">Péter Babó</span></span>
+							<div class="Affiliation" id="Aff10">
+								<div class="AffiliationText">Department of Architecture, Design, and Media Technology,
+									Aalborg University Copenhagen, Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Mathieu Barthet</span></span>
+							<div class="Affiliation" id="Aff11">
+								<div class="AffiliationText">Centre for Digital Music, Queen Mary University of London,
+									London, United Kingdom</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span class="AuthorName">Søren Bech</span></span>
+							<div class="Affiliation" id="Aff12">
+								<div class="AffiliationText">Bang &amp; Olufsen, Struer, Denmark</div>
+							</div>
+							<div class="Affiliation" id="Aff13">
+								<div class="AffiliationText">Department of Electronic Systems, Aalborg University,
+									Aalborg, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Florent Berthaut</span></span>
+							<div class="Affiliation" id="Aff14">
+								<div class="AffiliationText">University of Lille, Lille, France</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Fabian Brinkmann</span></span>
+							<div class="Affiliation" id="Aff15">
+								<div class="AffiliationText">Audio Communication Group, Technical University of Berlin,
+									Berlin, Germany</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Nick Bryan-Kinns</span></span>
+							<div class="Affiliation" id="Aff16">
+								<div class="AffiliationText">Queen Mary University of London, London, United Kingdom
+								</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Thomas Deacon</span></span>
+							<div class="Affiliation" id="Aff17">
+								<div class="AffiliationText">Media and Arts Technology CDT, Queen Mary University of
+									London, London, United Kingdom</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Cumhur Erkut</span></span>
+							<div class="Affiliation" id="Aff18">
+								<div class="AffiliationText">Multisensory Experience Lab, Aalborg University Copenhagen,
+									Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span class="AuthorName">Rasmus Eske Waage
+									Nielsen</span></span>
+							<div class="Affiliation" id="Aff19">
+								<div class="AffiliationText">Department of Architecture, Design, and Media Technology,
+									Aalborg University Copenhagen, Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Federico Fontana</span></span>
+							<div class="Affiliation" id="Aff20">
+								<div class="AffiliationText">Department of Mathematics, Computer Science and Physics,
+									University of Udine, Udine, Italy</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Hannes Gamper</span></span>
+							<div class="Affiliation" id="Aff21">
+								<div class="AffiliationText">Microsoft Research, Redmond, USA</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Michele Geronazzo</span></span>
+							<div class="Affiliation" id="Aff22">
+								<div class="AffiliationText">Department of Engineering and Management, University of
+									Padova, Padova, Italy</div>
+							</div>
+							<div class="Affiliation" id="Aff23">
+								<div class="AffiliationText">Dyson School of Design Engineering, Imperial College
+									London, London, UK</div>
+							</div>
+							<div class="Affiliation" id="Aff24">
+								<div class="AffiliationText">Department of Humanities and Cultural Heritage, University
+									of Udine, Udine, Italy</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Emil Rosenlund Høeg</span></span>
+							<div class="Affiliation" id="Aff25">
+								<div class="AffiliationText">Multisensory Experience Lab, Aalborg University Copenhagen,
+									Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span class="AuthorName">Oddur Ingi
+									Kristjánsson</span></span>
+							<div class="Affiliation" id="Aff26">
+								<div class="AffiliationText">Department of Architecture, Design, and Media Technology,
+									Aalborg University Copenhagen, Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Hanna Järveläinen</span></span>
+							<div class="Affiliation" id="Aff27">
+								<div class="AffiliationText">Institute for Computer Music and Sound Technology, Zurich
+									University of the Arts, Zurich, Switzerland</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Brian F. G. Katz</span></span>
+							<div class="Affiliation" id="Aff28">
+								<div class="AffiliationText">Sorbonne Université, CNRS, UMR 7190, Institut Jean Le Rond
+									d’Alembert, Paris, France</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Dario Mazzanti</span></span>
+							<div class="Affiliation" id="Aff29">
+								<div class="AffiliationText">Independent researcher, Genoa, Italy</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span class="AuthorName">Liang Men</span></span>
+							<div class="Affiliation" id="Aff30">
+								<div class="AffiliationText">Liverpool John Moores University, Liverpool, United Kingdom
+								</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Sophus Béneé Olsen</span></span>
+							<div class="Affiliation" id="Aff31">
+								<div class="AffiliationText">Multisensory Experience Lab, Aalborg University Copenhagen,
+									Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Stefano Papetti</span></span>
+							<div class="Affiliation" id="Aff32">
+								<div class="AffiliationText">Institute for Computer Music and Sound Technology, Zurich
+									University of the Arts, Zurich, Switzerland</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Lorenzo Picinali</span></span>
+							<div class="Affiliation" id="Aff33">
+								<div class="AffiliationText">Imperial College London, London, UK</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Nikunj Raghuvanshi</span></span>
+							<div class="Affiliation" id="Aff34">
+								<div class="AffiliationText">Microsoft Research, Redmond, USA</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span class="AuthorName">Anders Riddershom
+									Bargum</span></span>
+							<div class="Affiliation" id="Aff35">
+								<div class="AffiliationText">Department of Architecture, Design, and Media Technology,
+									Aalborg University Copenhagen, Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span class="AuthorName">Simon Rostami
+									Mosen</span></span>
+							<div class="Affiliation" id="Aff36">
+								<div class="AffiliationText">Department of Architecture, Design, and Media Technology,
+									Aalborg University Copenhagen, Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Stefania Serafin</span></span>
+							<div class="Affiliation" id="Aff37">
+								<div class="AffiliationText">Department of Architecture, Design, and Media Technology,
+									Aalborg University Copenhagen, Copenhagen, Denmark</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Stefan Weinzierl</span></span>
+							<div class="Affiliation" id="Aff38">
+								<div class="AffiliationText">Audio Communication Group, Technical University of Berlin,
+									Berlin, Germany</div>
+							</div>
+						</div>
+						<div class="AuthorGroup"><span class="Author"><span
+									class="AuthorName">Victor Zappi</span></span>
+							<div class="Affiliation" id="Aff39">
+								<div class="AffiliationText">Northeastern University, Boston, MA, United States</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<aside aria-label="Footnotes" class="FootnoteSection BookFrontmatterFootnoteSection" epub:type="footnotes">
+				<div class="Heading">Footnotes</div>
+				<div class="Footnote"><span class="FootnoteNumber"><a href="#Fn1_source">1</a></span>
+					<div class="FootnoteContent" epub:type="footnote" id="Fn1" role="doc-footnote">
+						<p class="Para" id="Par7">S. Serafin, M. Geronazzo, N. C. Nilsson, C. Erkut, and R. Nordahl,
+							“Sonic interactions in virtual reality: state of the art, current challenges and future
+							directions,” IEEE Computer Graphics and Applications, vol. 38, no. 2, pp. 31–43, 2018.</p>
+						<p class="Para" id="Par8">S. Serafin et al., “Reflections from five years of Sonic Interactions
+							in Virtual Environments workshops,” Journal of New Music Research, vol. 49, no. 1, pp.
+							24–34, Jan. 2020.</p>
+					</div>
+					<div class="ClearBoth"> </div>
+				</div>
+			</aside>
+		</div>
+	</div>
+</body>
+
+</html>

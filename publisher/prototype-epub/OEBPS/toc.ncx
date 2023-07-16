@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+
+  <head>
+    <meta name="dtb:uid" content="urn:isbn:978-3-031-04021-4"/>
+  </head>
+
+  <docTitle><text>Source Code for Humans</text></docTitle>
+  <docAuthor><text>Joe Panico</text></docAuthor>
+  <navMap>
+    <navPoint id="navpoint-1" playOrder="1">
+      <navLabel><text>Cover</text></navLabel>
+      <content src="html/cover.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint-2" playOrder="2">
+      <navLabel><text>Front Matter</text></navLabel>
+      <content src="html/book_frontmatter.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint-3" playOrder="3">
+      <navLabel><text>Part I. Source Code</text></navLabel>
+      <content src="html/part_1.xhtml"/>
+        <navPoint id="navpoint-4" playOrder="4">
+          <navLabel><text>1. Chapter 1</text></navLabel>
+          <content src="html/chapter_1.xhtml"/>
+        </navPoint>
+    </navPoint>
+    <navPoint id="navpoint-5" playOrder="5">
+      <navLabel><text>Part II. Humans</text></navLabel>
+      <content src="html/part_2.xhtml"/>
+        <navPoint id="navpoint-6" playOrder="6">
+          <navLabel><text>2. Chapter 2</text></navLabel>
+          <content src="html/chapter_2.xhtml"/>
+        </navPoint>
+    </navPoint>
+    <navPoint id="navpoint-20" playOrder="20">
+      <navLabel><text>Back Matter</text></navLabel>
+      <content src="html/book_backmatter.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>

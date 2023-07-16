@@ -3,8 +3,8 @@
   xmlns:dcterms="http://purl.org/dc/terms/" version="3.0" xml:lang="en"
   unique-identifier="pub-identifier">
   <metadata>
-    <dc:identifier id="pub-identifier">urn:isbn:978-3-031-04021-4</dc:identifier>
-    <dc:title id="pub-title">Sonic Interactions in Virtual Environments</dc:title>
+    <dc:identifier id="pub-identifier">urn:isbn:XXX-X-XX-XXXXXX-X</dc:identifier>
+    <dc:title id="pub-title">Source Code for Humans</dc:title>
     <meta refines="#pub-title" property="title-type">main</meta>
     <dc:language id="pub-language">en</dc:language>
     <meta property="dcterms:modified">2022-10-13T19:27:45Z</meta>
