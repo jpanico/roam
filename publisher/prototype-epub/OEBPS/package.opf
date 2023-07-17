@@ -55,13 +55,14 @@
 
     <!-- styling -->
     <item id="base_css" href="css/base.css" media-type="text/css"/>
+    <item id="sonic_interactions_css" href="css/sonic-interactions.css" media-type="text/css"/>
 
     <!-- media -->
     <item id="cover_image" href="images/cover.jpg" media-type="image/jpeg"/>
   </manifest>
 
   <spine toc="ncx">
-    <itemref idref="cover" linear="no"/>
+    <itemref idref="cover"/>
     <itemref idref="book_frontmatter"/>
     <itemref idref="part_1"/>
     <itemref idref="chapter_1"/>

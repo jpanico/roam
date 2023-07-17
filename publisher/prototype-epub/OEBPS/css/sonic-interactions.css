@@ -1,0 +1,2298 @@
+/********************/
+/* 1. Global styles */
+/********************/
+a {
+	text-decoration: none;
+}
+a:link, a:active {
+	color: #0176C3;
+}
+.ParaTypeImportant a:link, .ParaTypeImportant a:active, .SectionTypeBox a:link, .SectionTypeBox a:active, .SectionTypeOverview a:link, .SectionTypeOverview a:active, .SectionTypeQuestionnaire a:link, .SectionTypeQuestionnaire a:active, thead a:link, thead a:active {
+	color: #014E80; /* required so that the contrast is higher than 4.5:1 */
+}
+a:visited {
+	color: #5f5f5f;
+}
+body {
+	font-family: "Cambria", "Minion Pro", "Times New Roman", "Times", serif;
+	/*margin: 0;*/
+}
+img {
+	border: 0;
+	vertical-align: middle;
+}
+video {	
+	display: block;	
+	margin-top: 1em;
+	max-width: 100%;
+	text-indent: 0;	
+	width: 100%;
+}
+p {
+	margin: 0;
+}
+.Heading, .SubHeading, .ContextInformation, .MainTitleSection, .PartTitle, .SeriesTitle, .SeriesSubTitle,
+.SubSeriesTitle, .SubSeriesSubTitle, .BookTitle, .BookSubTitle, .ForewordTitle, .PrefaceTitle, .BookAcknowledgmentsTitle, .BookNotesTitle {
+	text-align: left !important;
+}
+.Heading, .SubHeading {
+	display: block;
+	font-weight: bold;
+}
+
+
+/*****************************/
+/* 2. Article/Chapter Header */
+/*****************************/
+
+/* Context information at the top of the page */
+/**********************************************/
+.ArticleContextInformation {
+	border-bottom: 1px solid;
+	margin-bottom: 0.8em;
+	padding-bottom: 0.3em;
+}
+.ArticleContextInformation .ContextInformation {
+	display: block;
+	font-size: 80%;
+}
+.ArticleContextInformation .JournalTitle:after, .ArticleContextInformation .JournalSubTitle:after {
+	content: ", ";
+}
+.ArticleCopyright {
+	display: inline;
+}
+.ArticleCopyright .CopyrightComment, .ArticleContextInformation .ArticleDOI {
+	display: block;
+}
+
+.ChapterContextInformation {
+	border-bottom: 1px solid;
+	margin-bottom: 0.8em;
+	padding-bottom: 0.3em;
+}
+.ChapterContextInformation .ContextInformation {
+	display: block;
+	font-size: 80%;
+}
+.ChapterCorrectionYear:before {
+	content: ", ";
+}
+.ChapterCorrectionYear .Year:first-of-type:before {
+	content: " ";
+}
+.ChapterCorrectionYear .Year+.Year:before {
+	content: ", ";
+}
+.ChapterCopyright .CopyrightComment {
+	display: block;
+}
+.ChapterContextInformation .BookEdition:before {
+	content: ', ';
+}
+.ChapterContextInformation .ContextInformationAuthorEditorNames:after {
+	content: ', ';
+}
+.ChapterContextInformation .BookTitle {
+	font-style: italic;
+}
+.ChapterContextInformation .SeriesTitle:before, .ChapterContextInformation .SubSeriesTitle:before {
+	content: ', ';
+}
+.ChapterContextInformation .SeriesSubTitle:before, .ChapterContextInformation .SubSeriesSubTitle:before {
+	content: ': ';
+}
+.ChapterContextInformation .ContextInformationVolumeNumber:before {
+	content: ' ';
+}
+.ChapterContextInformation .ChapterDOI {
+	display: block;
+}
+
+/*.BookContextInformation {
+	font-size: 80%;
+	padding-bottom: 0.5em;
+}
+.BookContextInformation .ContextInformationEditorsAuthors:after {
+	content: ", ";
+}
+.BookContextInformation .SeriesSubTitle:before {
+	content: ": ";
+}
+.BookContextInformation .ContextInformationSeriesTitles:after {
+	content: ", ";
+}
+.BookContextInformation .BookTitle:after {
+	content: ", ";
+}
+.BookContextInformation .BookTitle {
+	font-style: italic;
+}
+.BookContextInformation .BookEdition:after {
+	content: ", ";
+}
+.BookContextInformation .BookSubTitle:after {
+	content: ", ";
+}
+.BookContextInformation .ContextInformationDOI:after {
+	content: ", ";
+}
+.BookFrontmatter .ContextInformation, .PartFrontmatter .ContextInformation, .BookBackmatter .ContextInformation {
+	border-bottom: 1px solid;
+	padding-bottom: 5px;
+}*/
+
+/* Article/Chapter Categories */
+/******************************/
+.Categories {
+	color: #666666;
+	margin-bottom: 1em;
+	margin-top: 1em;
+}
+.ArticleCategory, .ChapterCategory {
+	font-size: 1.2rem;
+}
+.ArticleSubCategory, .ChapterSubCategory {
+	font-size: 1rem;
+}
+
+/* Article/Chaper Titles */
+/*************************/
+.MainTitleSection {
+	font-weight: bold;
+	margin-bottom: 1.2em;
+	margin-top: 1.2em;
+}
+.ArticleSuperTitle {
+	font-size: 1.2rem;
+}
+.MainTitleSection .ArticleTitle, .ForeignLanguageHeader .ArticleTitle, .MainTitleSection .ChapterTitle, .ForeignLanguageHeader .ChapterTitle {
+	font-size: 1.73rem;
+	margin: 0;
+}
+.ArticleSubTitle, .ChapterSubTitle {
+	font-size: 1.2rem;
+	padding-top: 0.2em;
+}
+
+/* Author Information */
+/**********************/
+body>.AuthorGroup .AuthorNames, .BookBackmatter>.AuthorGroup .AuthorNames {
+	font-size: 100%;
+	margin-bottom: 1em;
+	margin-top: 1em;
+	text-align: left !important;
+}
+.BookBackmatter>.AuthorGroup .AuthorNames {
+	font-weight: bold;
+}
+.AuthorNames sup {
+	font-size: 70%;
+}
+.Prefix:after {
+	content: '\00a0';
+}
+.Suffix:before {
+	content: '\00a0';
+}
+.Degrees:before {
+	content: ',\00a0';
+}
+.NativeName:before, .Role:before {
+	content: '\00a0(';
+}
+.NativeName:after, .Role:after {
+	content: ')';
+}
+.AffiliationNumber {
+	float: left;
+	padding-right: 0.5em;
+}
+.AffiliationText {
+	margin-left: 2em;
+}
+.AffiliationHint {
+	font-style: italic;
+}
+.AuthorNames .DeceasedSymbol:before {
+	content: "\2020";
+	padding-left: 3px;
+}
+.AuthorNames .EqualContributionSymbol:before {
+	content: "*";
+	padding-left: 3px;
+}
+.InstitutionMembers:before {
+	content: '\00a0(';
+}
+.InstitutionMembers:after {
+	content: ')';
+}
+.AffiliationLegend .DeceasedSymbol:before {
+	content: "\2020";
+	display: inline-block;
+	width: 14px;
+}
+.AffiliationLegend .EqualContributionSymbol:before {
+	content: "*";
+	display: inline-block;
+	width: 14px;
+}
+.ClearBoth {
+	clear: both;
+	font-size: 0pt;
+	line-height: 0 !important;
+}
+.Contact, .AffiliationLegend {
+	margin-bottom: 1em;
+	margin-top:    1em;
+}
+.ContactIcon {
+	background-image:url('envelope.png');
+	background-repeat: no-repeat;
+	background-size: contain;
+	width: 0.8rem;
+}
+.AuthorNames .ContactIcon {
+	display: inline-block;
+}
+.Contact .ContactIcon {
+	float: left;
+	margin-top: 4px;
+	margin-right: 4px;
+}
+.ContactAuthorLine {
+	padding-left: 20px;
+	font-weight: bold;
+}
+.ContactAdditionalLine {
+	padding-left:20px;
+}
+.ContactType {
+	font-weight: bold;
+}
+
+/* Article/Chapter History */
+/***************************/
+.ArticleHistory {
+	margin-bottom: 1em;
+	margin-top: 1em;
+}
+.HistoryLabel {
+	font-weight: bold;
+}
+.History+.History {
+	padding-left: 0.5em;
+}
+
+/* Table of Contents */
+/*********************/
+.ArticleOrChapterToc {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	padding-top: 1em;
+}
+.ArticleOrChapterToc .HeadingNumber {
+	font-weight: bold;
+	padding-right: 0.3em;
+}
+
+/* Abstract */
+/************/
+.Abstract {
+	margin-top: 1em;
+}
+.Abstract>.Heading {
+	font-size: 1em;
+	margin: 0;
+}
+.AbstractSection {
+	margin-top: 0.3em;
+}
+.Heading+.AbstractSection {
+	margin-top: 0;
+}
+.AbstractSection>.Heading {
+	font-size: 1em;
+	font-style: italic;
+	font-weight: normal;
+	margin: 0;
+}
+
+/* Keywords */
+/************/
+.KeywordGroup {
+	margin-top: 1em;
+}
+.KeywordGroup .Heading {
+	display: inline;
+	font-size: 1em;
+	margin: 0;
+	padding-right: 0.5em;
+}
+.Keyword+.Keyword:before {
+	content: " \2013  ";
+}
+
+/* ArticleExternalID */
+/*********************/
+.ArticleExternalID {
+	margin-top: 1em;
+}
+.ArticleExternalIDLabel {
+	font-weight: bold;
+}
+
+/* Foreign Language Header */
+/***************************/
+.ForeignLanguageHeader {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+}
+.ForeignLanguageTitleSection {
+	font-weight: bold;
+	margin-bottom: 1.2em;
+	margin-top: 1rem;
+}
+
+/* AbbreviationGroup */
+/*********************/
+.AbbreviationGroup {
+	margin-top: 1em;
+}
+.ForeignLanguageHeader+.AbbreviationGroup {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	padding-top: 1em;
+}
+.AbbreviationGroup>.Heading {
+	font-size: 1em;
+	margin: 0;
+}
+.AbbreviationGroup .DefinitionList {
+	margin-top: 0em;
+	margin-bottom: 0em;
+	padding-right: 0.1em;
+	padding-top: 0.1em;
+	padding-bottom: 0.1em;
+}
+.AbbreviationGroupSection>.Heading {
+	font-size: 1em;
+	margin: 0;
+	padding-top: 0.2em;
+}
+
+/* ArticleNote */
+/***************/
+.ArticleNote {
+	margin-top: 1em;
+}
+.ArticleNote>.Heading {
+	font-size: 1em;
+	margin: 0;
+}
+.ArticleNoteMotto {
+	font-style: italic;
+	margin-left: 1.5em;
+	margin-right: 1.5em;
+	text-align: right;
+}
+
+/* Biography */
+/*************/
+.Biography {
+	display: block;
+	margin-top: 0.8em;
+	padding-bottom: 0;
+	width: 100%;
+}
+.Loc .AuthorGroup .Biography {
+	margin-top: 0em;
+}
+.Biography .FormalPara, .Biography .BiographyFigure {
+	display: block;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.Biography .BiographyFigure {
+	float: right;
+	margin-left: 6px;
+}
+.Biography .Figure {
+	border-bottom: none;
+	margin-top: 0.5em;
+	margin-bottom: 0;
+}
+
+/*********************/
+/* 3. General styles */
+/*********************/
+
+/* BlockQuote */
+/**************/
+.Fulltext>.Para:first-of-type>.BlockQuote:first-child {
+	margin-top: 0;
+}
+.BlockQuote {
+	margin: 1em 1.5em;
+}
+.BlockQuote>.Heading {
+	font-size: 1em;
+	margin-top: 1em;
+	margin-bottom: 0;
+	text-indent: 0;
+}
+.BlockQuote>.Para {
+	text-indent: 0;
+}
+.Heading+.Para>.BlockQuote:first-child {
+	margin-top: 0;
+}
+
+/* Caption */
+/***********/
+.Caption, .TableFooter {
+	display: block;
+	text-align: left;
+}
+.TableFooter .SimplePara + .SimplePara {
+	text-indent: 0;
+}
+.Caption {
+	margin-top: 0.5em;
+}
+.CaptionContent {
+	font-size: 90%;
+}
+.TableFooter {
+	margin-top: 1em;
+}
+.Table .Caption {
+	margin-top: 0.5em;
+}
+.Figure .Caption, video+.Caption {
+	margin-bottom: 1em;
+}
+.Table .Caption {
+	margin-bottom: 0.5em;
+}
+.CaptionNumber {
+	font-style: italic;
+	font-weight: bold;
+	padding-right: 0.6em;
+}
+.CaptionContent>span.Heading {
+	display: inline;
+}
+.CaptionContent>span.SimplePara {
+	display: block;
+}
+.CaptionContent >.SimplePara:first-child, .CaptionContent>.CaptionNumber+.SimplePara, .CaptionContent>a+.SimplePara {
+	display: inline;
+	margin-top: 0;
+}
+.Credit >.SimplePara {
+	text-indent: 1.5em;
+}
+
+/* DefinitionList */
+/******************/
+.DefinitionList {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	padding: 0.1em;
+}
+.DefinitionList>.Heading {
+	font-size: 1rem;
+	margin: 0;
+	text-indent: 0;
+}
+dl {
+	margin: 0;
+}
+.DefinitionList:after {
+	content: "";
+	clear: both;
+	display: table;
+}
+.Term {
+	clear: both;
+	float: left;
+	font-style: italic;
+	padding-right: 1em;
+	text-indent: 0;
+	vertical-align: top;
+}
+.Description {
+	padding-bottom: 0.3em;
+	margin-left: 0;
+}
+.Description .Para:first-child {
+	text-indent: 0;
+}
+.Heading+.Para>div.DefinitionList:first-child {
+	margin-top: 0;
+}
+
+/* Emphasis */
+/************/
+.EmphasisTypeBold {
+	font-weight: bold;
+}
+.EmphasisTypeItalic {
+	font-style: italic;
+}
+.EmphasisTypeUnderline {
+	text-decoration: underline;
+}
+.EmphasisTypeDoubleUnderline {
+	border-bottom-style:double;
+}
+.EmphasisTypeSmallCaps {
+	font-variant:small-caps;
+}
+.EmphasisTypeBoldItalic {
+	font-weight: bold;
+	font-style: italic;
+}
+.EmphasisTypeBoldUnderline {
+	font-weight: bold;
+	text-decoration: underline;
+}
+.EmphasisTypeBoldDoubleUnderline {
+	font-weight: bold;
+	border-bottom-style:double;
+}
+.EmphasisTypeBoldSmallCaps {
+	font-weight: bold;
+	font-variant:small-caps;
+}
+.EmphasisTypeItalicUnderline {
+	font-style: italic;
+	text-decoration: underline;
+}
+.EmphasisTypeItalicDoubleUnderline {
+	font-style: italic;
+	border-bottom-style: double;
+}
+.EmphasisTypeItalicSmallCaps {
+	font-style: italic;
+	font-variant: small-caps;
+}
+.EmphasisTypeBoldItalicUnderline {
+	font-weight: bold;
+	font-style: italic;
+	text-decoration: underline;
+}
+.EmphasisTypeBoldItalicDoubleUnderline {
+	font-weight: bold;
+	font-style: italic;
+	border-bottom-style: double;
+}
+.EmphasisTypeBoldItalicSmallCaps {
+	font-weight: bold;
+	font-style: italic;
+	font-variant: small-caps;
+}
+.EmphasisTypeUnderlineSmallCaps {
+	text-decoration: underline;
+	font-variant: small-caps;
+}
+.EmphasisTypeDoubleUnderlineSmallCaps {
+	border-bottom-style: double;
+	font-variant: small-caps;
+}
+.EmphasisFontCategoryNonProportional {
+	font-family: 'Courier New', Courier, monospace;
+}
+:not(.ParaTypeProgramcode)>.EmphasisFontCategoryNonProportional {
+	font-size: 95%;
+}
+.EmphasisFontCategorySansSerif {
+	font-family: "Arial", "Helvetica", sans-serif;
+	font-size: 75%;
+}
+.EmphasisTypeStrikethrough {
+	text-decoration: line-through;
+}
+
+/* Equations */
+/*************/
+.Equation {
+	display: block;
+	/*margin-bottom: -0.7em !important;*/
+	text-indent: 0;
+	vertical-align: middle;
+}
+.NumberedEquation {
+	display: table;
+	width: 100%;
+}
+.NumberedEquation .EquationWrapper {
+	display: table-row;
+}
+.NumberedEquation .EquationContent {
+	display: table-cell;
+}
+.EquationContent {
+	margin-top: 0.5em;
+	margin-bottom: 0;
+	width: 100%;
+	text-align: center;
+	text-indent: 0;
+	vertical-align: middle;
+}
+.EquationContent div {
+	margin-top: 0.5em;
+}
+.EquationContent .MediaObject {
+	margin-left: auto;
+	margin-right: auto;
+}
+.EquationContent img {
+	background: white;
+	max-width: 100%;
+}
+.EquationNumber {
+	display: table-cell;
+	margin-bottom: 0.4em;
+	text-align: right;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+.EquationSourceXml {
+	white-space: nowrap;
+}
+.InlineEquation img {
+	background: white;
+	vertical-align: middle;
+}
+
+/* Figure */
+/**********/
+.Figure {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	margin-left: 0;
+	margin-right: 0;
+	text-align: center;
+	text-indent: 0;
+}
+.OpeningFigure .Figure {
+	/*padding-bottom: 1em;*/
+}
+.Figure img {
+	height: auto;
+	margin: 0;
+	max-width: 100%;
+	padding: 2px;
+}
+.MediaObject {
+	display: block;
+	text-align: center;
+}
+.MediaObject:last-child {
+	margin-bottom: 1em;
+}
+.EquationContent>.MediaObject:last-child {
+	margin-bottom: 0.5em;
+}
+.MediaObject+.MediaObject {
+	margin-top: 1em;
+}
+.TextObject {
+	display: none;
+}
+
+/* FixedLine */
+/*************/
+.Verse, .ProgramCode {
+	display: table;
+}
+.FixedLineContainer .FixedLine {
+	display: table-row;
+}
+.FixedLineContainer>.FixedLine, .LineNumber {
+	display: table-cell;
+}
+.FixedLine, .FixedLineContainer {
+	text-indent: 0;
+}
+.Verse .LineNumber {
+	font-size: small;
+	width: 2em;
+}
+.ProgramCode .LineNumber {
+	font-size: 80%;
+	width: 2.5em;
+}
+
+/* Footnotes */
+/*************/
+.FootnoteSection {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+}
+.FootnoteSection>.Heading {
+	font-size: 1.44rem;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.Footnote {
+	clear: both;
+	font-size: 90%;
+	text-align: left;
+}
+.FootnoteNumber {
+	float: left;
+	padding-right: 0.5em;
+}
+.FootnoteParas > div {
+	margin-left: 1em;
+	margin-top: 0.3em;
+}
+
+/* FormalPara */
+/**************/
+.FormalPara {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.FormalPara .Heading {
+	font-size: 1em;
+	margin: 0;
+}
+.FormalParaRenderingStyle1>.Heading{
+	display: inline;
+	padding-right: 1em;
+}
+.FormalParaRenderingStyle2>.Heading {
+	display: inline;
+	font-style: italic;
+	font-weight: normal;
+	padding-right: 1em;
+}
+.FormalParaRenderingStyle3>.Heading {
+	padding-right: 1em;
+}
+.FormalParaRenderingStyle1>.FirstParaInFormalPara:not(.ParaTypeAnswers):not(.ParaTypeDefinition):not(.ParaTypeExample):not(.ParaTypeEyeCatcher):not(.ParaTypeImportant):not(.ParaTypeOverview):not(.ParaTypeProcedure):not(.ParaTypeQuestions):not(.ParaTypeRecipe):not(.ParaTypeTip), .FormalParaRenderingStyle2>.FirstParaInFormalPara:not(.ParaTypeAnswers):not(.ParaTypeDefinition):not(.ParaTypeExample):not(.ParaTypeEyeCatcher):not(.ParaTypeImportant):not(.ParaTypeOverview):not(.ParaTypeProcedure):not(.ParaTypeQuestions):not(.ParaTypeRecipe):not(.ParaTypeTip) {
+	display: inline;
+}
+.Heading+.FormalPara {
+	margin-top: 0;
+}
+.FormalPara .AuthorNames {
+	font-style: italic;
+	font-weight: normal !important;
+}
+
+/* Headings */
+/************/
+.HeadingNumber {
+	padding-right: 0.3em;
+}
+.RenderAsSection1>.Heading {
+	font-size: 1.44rem;
+	margin-top: 0.5em;
+	margin-bottom: 0.1em;
+}
+.RenderAsSection2>.Heading {
+	font-size: 1.2rem;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.Heading + .Section2>.Heading:first-child {
+	margin-top: 0;
+}
+.RenderAsSection3>.Heading {
+	font-size: 1.2rem;
+	font-style: italic;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.Heading + .Section3>.Heading:first-child {
+	margin-top: 0;
+}
+.RenderAsSection4>.Heading {
+	font-size: 100%;
+	font-style: italic;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.Heading + .Section4>.Heading:first-child {
+	margin-top: 0;
+}
+.RenderAsSection5>.Heading {
+	font-size: 100%;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.Heading + .Section5>.Heading:first-child {
+	margin-top: 0;
+}
+.RenderAsSection6>.Heading {
+	font-size: 100%;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.Heading + .Section6>.Heading:first-child {
+	margin-top: 0;
+}
+.RenderAsSection7>.Heading {
+	font-size: 100%;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.Heading + .Section7>.Heading:first-child {
+	margin-top: 0;
+}
+
+/* Literal */
+/***********/
+.Literal {
+	font-family: 'Courier New', Courier, monospace;
+}
+
+/* Ordered List */
+/****************/
+.OrderedList {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	text-indent: 0em;
+	display:table;
+}
+.OrderedList > ol {
+	margin: 0;
+	padding: 0;
+}
+.OrderedList>.Heading {
+	font-size: 1em;
+	font-style: italic;
+	font-weight: normal;
+	margin-top: 0;
+	margin-bottom: 0;
+	display:table-caption;
+}
+.OrderedList>.Heading+.ListItem {
+	margin-top: 0;
+}
+.Heading+.Para>div.OrderedList:first-child, .Heading+.Para>div.OrderedList:first-child>.Heading {
+	margin-top: 0;
+}
+.ListItem {
+	/*margin-left: 0em;*/
+	margin-top: 0.5em;
+	display:table-row;
+}
+.ItemNumber {
+	/*float: left;*/
+	padding-right: 0.5em;
+	display: table-cell;
+	vertical-align: top;
+}
+.ItemContent {
+	/*overflow: hidden;*/
+	display: table-cell;
+}
+
+/* Para */
+/********/
+.Fulltext>.Para:first-of-type {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	padding-top: 1em;
+}
+.Fulltext>.Para~.Para:first-of-type { /* needed for the case that .Fulltext content starts with p.Para and div.Para */
+	border-top: none;
+	margin-top: 0;
+	padding-top: 0;
+}
+.Para+.Para {
+	margin-top: 0;
+	text-indent: 1.5em;
+}
+.ParaTextBreak {
+	margin-top: 1em !important;
+	text-indent: 0 !important;
+}
+.ParaTypeExample {
+	border-left: 4px solid;
+	padding-left: 0.5em;
+	margin-top: 1em !important;
+	margin-bottom: 1em;
+}
+.ParaTypeEyeCatcher, .ParaTypeTip {
+	border-left: 4px solid;
+	padding-left: 0.5em;
+	margin-top: 1em !important;
+	margin-bottom: 0.5em;
+}
+.ParaTypeImportant {
+	background: #bbbbbb;
+	border: 2px solid;
+	padding: 0.5em;
+	margin-top: 0.8em !important;
+	margin-bottom: 0.8em;
+}
+.ParaTypeImportant img {
+	background-color: transparent;
+}
+.ParaTypeGeneticSequence, .ParaTypeLiteral, .ParaTypeProgramcode {
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 95%;
+}
+.ParaTypeProgramcode {
+	text-indent: 0 !important;
+	word-wrap: break-word;
+}
+.Para:not(.ParaTypeProgramcode)+.ParaTypeProgramcode {
+	margin-top: 0.5em;
+}
+.ParaTypeProgramcode+.Para:not(.ParaTypeProgramcode) {
+	margin-top: 0.5em;
+}
+.ParaTypeLegalText {
+	font-weight: bold;
+	margin-left: 1em;
+	text-align: left;
+}
+.ParaTypeOverview, .ParaTypeAnswers, .ParaTypeQuestions, .ParaTypeDefinition, .ParaTypeProcedure, .ParaTypeRecipe {
+	border: 2px solid;
+	margin-top: 0.8em !important;
+	margin-bottom: 0.8em;
+	padding: 0.5em
+}
+.ParaTypeSource {
+	font-style: italic;
+}
+.ParaTypeTrailer, .ParaTypeLearningGoals {
+	font-weight: bold;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+.ParaTypeWarning {
+	font-weight: bold;
+}
+.ParaTypeExample, .ParaTypeEyeCatcher, .ParaTypeImportant, .ParaTypeLegalText, .ParaTypeOverview, 
+.ParaTypeTip, .ParaTypeAnswers, .ParaTypeQuestions, .ParaTypeDefinition, .ParaTypeProcedure, .ParaTypeRecipe {
+	text-indent: 0 !important;
+}
+.Para+.ParaOneEmphasisChild {
+	margin-top: 1em;
+	text-indent: 0 !important;
+}
+.ParaOneEmphasisChild+.Para {
+	text-indent: 0 !important;
+}
+
+/* Part */
+/********/
+.PartNumber {
+	display: block;
+	font-size: 1.73rem;
+}
+.PartTitle {
+	display: block;
+	font-size: 1.73rem;
+}
+.SubPartTitle {
+	display: block;
+	font-size: 1.44rem;
+}
+
+/* ProgramCode */
+/***************/
+.ProgramCode {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.ProgramCode .FixedLine {
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 95%;
+	word-wrap: break-word;
+}
+.LineGroup+.LineGroup {
+	margin-top: 1em;
+}
+
+/* Quiz */
+/********/
+.Heading+.Para>.Quiz>.Heading {
+	margin-top: 0; /* omit space above quiz heading if it follows another heading */
+}
+.Quiz .Heading {
+	font-size: 1rem;
+	margin-top: 1em;
+	margin-bottom: 0;
+	text-indent: 0;
+}
+.QuizTask {
+	display: table;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	width: 100%;
+	text-indent: 0;
+}
+.QuizTask + .QuizTask {
+	margin-top: 1.5em;
+}
+.QuizItem {
+	padding: 0.1em;
+}
+.QuizItemTypeSolution {
+	/*background-color: #eeeeee;*/
+	border: 2px solid #aaaaaa;
+	margin-top: 0.5em;
+	padding: 10px;
+}
+.QuizTask > input {
+	display: none;
+}
+.QuizItem > label {
+	color: #0176C3;
+}
+.QuizTask > input ~ .QuizItem > label + div {
+	display: none;
+}
+.QuizTask > input:checked ~ .QuizItem > label + div {
+	display: table-cell;
+}
+.QuizTask > input ~ .QuizItem > label:after {
+	content: "  \00BB";
+}
+.QuizTask > input:checked ~ .QuizItem > label:after {
+	content: "  \00AB";
+}
+.QuizTask > input ~ .QuizItemTypeCorrectAnswer {
+	background-color: transparent;
+	transition: background 0.4s;
+}
+.QuizTask > input:checked ~ .QuizItemTypeCorrectAnswer {
+	background-color: #EAF2DB;
+	transition: background 0.4s;
+}
+
+/* Review */
+/**********/
+.ReviewTitle {
+	font-weight: bold;
+	margin-top: 1em;
+	text-indent: 0;
+}
+.Review .AuthorName+.AuthorName:before {
+	content: ', ';
+}
+.Review .ISBN, .ReviewDataUnstructured {
+	text-indent: 0;
+}
+.Review .Para:first-of-type {
+	margin-top: 1em;
+	text-indent: 0;
+}
+
+/* Sections */
+/************/
+.BookBackmatter>.Appendix:first-child>div:first-child {
+	/* omit the top border of the first div inside BookBackmatter */
+	border-top: none !important;
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+}
+.BookAcknowledgmentsBody>.RenderAsSection1:first-child, .BookNotesBody>.RenderAsSection1:first-child, .ForewordBody>.RenderAsSection1:first-child, .PrefaceBody>.RenderAsSection1:first-child, .BookBackmatter>.Appendix:first-child>.RenderAsSection1:first-child {
+	border-top: none;
+	margin-top: 0em;
+}
+.BookAcknowledgmentsBody>.RenderAsSection1:first-child>.Heading, .ForewordBody>.RenderAsSection1:first-child>.Heading, .PrefaceBody>.RenderAsSection1:first-child>.Heading {
+	margin-top: 0em;
+}
+
+/* Section Authors */
+/*******************/
+.Section1 .AuthorNames, .Section2 .AuthorNames, .Section3 .AuthorNames {
+	font-weight: bold;
+	margin-top: 0.3em;
+	margin-bottom: 0.5em;
+}
+.Section1 .AuthorNames sup, .Section2 .AuthorNames sup, .Section3 .AuthorNames sup {
+	font-size: 70%;
+}
+.Section1 .Affiliations, .Section2 .Affiliations, .Section3 .Affiliations {
+	margin-bottom: 0.5em;
+}
+
+/* Section Types */
+/*****************/
+.SectionTypeBackgroundInformation, .SectionTypeExcurse {
+	font-size: 90%;
+}
+.SectionTypeBox, .SectionTypeOverview, .SectionTypeQuestionnaire {
+	background-color: #BBB;
+	margin-top: 1em !important;
+	padding: 0.5em;
+}
+.SectionTypeCaseStudy, .SectionTypeExample, .SectionTypeTip {
+	border-left: 4px solid;
+	margin-top: 1em !important;
+	padding-top: 0em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	padding-bottom: 0.5em;
+}
+.SectionTypeTrailer, .SectionTypeLearningGoals {
+	font-weight: bold;
+	text-align: left;
+}
+.SectionTypeLegalText {
+	font-weight: bold;
+	margin-left: 1em;
+	text-align: left;
+	text-indent: 0 !important;
+}
+.SectionTypeProcedure, .SectionTypeRecipe {
+	border: 2px solid;
+	margin-top: 0.8em !important;
+	margin-bottom: 0.8em;
+	padding: 0.5em;
+}
+.SectionTypeWarning {
+	font-weight: bold;
+}
+.RenderAsSection1 {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+}
+.SectionTypeBox+.RenderAsSection1, .SectionTypeOverview+.RenderAsSection1, .SectionTypeQuestionnaire+.RenderAsSection1 {
+	border-top: 0; /* no bar above the section if the previous section is in a box */
+}
+.SectionTypeBox>.Heading, .SectionTypeOverview>.Heading, .SectionTypeQuestionnaire>.Heading, .SectionTypeProcedure>.Heading, .SectionTypeRecipe>.Heading {
+	margin-top: 0em;
+}
+
+/* Sidebars */
+/************/
+.InternalRefSidebarLexicon {
+	background-image:url('sidebar.gif');
+	background-repeat: no-repeat;
+	font-weight: bold;
+	padding-left: 20px;
+}
+.SidebarDialog {
+	border: 1px solid;
+	margin-left: 1.5em;
+	margin-top: 0.4em;
+	margin-bottom: 0.2em;
+	padding: 0.2em;
+	text-indent: 0;
+}
+.SidebarNumber {
+	font-weight: bold;
+	padding-right: 0.5em;
+}
+
+/* SimplePara */
+/**************/
+.SimplePara+.SimplePara {
+	margin-top: 0;
+	text-indent: 1.5em;
+}
+
+/* Stack */
+/*********/
+/*.Stack {
+	position: relative;
+	padding-left: 0.25em;
+}
+.Stack sub {
+	position: relative;
+}
+.Stack sup {
+	left: 0.25em;
+	position: absolute;
+	top: -0.25em;
+}*/
+.Stack {
+	display: inline-table;
+	vertical-align: top;
+}
+.Stack sub {
+	display: table-row;
+}
+.Stack sup {
+	display: table-header-group;
+}
+
+/* Tables */
+/**********/
+table {
+	border-collapse: collapse;
+	font-size: 80%;
+	max-width: 100%;
+	text-indent: 0;
+}
+table .SimplePara + .SimplePara {
+	text-indent: 0;
+}
+table, tr, td {
+	border-color: #bbb !important;
+}
+th {
+	border-color: #999 !important;
+}
+thead {
+	background: #bbbbbb;
+	color: #000000 !important;
+}
+.Table {
+	margin-bottom: 1em;
+	text-indent: 0;
+}
+.Caption .Table {
+	margin-bottom: 0;
+}
+.Table img {
+	height: auto;
+	margin: 0;
+	max-width: 100%;
+}
+th div {
+	text-align: left;
+}
+td div, td p, th div, th p {
+	padding: 0.2em;
+}
+.Para+.Table, .Para>.Table {
+	margin-top: 1em;
+}
+.SimplePara>.Table {
+	margin-top: .5em;
+}
+thead, tbody {
+	vertical-align: top;
+}
+tbody+tbody tr:first-child td
+{
+	padding-top: 1em;
+}
+.ExternalTable {
+	background-color: #F8F8F8;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	padding-top: 0em;
+	padding-bottom: 0em;
+}
+.ExternalTable .Table {
+	padding-bottom: 0.3em;
+}
+
+/* UnorderedList */
+/*****************/
+.UnorderedList>.Heading {
+	font-size: 1em;
+	font-style: italic;
+	font-weight: normal;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.Heading+.Para>div.UnorderedList:first-child>.Heading {
+	margin-top: 0;
+}
+.Heading+ul {
+	margin-top: 0;
+}
+ul {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+ul li>.Para:first-child {
+	text-indent: 0;
+}
+
+ul.UnorderedListMarkBullet {
+	list-style-type: disc;
+	padding-left: 1em;
+}
+ul.UnorderedListMarkBullet div {
+	margin-bottom: 0.3em;
+}
+ul.UnorderedListMarkBullet .Equation div {
+	margin-bottom: 0;
+}
+
+ul.UnorderedListMarkNone {
+	list-style-type: none;
+	padding-left: 1em;
+}
+ul.UnorderedListMarkNone div {
+	margin-bottom: 0.3em;
+}
+ul.UnorderedListMarkNone .Equation div {
+	margin-bottom: 0;
+}
+
+ul.UnorderedListMarkDash {
+	list-style: none;
+	padding-left: 1.1em;
+	text-indent: -0.8em;
+}
+ul.UnorderedListMarkDash > li > *:first-child {
+	display:inline;
+}
+ul.UnorderedListMarkDash div {
+	text-indent: 0;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+}
+ul.UnorderedListMarkDash>li:before {
+	content: "\2013\0020";
+}
+
+/* Verse */
+/*********/
+.Verse {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.Verse .Heading {
+	font-size: 1rem;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	text-indent: 0;
+}
+
+
+/*********************************/
+/* 4. Article/Chapter Backmatter */
+/*********************************/
+
+/* Acknowledgments, AuthorContribution, FundingInformation, DataAvailability, Ethics */
+/*************************************************************************************/
+.Acknowledgments, .AuthorContribution, .PeerReview, .DataAvailability, .Ethics {
+	margin-top: 1em;
+}
+.Acknowledgments>.Heading, .AuthorContribution>.Heading, .PeerReview>.Heading, .FundingInformation>.Heading, .DataAvailability>.Heading, .Ethics>.Heading {
+	font-size: 1.2rem;
+	margin-bottom: 0;
+}
+
+/* License */
+/***********/
+.License {
+	font-size: 0.9rem !important;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.CopyrightPage .License {
+	font-size: 1rem !important;
+	margin-top: 1em;
+	margin-bottom: 0em;
+}
+.License>a:first-child img {
+	float: left;
+	height:1.9rem;
+	padding-right: 0.5em;
+	padding-bottom: 0.0em;
+	padding-top: 0.2em;
+}
+.CopyrightPage .License>a:first-child img {
+	float: none;
+}
+/*.LicenseSubType-cc-by>a:first-child {
+	content:url('cc-by.svg');
+}
+.LicenseSubType-cc-by-nc>a:first-child {
+	content:url('cc-by-nc.svg');
+}
+.LicenseSubType-cc-by-nc-nd>a:first-child {
+	content:url('cc-by-nc-nd.svg');
+}
+.LicenseSubType-cc-by-nc-sa>a:first-child {
+	content:url('cc-by-nc-sa.svg');
+}
+.LicenseSubType-cc-by-sa>a:first-child {
+	content:url('cc-by-sa.svg');
+}*/
+
+/* Glossary */
+/************/
+.Glossary {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	padding-top: 0.3em;
+}
+.Glossary .Headings {
+	margin-top: 0.8em;
+	margin-bottom: 0.8em;
+}
+.Glossary>.Headings>.Heading {
+	font-size: 1.44rem;
+	margin: 0;
+}
+.Glossary>.Headings>.SubHeading {
+	font-size: 1.2rem;
+}
+.GlossarySection .Headings {
+	margin-top: 0.8em;
+	margin-bottom: 0.4em;
+}
+.GlossarySection>.Headings>.Heading {
+	font-size: 1.2rem;
+	margin: 0;
+}
+.GlossarySection>.Headings>.SubHeading {
+	font-size: 100%;
+}
+.GlossaryTerm {
+	float: left;
+	font-style: italic;
+	padding-right: 0.5em;
+}
+.GlossarySeeLabel, .GlossarySeeAlsoLabel {
+	font-style: italic;
+	padding-right: 0.3em;
+}
+.GlossaryDef {
+	display: inline;
+	margin-top: 0.3em;
+}
+.GlossaryDef>.SimplePara, .GlossaryDef>.GlossarySee, .GlossaryDef>.GlossarySeeAlso {
+	display: block;
+}
+.GlossaryDef>:first-child {
+	display: inline;
+	margin-top: 0;
+	margin-left: 0;
+}
+.GlossaryDef .SimplePara+.GlossarySee, .GlossaryDef .SimplePara+.GlossarySeeAlso {
+	text-indent: 0em;
+}
+.GlossaryTerm {
+	display: inline;
+}
+.GlossaryTerm+.GlossarySee, .GlossaryTerm+.GlossarySeeAlso {
+	display: inline;
+}
+.InternalRefGlossaryEntry {
+	border-bottom: thin dotted;
+	cursor: help;
+}
+.InternalRefGlossaryEntry:hover {
+	border-bottom: none;
+}
+.InternalRefGlossaryEntry a:link, .InternalRefGlossaryEntry a:active, .InternalRefGlossaryEntry a:visited {
+	color: inherit;
+}
+.InternalRefGlossaryEntry .InlineGlossaryDefinition {
+	background: #ffffff;
+	display: none;
+	margin: 0px 3em 0 2em;
+	padding: 3px 3px 3px 6px;
+	border-style:solid;
+	border-color:#49546F;
+	border-width: 2px;
+	border-radius: 5px;
+	box-shadow: 5px 5px 5px #888;
+}
+.InternalRefGlossaryEntry:hover .InlineGlossaryDefinition {
+	display: block;
+	z-index: 6;
+}
+
+/* Table of Contents */
+/*********************/
+.TocAppendix {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	padding-top: 1em;
+}
+.BookContextInformation+.Appendix>.TocAppendix:first-child {
+	/* omit the top border of the first section1 of the first appendix if it immediately follows the book context information (otherwise there would be two lines) */
+	border-top: none;
+	padding-top: 0;
+}
+.TocAppendix .Headings {
+	margin-bottom: 0.5em;
+}
+.TocAppendix>.Headings>.Heading {
+	font-size: 1.44rem;
+	margin: 0;
+}
+.TocAppendix>.Headings>.SubHeading {
+	font-size: 1.2rem;
+}
+.TocEntry, .TocPart, .TocBack {
+	margin-top: 0.5em;
+	text-align: left !important;
+}
+.TocItem {
+	font-weight: bold;
+}
+.TocPageNumber {
+	display: none;
+}
+.TocAuthors {
+	padding-left: 1.5em;
+}
+.TocSection1, .TocSection2, .TocSection3, .TocSection4, .TocSection5, .TocSection6, .TocSection7 {
+	padding-left: 1.5em;
+}
+
+/* Index */
+/*********/
+.Index {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	padding-top: 0.3em;
+	margin-bottom: 0.8em;
+}
+.BookBackmatter>.Index:first-child {
+	border-top: none;
+	margin-top: 0em;
+}
+.Index .Headings {
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+.BookBackmatter>.Index:first-child>.Headings {
+	margin-top: 0em;
+}
+.Index>.Headings>.Heading {
+	font-size: 1.44rem;
+	margin: 0;
+}
+.Index>.Headings>.SubHeading {
+	font-size: 1.2rem;
+}
+.IndexDiv .Headings {
+	margin-top: 0.5em;
+	margin-bottom: 0.1em;
+}
+.IndexDiv>.Headings>.Heading {
+	font-size: 1.2rem;
+	margin: 0;
+}
+.IndexDiv>.Headings>.SubHeading {
+	font-size: 100%;
+	font-style: italic;
+}
+.IndexEntrySeeLabel {
+	font-style: italic;
+	margin-left: 1em;
+	padding-right: 0.3em;
+}
+.IndexPageNumbers {
+	margin-left: 0.5em;
+}
+.SecondaryIE {
+	margin-left: 1em;
+}
+.TertiaryIE {
+	margin-left: 2em;
+}
+
+/* Change History */
+/******************/
+.ChangeHistory {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+}
+.ChangeHistory>.Heading {
+	font-size: 1.44rem;
+	margin-top: 0.8em;
+	margin-bottom: 0.3em;
+}
+.ChangeDate {
+	font-weight: bold;
+	padding-right: 1em;
+}
+.ChangeDetails {
+	display: inline;
+}
+.ChangeDetails>p:first-of-type {
+	display: inline;
+}
+
+/* Bibliography */
+/****************/
+.Bibliography {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+}
+.BookBackmatter>.Bibliography:first-child {
+	border-top: none;
+}
+.Bibliography>div>.Heading {
+	font-size: 1.44rem;
+	margin-top: 0.8em;
+	margin-bottom: 0.1em;
+}
+/*.BibliographyWrapper {
+	display: table;
+	max-width: 100%;
+	width: 100%;
+}*/
+.BibliographyWrapper {
+	display: table;
+	margin: 0;
+	padding: 0;
+}
+.Bibliography>.BibliographyWrapper {
+	padding-top: 1em;
+}
+.Bibliography>.Heading+.BibliographyWrapper {
+	padding-top: 0;
+}
+.BibSection>.Heading {
+	font-size: 1.2rem;
+	margin-top: 0.8em;
+	margin-bottom: 0.2em;
+}
+.BibliographyWrapper>.BibSection:first-child>.Heading:first-child {
+	margin-top: 0.3em;
+}
+.Citation {
+	display: table-row;
+	font-size: 90%;
+}
+.CitationNumber {
+	display: table-cell;
+}
+.CitationNumber+.CitationContent {
+	padding-left: 0.5em;
+	text-align: left;
+}
+.CitationContent {
+	padding-top: 1em;
+	display: table-cell;
+}
+.BibliographyWrapper>.Citation:first-child>.CitationContent {
+	padding-top: 0;
+}
+.Occurrences {
+	display: block;
+}
+.Occurrence {
+	margin-right: 0px;
+}
+.Occurrence:before {
+	content:'[';
+}
+.Occurrence:after {
+	content:']';
+}
+.Citation .ArticleTitle:before, .Citation .ChapterTitle:before {
+	content: ' \201C'; /* opening quotes */
+}
+.Citation .ArticleTitle, .Citation .ChapterTitle {
+	display: inline;
+}
+.Citation .ArticleTitle:after {
+	content: '\201D\ '; /* closing quotes */
+}
+.Citation .ChapterTitle:after {
+	content: '\201D\ In: '; /* closing quotes */
+}
+.Citation .Year:before {
+	content: ' (';
+}
+.Citation .Year:after {
+	content: ') ';
+}
+.Citation .JournalTitle:after {
+	content: ' ';
+}
+.Citation .VolumeID:after {
+	content: ':';
+}
+.BibChapter .FirstPage:before, .BibBook .FirstPage:before {
+	content: ', pp ';
+}
+.Citation .FirstPage + .LastPage:before {
+	content: '\2013'; /* en dash */
+}
+.Citation .BookTitle:after, .Citation .BibEditorName:after, .Citation .EditionNumber:after,
+.Citation .PublisherName:after {
+	content: ', ';
+}
+.BibComments {
+	display: block;
+}
+
+
+/**********************/
+/* 5. BookFrontmatter */
+/**********************/
+
+/* Cover */
+/*********/
+.CoverFigure img {
+	/* autoscale cover figure, used by the EPUB converter */
+	margin: 0 auto 6px;
+	width: 100%;
+	max-width: 480px;
+	height: auto;
+}
+
+/* Series Title Page */
+/*********************/
+.SeriesTitlePage {
+	padding-bottom: 1.5em;
+	padding-top: 1em;
+}
+.SeriesTitlePage .VolumeNumber {
+	font-size: 1.44rem;
+}
+.SeriesTitlePage span.SeriesTitle {
+	display: block;
+	font-size: 1.73rem;
+	font-weight: bold;
+	margin-top: 0.5em;
+}
+.SeriesTitlePage .SeriesSubTitle {
+	display: block;
+	font-size: 1.44rem;
+	font-weight: bold;
+}
+.SeriesTitlePage .SubSeriesTitle {
+	display: block;
+	font-size: 1.44rem;
+	font-weight: bold;
+	margin-top: 0.5em;
+}
+.SeriesTitlePage .SubSeriesSubTitle {
+	display: block;
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+.SeriesTitlePage .CollaboratorDesignation {
+	display: block;
+	font-weight: bold;
+	padding-top: 3em;
+}
+.SeriesTitlePage .Collaborators {
+	display: block;
+}
+.SeriesTitlePage .AffiliationText {
+	font-style: italic;
+	margin-left: 0;
+}
+.SeriesTitlePage .Affiliation+.CollaboratorName, .SeriesTitlePage .Affiliation+.InstitutionalCollaboratorName {
+	display: inline-block;
+	margin-top: 1em;
+}
+.SeriesInformationText {
+	padding-top: 3em;
+}
+
+/* BookTitlePage */
+/*****************/
+.BookTitlePage {
+	padding-top: 1em;
+}
+.BookTitlePageAfterSeriesTitlePage {
+	/* .SeriesTitlePage+.BookTitlePage doesn't work on the Kindle */
+	border-top: 1px solid #bbb;
+	page-break-before: always;
+}
+.BookContextInformation + .BookTitlePage {
+	border-top: none;
+	padding-top: 0;
+}
+.BookTitlePage .BookEditors, .BookTitlePage .BookAuthors, .BookTitlePage .BookEditorInChiefGroup, .BookTitlePage .BookSectionEditorGroup {
+	text-align: left !important;
+}
+.BookTitlePage .BookEditorInChiefGroup, .BookTitlePage .BookSectionEditorGroup {
+	margin-top: 1em;
+}
+.BookTitlePage .BookEditorGroup .CollaboratorDesignation, .BookTitlePage .BookAuthorGroup .CollaboratorDesignation, .BookTitlePage .BookEditorInChiefGroup .CollaboratorDesignation,
+.BookTitlePage .BookSectionEditorGroup .CollaboratorDesignation {
+	font-style: italic;
+}
+.BookTitlePage .BookEditorGroup+.BookAuthorGroup, .BookTitlePage .BookEditorInChiefGroup+.BookAuthorGroup, .BookTitlePage .BookSectionEditorGroup+.BookAuthorGroup {
+	margin-top: 1em;
+}
+.BookTitlePage .BookTitle {
+	display: block;
+	font-size: 1.73rem;
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0;
+}
+.BookTitlePage .BookSubTitle {
+	display: block;
+	font-size: 1.44rem;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0.5em;
+}
+.BookTitlePage .BookEdition {
+	display: block;
+	font-size: 1rem;
+	font-weight: normal;
+	margin-top: 0.5em;
+}
+.BookTitlePage .CollaboratorLine {
+	padding-top: 0.5em;
+}
+.BookFeatureText {
+	margin-top: 0.5em;
+}
+/*.BookFeatureText+.BookFeatureText {
+	margin-top: 0;
+}*/
+.BookTitlePage .PublisherLogo .Figure, .BookTitlePage .PublisherImprintName {
+	font-size: 1.2rem;
+	margin-top: 4em;
+	margin-bottom: 1.5em;
+	text-align: left;
+}
+
+/* Copyright Page */
+/******************/
+.CopyrightPage {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.CopyrightPage .CollaboratorDesignation {
+	display: block;
+	font-style: italic;
+}
+.CopyrightPageOriginators {
+	padding-bottom: 4em;
+}
+.CopyrightPage div + .CollaboratorDesignation {
+	padding-top: 2em;
+}
+.CopyrightPage .EditorGroup + .AuthorGroup {
+	padding-top: 2em;
+}
+.CopyrightPage .Author + .Author, .CopyrightPage .Author + .InstitutionalAuthor,
+.CopyrightPage .InstitutionalAuthor + .Author, .CopyrightPage .InstitutionalAuthor + .InstitutionalAuthor,
+.CopyrightPage .Editor + .Editor, .CopyrightPage .Editor + .InstitutionalEditor,
+.CopyrightPage .InstitutionalEditor + .Editor, .CopyrightPage .InstitutionalEditor + .InstitutionalEditor,
+.CopyrightPage .Collaborator + .Collaborator {
+	padding-top: 1em;
+}
+.CopyrightPage .Affiliation {
+	margin-top: 0;
+}
+.CopyrightPage .AffiliationText {
+	margin-left: 0;
+}
+.CopyrightPage .CollaboratorLine {
+	padding-top: 1em;
+}
+.CopyrightPage .CollaboratorLineTranslatedBy {
+	padding-top: 2em;
+}
+.CopyrightPage .CollaboratorLine .CollaboratorDesignation {
+	display: inline;
+	font-style: normal;
+}
+.BookFrontmatter .CopyrightPage .ArticleNoteESMHint, .BookFrontmatter .CopyrightPage .ArticleNoteMoreMedia {
+	border: none;
+	padding-bottom: 0;
+	page-break-before: auto;
+}
+.CopyrightPageISBNs, .CopyrightPageISSNs, .SpringerLocationsLine, .CatalogingInformation, .MathematicsSubjectClassification,
+.CopyrightLine, .CopyrightPage .CopyrightComment, .BookCopublishingInformation, .CopyrightStandardText, 
+.TrademarkQualifierText, .ProductLiability, .LegalNotice, .CoverDesigner, .BookCoverFigureText, .PaperInfo, .SpringerReferenceLine,
+.BookFundingInformation {
+	margin-top: 1em;
+}
+.CopyrightPage .CopyrightCommentPhDTheses {
+	margin-top: 2em;
+}
+.CopyrightPage .CopyrightCommentOpenAccess:before {
+	content: '. ';
+}
+.CopyrightPage .CopyrightCommentOpenAccess {
+	display: inline;
+}
+.SeriesTitle+.CopyrightPageISBNs, .SubSeriesTitle + .CopyrightPageISBNs {
+	margin-top: 0;
+}
+.CopyrightPage .SeriesTitle {
+	display: block;
+	margin-top: 1em;
+}
+.SeriesTitle + .CopyrightPageISSNs, .CopyrightPageISSNs + .SeriesTitle, .CopyrightPageISSNs + .SubSeriesTitle {
+	margin-top: 0;
+}
+.CopyrightPagePrintISSN, .CopyrightPagePrintISBN {
+	display: inline-block;
+	min-width: 12em;
+}
+.SpringerReferenceLine .SimplePara + .SimplePara, .BookCoverFigureText .SimplePara + .SimplePara, .BookCopublishingInformation .SimplePara + .SimplePara {
+	text-indent: 0;
+}
+.CopyrightPagePrintISSN+.CopyrightPageElectronicISSN {
+	padding-left: 1.5em;
+}
+.CopyrightPagePrintISBN+.CopyrightPageElectronicISBN {
+	padding-left: 1.5em;
+}
+.CopyrightComment .SimplePara + .SimplePara {
+	text-indent: 0;
+}
+.BookCorrectionYear:before {
+	content: ", ";
+}
+.BookCorrectionYear .Year:first-of-type:before {
+	content: " ";
+}
+.BookCorrectionYear .Year+.Year:before {
+	content: ", ";
+}
+.MathematicsSubjectClassificationCode + .MathematicsSubjectClassificationCode:before {
+	content: ", ";
+}
+
+/* Advertisement */
+/*****************/
+.Advertisement {
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+/* Endorsement */
+/****************/
+.Endorsement {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+
+/* Frontispiece */
+/****************/
+.Frontispiece {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+
+/* Dedication */
+/**************/
+.Dedication {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.Dedication .SimplePara + .SimplePara {
+	text-indent: 0;
+}
+
+/* Foreword */
+/************/
+.Foreword {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.PartFrontmatter h1:first-child+.Foreword {
+	border-top: none;
+	padding-top: 0;
+	page-break-before: auto;
+}
+.ForewordTitle {
+	font-size: 1.44rem;
+	font-weight: bold;
+	padding-bottom: 0.1em;
+	page-break-after: avoid;
+}
+.Foreword .AuthorName {
+	margin-top: 0.2em;
+}
+.Foreword .AuthorName, .ForewordLocations, .ForewordDate {
+	font-weight: bold;
+	text-align: right;
+}
+.ForewordLocation {
+	display: block;
+}
+.Foreword .RenderAsSection1>.Heading {
+	font-size: 1.2rem;
+}
+.Foreword .RenderAsSection2>.Heading, .Foreword .RenderAsSection3>.Heading {
+	font-size: 100%;
+}
+
+/* Preface */
+/***********/
+.Preface {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.PrefaceTitle {
+	font-size: 1.44rem;
+	font-weight: bold;
+	padding-bottom: 0.1em;
+	page-break-after: avoid;
+}
+.Preface .AuthorName {
+	margin-top: 0.2em;
+}
+.Preface .AuthorName, .PrefaceLocations, .PrefaceDate {
+	font-weight: bold;
+	text-align: right;
+}
+.PrefaceLocation {
+	display: block;
+}
+.Preface .RenderAsSection1>.Heading {
+	font-size: 1.2rem;
+}
+.Preface .RenderAsSection2>.Heading, .Preface .RenderAsSection3>.Heading {
+	font-size: 100%;
+}
+
+/* ArticleNote */
+/***************/
+.BookFrontmatterArticleNote {
+	/* .BookFrontmatter .ArticleNote doesn't work on Kindle */
+	border-top: 1px solid #bbb;
+	margin-top: 0;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.PartFrontmatter .ArticleNote {
+	padding-bottom: 1em;
+}
+.PartFrontmatter h1:first-child+.ArticleNote {
+	border-top: none;
+	page-break-before: auto;
+}
+.BookFrontmatter .ArticleNote .Heading, .PartFrontmatter .ArticleNote .Heading {
+	font-size: 1.44rem;
+	font-style: normal;
+	padding-bottom: 0.1em;
+	page-break-after: avoid;
+}
+
+/* BookAcknlowledgments */
+/************************/
+.BookAcknowledgments {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.BookAcknowledgmentsTitle {
+	font-size: 1.44rem;
+	font-weight: bold;
+	padding-bottom: 0.1em;
+	page-break-after: avoid;
+}
+.BookAcknowledgments .AuthorName {
+	font-weight: bold;
+	margin-top: 1em;
+}
+.BookAcknowledgments .RenderAsSection1>.Heading {
+	font-size: 1.2rem;
+}
+.BookAcknowledgments .RenderAsSection2>.Heading, .BookAcknowledgments .RenderAsSection3>.Heading {
+	font-size: 100%;
+}
+
+/* BookNotes */
+/*************/
+.BookNotes {
+	border-top: 1px solid #bbb;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.BookNotesTitle {
+	font-size: 1.44rem;
+	font-weight: bold;
+	margin-bottom: 0.1em;
+	page-break-after: avoid;
+}
+.BookNotes .AuthorName {
+	font-weight: bold;
+}
+
+/* Abbreviation Group */
+/**********************/
+.BookFrontmatterAbbreviationGroup {
+	/* .BookFrontmatter .AbbreviationGroup doesn't work on Kindle */
+	border-top: 1px solid #bbb;
+	margin-top: 0;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.PartFrontmatter .AbbreviationGroup {
+	padding-bottom: 1em;
+	margin-top: 1em;
+}
+.BookFrontmatter .AbbreviationGroup .Heading, .PartFrontmatter .AbbreviationGroup .Heading {
+	font-size: 1.44rem;
+	font-weight: bold;
+	padding-top: 1em;
+	padding-bottom: 0.1em;
+	page-break-after: avoid;
+}
+.BookFrontmatter .AbbreviationGroupSection>.Heading, .PartFrontmatter .AbbreviationGroupSection>.Heading {
+	font-size: 1.2rem;
+	padding-top: 1em;
+	padding-bottom: 0em;
+}
+.BookFrontmatter .AbbreviationGroupSection+.AbbreviationGroupSection>.Heading, .PartFrontmatter .AbbreviationGroupSection+.AbbreviationGroupSection>.Heading {
+	padding-top: 0.5em;
+}
+
+/* Table of Contents */
+/*********************/
+.Toc {
+	border-top: 1px solid #bbb;
+	margin-top: 0em;
+	padding-bottom: 1em;
+	page-break-before: always;
+}
+.Toc .Headings {
+	margin-bottom: 0.5em;
+}
+.Toc>.Headings>.Heading {
+	font-size: 1.44rem;
+	margin: 0;
+}
+.Toc>.Headings>.SubHeading {
+	font-size: 1.2rem;
+}
+
+/* List of Headings */
+/********************/
+.Loh {
+	border-top: 1px solid #bbb;
+	padding-bottom: 1em;
+	padding-top: 1em;
+	page-break-before: always;
+}
+.Loh .Headings {
+	margin-bottom: 0.1em;
+}
+.Loh>.Headings>.Heading {
+	font-size: 1.44rem;
+	margin: 0;
+}
+.Loh>.Headings>.SubHeading {
+	font-size: 1.2rem;
+}
+.LohPageNumber {
+	/*float: right;*/
+	display: none;
+}
+
+/* List of Contributors */
+/************************/
+.LocWithHeading, .LocWithoutHeading>.LocBody>.LocDiv {
+	border-top: 1px solid #bbb;
+	padding-bottom: 1em;
+	padding-top: 1em;
+	page-break-before: always;
+}
+.Loc .Headings {
+	margin-bottom: 0.1em;
+}
+.LocWithHeading>.Headings>.Heading, .LocWithoutHeading>.LocBody>.LocDiv>.Headings>.Heading {
+	font-size: 1.44rem;
+	margin: 0;
+}
+.LocWithHeading>.Headings>.SubHeading, .LocWithoutHeading>.LocBody>.LocDiv>.Headings>.SubHeading {
+	font-size: 1.2rem;
+}
+.LocWithHeading .LocDiv {
+	margin-top: 1em;
+}
+.LocWithHeading .LocDiv .Heading {
+	font-size: 1.2rem;
+	margin-bottom: 0.1em;
+}
+.LocWithHeading .LocDiv .SubHeading {
+	font-size: 100%;
+	font-style: italic;
+	font-weight: normal;
+}
+.LocDiv .FormalPara .Heading {
+	font-size: 100%;
+}
+.Loc .AuthorGroup+.AuthorGroup, .Loc .AuthorGroup+.EditorGroup, .Loc .EditorGroup+.AuthorGroup, .Loc .EditorGroup+.EditorGroup {
+	margin-top: 1em;
+}
+.Loc .Author, .Loc .Editor, .Loc .InstitutionalAuthor, .Loc .InstitutionalEditor {
+	font-weight: bold;
+}
+.Loc .AffiliationText {
+	margin-left: 0;
+}
+.Loc .Email + .Email:before {
+	content: ", ";
+}
+.Loc .Emails, .Loc .URLs {
+	display: inline;
+}
+.Loc .Emails + .URLs:before {
+	content: ", ";
+}
+.Loc .URL + .URL:before {
+	content: ", ";
+}
+
+/* BookFrontmatter FootnoteSection */
+/***********************************/
+.BookFrontmatterFootnoteSection {
+	/* .BookFrontmatter .FootnoteSection doesn't work on Kindle */
+	border-top: 1px solid #bbb;
+	margin-top: 0em;
+	page-break-before: always;
+}
+.PartFrontmatter .FootnoteSection {
+	border-top: none;
+	margin-top: 0em;
+}
+
+/* Colophon */
+/**************/
+.Colophon {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	padding-top: 0.8em;
+	font-style: italic;
+}
+
+/* ConferenceInfo */
+/******************/
+.ConferenceInfo {
+	border-top: 1px solid #bbb;
+	margin-top: 1em;
+	padding-top: 0.8em;
+}
+.ConfEventAbbreviation, .ConfNumber+.ConfSeriesName, .ConfEventAbbreviation+.Year, .ConfEventDateStart, .ConfEventDateEnd {
+	display: inline;
+}
+.ConfEventAbbreviation:after {
+	content: ' ';
+}
+.ConfEventLocation .City:after {
+	content: ', ';
+}
+.ConfEventDateEnd:before {
+	content: '\2013';
+}
+.ConfEventDateStart .Year:after, .ConfEventDateStart .Month:after, .ConfEventDateEnd .Year:after, .ConfEventDateEnd .Month:after {
+	content: '/';
+}
+.ConfEventDate .Month:after {
+	content: '/';
+}
