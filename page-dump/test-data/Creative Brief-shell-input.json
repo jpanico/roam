@@ -1,0 +1,36 @@
+[
+    {
+        "user": {
+            "id": 3
+        },
+        "view-type": "bullet",
+        "time": 1689712716012,
+        "title": "Creative Brief",
+        "children": [
+            {
+                "id": 1752
+            },
+            {
+                "id": 1771
+            },
+            {
+                "id": 1773
+            },
+            {
+                "id": 1774
+            },
+            {
+                "id": 1775
+            },
+            {
+                "id": 1798
+            },
+            {
+                "id": 1817
+            }
+        ],
+        "uid": "lALsKb-Dx",
+        "id": 1745,
+        "sidebar": 0
+    }
+]

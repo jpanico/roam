@@ -10,8 +10,8 @@
  *
  * Roam/js scripting supports only vanilla, untyped, JavaScript-- it does not support TypeScript.
  * [JSDoc](https://jsdoc.app/tags-type.html) provides a method for adding type annotations to JS code, via special tags
- * (e.g. @typedef) placed 
- *  the source editors will provide almost all of the type-directed assistance that would be
+ * (e.g. @typedef) placed in JSDoc style comments. IDEs like VS Code (1.78+) support JSDoc type annotations
+ * out-of-the-box, so that the source editors will provide almost all of the type-directed assistance that would be
  * available in Typescript at development time. At runtime, all of these type annotations are invisible to the Roam JS
  * engine.
  *
@@ -24,9 +24,9 @@
  * an opaque implementation detail, and no Node.js api are accessible to roam/js scripts. Roam/js scripts are intended
  * to run as single file, self-contained, code units. But in order to effect unit testing at development time, some
  * module features are needed, so that the unit test code can access JS language elements (e.g. functions, type
- * definitions) in this script. As a result, this script needs conditional module support -- module features that can be
- * invoked only at development time, and completely turned off at runtime. Since CommonJS features are invoked via
- * function calls, rather than JS language level export/import statements, it is much better suited for dynamic,
+ * definitions, etc.) in this script. As a result, this script needs conditional module support -- module features that
+ * can be invoked only at development time, and completely turned off at runtime. Since CommonJS features are invoked
+ * via function calls, rather than JS language level export/import statements, it is much better suited for dynamic,
  * conditional, module binding. So this script, and the associated test code, use CommonJS modules if the execution
  * environment is detected to be 'test'.
  */
@@ -38,6 +38,7 @@
  * @typedef {string} uid
  * @typedef {integer} id
  * @typedef {integer} order
+ * @typedef {integer} heading
  * @typedef {string} title
  * @typedef {string} url
  * 
@@ -78,6 +79,7 @@
  * @property {string} [string] - present only for Blocks
  * @property {title} [title] - present only for Pages
  * @property {order} [order] - present only for Blocks that are children
+ * @property {heading} [heading] - present only for Blocks that are children
  * @property {raw_children} [children] 
  * @property {raw_refs} [refs] 
  * @property {IdObject} [page] - present only for Blocks
@@ -99,6 +101,7 @@
  * @property {VertexType} vertex_type - it's actually 'vertex-type', but JSDoc bug prevents
  * @property {media_type} [media_type] - it's actually 'media-type', but JSDoc bug prevents
  * @property {string} [text]
+ * @property {heading} [heading]
  * @property {normal_children} [children] 
  * @property {normal_refs} [refs]
  * @property {url} [source]
@@ -201,8 +204,10 @@ const VertexType = Object.freeze(
     {
         /** 1-1 w/ Roam `Page` type Node */
         ROAM_PAGE: Symbol("roam/page"),
-        /** 1-1 w/ Roam `Block` type Node */
-        ROAM_BLOCK: Symbol("roam/block"),
+        /** 1-1 w/ Roam `Block` type Node if there is no `heading` property */
+        ROAM_BLOCK_CONTENT: Symbol("roam/block-content"),
+        /** 1-1 w/ Roam `Block` type Node if there is a `heading` property */
+        ROAM_BLOCK_HEADING: Symbol("roam/block-heading"),
         /** a file that was uploaded to, and now managed by, Roam */
         ROAM_FILE: Symbol("roam/file")
     }
@@ -224,7 +229,7 @@ const FollowLinksDirective = Object.freeze(
 const config = {
     "followChildren": FollowLinksDirective.DEEP,
     "followRefs": FollowLinksDirective.DEEP,
-    "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id"],
+    "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id", "heading"],
     "addProperties": ["vertex-type", "media-type"]
 }
 
@@ -420,9 +425,15 @@ function getAddPropertyFunction(propertyName) {
 function addMediaType(node) {
     console.log(`addMediaType: node = ${JSON.stringify(node)}`)
 
+    const textPlainVertexTypes = [
+        VertexType.ROAM_PAGE.description, 
+        VertexType.ROAM_BLOCK_CONTENT.description, 
+        VertexType.ROAM_BLOCK_HEADING.description
+    ]
+
     /** @type {string} */
     let mediaType
-    if ([VertexType.ROAM_PAGE.description, VertexType.ROAM_BLOCK.description].includes(node["vertex-type"]))
+    if (textPlainVertexTypes.includes(node["vertex-type"]))
         mediaType = "text/plain"
 
     if (mediaType === undefined)
@@ -453,12 +464,19 @@ function addVertexType(node) {
         (!hasTitle && hasString),
         `one and only one condition must be true: hasTitle|hasString`
     )
-    /** @type {VertexType} */
+   /** @type {boolean} */
+   const hasHeading = node.hasOwnProperty('heading')
+   if(hasHeading)
+        assert(!hasTitle && hasString)
+
+   /** @type {VertexType} */
     let vertexType
     if (hasTitle)
         vertexType = VertexType.ROAM_PAGE
-    else if (hasString)
-        vertexType = VertexType.ROAM_BLOCK
+    else if (hasString && !hasHeading)
+        vertexType = VertexType.ROAM_BLOCK_CONTENT
+    else if (hasString && hasHeading)
+        vertexType = VertexType.ROAM_BLOCK_HEADING
     else
         throw Error(`unrecognized Node type`)
 

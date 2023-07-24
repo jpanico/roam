@@ -1,5 +1,38 @@
 
 
+test('dumped "Creative Brief.zip" matches "Creative Brief-expected.zip"', async () => {
+
+    const pageDump = require('./PageDump.js')
+
+    const config = {
+        "followChildren": pageDump.FollowLinksDirective.DEEP,
+        "followRefs": pageDump.FollowLinksDirective.DEEP,
+        "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id", "heading"],
+        "addProperties": ["vertex-type", "media-type"]
+    }
+    
+    let dumpPath 
+    try {
+        dumpPath = await pageDump.dumpPage("Creative Brief", config)
+    } catch (e) {
+        console.error(e)
+    }
+    expectedPath = "./test-data/Creative Brief-expected.zip"
+    console.log(`dumpPath = ${dumpPath}, expectedPath = ${expectedPath}`)
+
+    const JSZipUtils = require('./JSZipUtils.js')
+    /** @type {JSZip} */
+    const expected = await JSZipUtils.loadZip(expectedPath)
+    /** @type {JSZip} */
+    const dumped = await JSZipUtils.loadZip(dumpPath)
+
+    const diff= JSZipUtils.diffZipArchives(expected, dumped)
+    console.log(`diff = ${diff}`)
+    
+    expect(diff).toBeNull()
+    
+})
+
 test('dumped "Page 3.zip" matches "Page 3-expected.zip"', async () => {
 
     const pageDump = require('./PageDump.js')
@@ -7,7 +40,7 @@ test('dumped "Page 3.zip" matches "Page 3-expected.zip"', async () => {
     const config = {
         "followChildren": pageDump.FollowLinksDirective.DEEP,
         "followRefs": pageDump.FollowLinksDirective.DEEP,
-        "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id"],
+        "includeProperties": ["uid", "string", "title", "children", "order", "refs", "id", "heading"],
         "addProperties": ["vertex-type", "media-type"]
     }
     
