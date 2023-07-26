@@ -9,4 +9,5 @@
 # VS Code stuff
 .vscode/
 
+out/
 scratch.txt
