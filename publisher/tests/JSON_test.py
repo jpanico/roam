@@ -1,9 +1,10 @@
+import logging
 import unittest
 import json
 
-from common.LoggingConfig import logging, configure_logging
+from common.log import configure_logging
 
-class JSON_test(unittest.TestCase):
+class JSONTests(unittest.TestCase):
 
 
     def test_read(self):

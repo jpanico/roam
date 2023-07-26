@@ -1,13 +1,13 @@
-import string
-from typing import TextIO
+import logging
+from typing import Iterator, TextIO
 import unittest
 
 from ebooklib.epub import read_epub, write_epub, EpubBook, EpubItem, EpubHtml, Link, EpubNav, EpubNcx, Section
 from ebooklib import ITEM_DOCUMENT
 
-from common.LoggingConfig import logging, configure_logging
+from common.log import configure_logging
 
-class EBookLib_test(unittest.TestCase):
+class EBookLibTests(unittest.TestCase):
 
     # https://github.com/aerkalov/ebooklib/blob/master/samples/01_basic_create/create.py
     def test_create_1(self):
@@ -36,7 +36,7 @@ class EBookLib_test(unittest.TestCase):
         # - add section
         # - add auto created links to chapters
 
-        book.toc = (Link('intro.xhtml', 'Introduction', 'intro'),
+        book.toc = (Link('intro.xhtml', 'Introduction', 'intro'), # type: ignore
                     (Section('Languages'),
                     (c1, c2))
                     )
@@ -46,10 +46,10 @@ class EBookLib_test(unittest.TestCase):
         book.add_item(EpubNav())
 
         nav_css_iostream: TextIO = open("./tests/sample_nav.css", "r")
-        nav_css_content: string = nav_css_iostream.read()
+        nav_css_content: str = nav_css_iostream.read()
         logging.debug(f"nav_css_content: {nav_css_content}")
         # add css file
-        nav_css = EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=nav_css_content)
+        nav_css = EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=nav_css_content) # type: ignore
         book.add_item(nav_css)
 
         # create spine
@@ -62,7 +62,7 @@ class EBookLib_test(unittest.TestCase):
     def test_read_items(self):
         book: EpubBook = read_epub('./tests/data/childrens-literature.epub')
         logging.debug(f"book: {book}")
-        items: tuple[EpubItem] = book.get_items()
+        items: Iterator[EpubItem] = book.get_items()
         logging.debug(f"items: {items}")
         [logging.debug(f"id: {item.get_id()}, type: {item.get_type()}") for item in items] 
 

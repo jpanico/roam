@@ -1,9 +1,10 @@
+import logging
 import unittest
 import zipfile
 
-from common.LoggingConfig import logging, configure_logging
+from common.log import configure_logging
 
-class Zip_test(unittest.TestCase):
+class ZipFileTests(unittest.TestCase):
 
 
     def test_read(self):
