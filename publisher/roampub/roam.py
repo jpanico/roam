@@ -1,6 +1,5 @@
 from typing import TypeAlias, Any
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from enum import StrEnum
 
 UID: TypeAlias = str
@@ -11,7 +10,7 @@ class VertexType(StrEnum):
     ROAM_BLOCK_HEADING = 'roam/block-heading', True
     ROAM_FILE = 'roam/file', False
    
-    def __new__(cls, value: str, is_roam_node: bool):
+    def __new__(cls: Any, value: str, is_roam_node: bool):
         obj = str.__new__(cls)
         obj._value_ = value
         obj.is_roam_node = is_roam_node # type: ignore
@@ -83,6 +82,7 @@ class RoamVertex(ABC):
         clsname: str = type(self).__name__
         uid_string: str = self.uid[-8] if len(self.uid) > 8 else self.uid
         return f"{clsname}<{uid_string}>({self.vertex_type}, {self.media_type})"
+
 
 class PageNode(RoamVertex):
 

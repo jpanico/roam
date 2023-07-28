@@ -1,6 +1,6 @@
 import logging
-from typing import Iterator, TextIO
 import unittest
+from typing import Iterator, TextIO
 
 from ebooklib.epub import read_epub, write_epub, EpubBook, EpubItem, EpubHtml, Link, EpubNav, EpubNcx, Section
 from ebooklib import ITEM_DOCUMENT
@@ -9,12 +9,12 @@ from common.log import configure_logging
 
 class EBookLibTests(unittest.TestCase):
 
-    # https://github.com/aerkalov/ebooklib/blob/master/samples/01_basic_create/create.py
+
     def test_create_1(self):
         book = EpubBook()
 
         # add metadata
-        book.set_identifier('sample123456')
+        book.set_identifier('sample1234567')
         book.set_title('Sample book')
         book.set_language('en')
 
