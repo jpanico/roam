@@ -1,10 +1,6 @@
 from typing import Any, Iterable
 from collections.abc import ItemsView
 import logging
-import inspect
-
-from common.introspect import *
-from roampub.roam import *
 
 def get_properties(cls: type[Any], include_supers: bool = False) -> dict[str,property]: 
     logging.debug(f"cls: {cls}")

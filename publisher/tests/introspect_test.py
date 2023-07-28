@@ -103,14 +103,8 @@ class IntrospectTests(unittest.TestCase):
         self.assertEqual(properties.keys(), {'attr1', 'attr2','attr3'})
 
     def test_inspect(self):
-        vertex: PageNode = PageNode('uid.0', MediaType.TEXT_PLAIN)
-        logging.debug(f"vertex: {vertex}")
-        self.assertEqual(vertex.uid, 'uid.0')
-        logging.debug(f"vertex.__dict__: {vertex.__dict__}")
-        logging.debug(f"vars(vertex): {vars(vertex)}")
-        logging.debug(f"dir(vertex): {dir(vertex)}")
-        logging.debug(f"getmembers(vertex): {inspect.getmembers(vertex)}")
-        logging.debug(f"help(vertex): {help(vertex)}")
+        derived_target: DerivedTestTarget = DerivedTestTarget('attr1.value1', {'key':'value'}, 'attr3.value1')
+        logging.debug(f"derived_target: {derived_target}")
     
 
     def setUp(self):

@@ -4,7 +4,7 @@ import inspect
 
 from common.log import configure_logging
 
-from roampub.roam import *
+from roampub.roam_model import *
 
 class RoamTests(unittest.TestCase):
 
