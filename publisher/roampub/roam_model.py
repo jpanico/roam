@@ -1,6 +1,31 @@
-from typing import TypeAlias, Any
+"""
+Model of the elements that appear in PageDump generated JSON files -- the output of PageDump.js
+ 
+Types:
+
+    UID
+
+Enums:
+
+    VertexType
+    MediaType
+
+Classes:
+
+    RoamVertex
+    PageNode
+
+Functions:
+
+"""
+
+from typing import TypeAlias, Any, Optional
 from abc import ABC, abstractmethod
 from enum import StrEnum
+import logging
+
+from common.types import Url
+from common.introspect import get_property_values
 
 UID: TypeAlias = str
 
@@ -17,11 +42,7 @@ class VertexType(StrEnum):
         return obj
     
     def __str__(self):
-        return "%s.%s" % (self.__class__.__name__, self._name_)
-
-    def __repr__(self):
-        return "%s.%s" % (self.__class__.__name__, self._name_)
-    
+        return f"{self.__class__.__name__}.{self._name_}"
 
 class MediaType(StrEnum):
     TEXT_PLAIN = 'text/plain'
@@ -29,11 +50,7 @@ class MediaType(StrEnum):
     IMAGE_JPEG = 'image/jpeg'
 
     def __str__(self):
-        return "%s.%s" % (self.__class__.__name__, self._name_)
-
-    def __repr__(self):
-        return "%s.%s" % (self.__class__.__name__, self._name_)
-
+        return f"{self.__class__.__name__}.{self._name_}"
 
 class RoamVertex(ABC):
     """
@@ -58,6 +75,9 @@ class RoamVertex(ABC):
     """
 
     def __init__(self: Any, uid: UID, media_type: MediaType): 
+        if any(arg is None for arg in (uid, media_type)):
+            raise ValueError("missing required arg")
+
         # PEP 8: "Use one leading underscore only for non-public methods and instance variables."
         self._uid = uid
         self._media_type = media_type
@@ -81,13 +101,102 @@ class RoamVertex(ABC):
     def __repr__(self):
         clsname: str = type(self).__name__
         uid_string: str = self.uid[-8] if len(self.uid) > 8 else self.uid
-        return f"{clsname}<{uid_string}>({self.vertex_type}, {self.media_type})"
+        property_values: dict[str,Any] = get_property_values(self, True)
+        logging.debug(f"property_values: {property_values}")
+        # filter out the properties that are defined by this class
+        property_values = {k:v for k,v in property_values.items() if k not in ['uid', 'vertex_type', 'media_type']}
+        return f"{clsname}<{uid_string}>({self.vertex_type}, {self.media_type}, {property_values})"
 
+class RoamNode(RoamVertex):
 
-class PageNode(RoamVertex):
+    def __init__(self: Any, uid: UID, media_type: MediaType, children: Optional[list[UID]] =[], 
+                 references: Optional[list[UID]] =[]): 
+        self._children= children
+        self._references= references
+        super().__init__(uid, media_type)
+
+    @property
+    def children(self) -> Optional[list[UID]]:
+        """is read-only"""
+        return self._children
+
+    @property
+    def references(self) -> Optional[list[UID]]:
+        """is read-only"""
+        return self._references
+
+class PageNode(RoamNode):
+
+    def __init__(self: Any, uid: UID, media_type: MediaType, title: str, children: Optional[list[UID]] =[], 
+                 references: Optional[list[UID]] =[]): 
+        if any(arg is None for arg in (title)):
+            raise ValueError("missing required arg")
+
+        self._title = title
+        super().__init__(uid, media_type, children, references)
+
+    @property
+    def title(self) -> str:
+        return self._title
+    
 
     @property
     def vertex_type(self) -> VertexType:
         return VertexType.ROAM_PAGE
+
+class BlockHeadingNode(RoamNode):
+
+    def __init__(self: Any, uid: UID, media_type: MediaType, heading: str, children: Optional[list[UID]] =[], 
+                 references: Optional[list[UID]] =[]): 
+        if any(arg is None for arg in (heading)):
+            raise ValueError("missing required arg")
+
+        self._heading = heading
+        super().__init__(uid, media_type, children, references)
+
+    @property
+    def heading(self) -> str:
+        return self._heading
     
 
+    @property
+    def vertex_type(self) -> VertexType:
+        return VertexType.ROAM_BLOCK_HEADING
+
+class BlockContentNode(RoamNode):
+
+    def __init__(self: Any, uid: UID, media_type: MediaType, content: str, children: Optional[list[UID]] =[], 
+                 references: Optional[list[UID]] =[]): 
+        self._content = content
+        super().__init__(uid, media_type, children, references)
+
+    @property
+    def content(self) -> str:
+        return self._content
+    
+
+    @property
+    def vertex_type(self) -> VertexType:
+        return VertexType.ROAM_BLOCK_CONTENT
+
+class FileVertex(RoamVertex):
+
+    def __init__(self: Any, uid: UID, media_type: MediaType, file_name: str, source: Url): 
+        if any(arg is None for arg in (file_name, source)):
+            raise ValueError("missing required arg")
+
+        self._file_name = file_name
+        self._source = source
+        super().__init__(uid, media_type)
+
+    @property
+    def file_name(self) -> str:
+        return self._file_name
+    
+    @property
+    def source(self) -> Url:
+        return self._source
+
+    @property
+    def vertex_type(self) -> VertexType:
+        return VertexType.ROAM_FILE
