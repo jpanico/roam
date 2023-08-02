@@ -62,11 +62,7 @@
         }
     },
     {
-        "user": {
-            "id": 3
-        },
-        "time": 1684845502964,
-        "title": "Page 2",
+        "id": 700,
         "children": [
             {
                 "id": 701
@@ -76,8 +72,11 @@
             }
         ],
         "uid": "Pvyh6q_ag",
-        "id": 700,
-        "sidebar": 5
+        "time": 1684845502964,
+        "user": {
+            "id": 3
+        },
+        "title": "Page 2"
     },
     {
         "user": {
@@ -332,11 +331,7 @@
         }
     },
     {
-        "user": {
-            "id": 3
-        },
-        "time": 1684845469293,
-        "title": "Page 1",
+        "id": 697,
         "children": [
             {
                 "id": 698
@@ -346,8 +341,11 @@
             }
         ],
         "uid": "Qb2JOnrUQ",
-        "id": 697,
-        "sidebar": 6
+        "time": 1684845469293,
+        "user": {
+            "id": 3
+        },
+        "title": "Page 1"
     },
     {
         "id": 867,

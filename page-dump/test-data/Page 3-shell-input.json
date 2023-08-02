@@ -3,7 +3,12 @@
         "user": {
             "id": 3
         },
-        "view-type": "document",
+        "view-type": "bullet",
+        "seen-by": [
+            {
+                "id": 3
+            }
+        ],
         "time": 1684931788494,
         "title": "Page 3",
         "children": [
@@ -12,11 +17,17 @@
             },
             {
                 "id": 714
+            },
+            {
+                "id": 992
+            },
+            {
+                "id": 994
             }
         ],
         "uid": "hfm6NKq2c",
         "open": true,
         "id": 709,
-        "sidebar": 4
+        "sidebar": 16
     }
 ]
