@@ -16,11 +16,11 @@ class JSONTests(unittest.TestCase):
         self.assertEquals(len(jsonObj), 30)
         self.assertEquals(
             jsonObj[0], 
-            {'text': 'Page 3', 'children': ['IO75SriD8', 'uFL-CFN6i'], 'uid': 'hfm6NKq2c', 'vertex-type': 'roam/page', 'media-type': 'text/plain'} 
+            {'text': 'Page 3', 'children': ['IO75SriD8', 'uFL-CFN6i', 'LXoC6aV1-', 'dftwwQg-V'], 'uid': 'hfm6NKq2c', 'vertex-type': 'roam/page', 'media-type': 'text/plain'} 
         )
         self.assertEquals(
             jsonObj[29], 
-            {'text': 'Block 1.2', 'children': ['Wu-bKjjdJ'], 'uid': 'mvVww9zGd', 'vertex-type': 'roam/block', 'media-type': 'text/plain'} 
+            {'text': 'Block 1.2', 'children': ['Wu-bKjjdJ'], 'uid': 'mvVww9zGd', 'vertex-type': 'roam/block-content', 'media-type': 'text/plain'} 
         )
 
 

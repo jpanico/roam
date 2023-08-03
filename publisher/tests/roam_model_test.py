@@ -5,47 +5,80 @@ from common.log import configure_logging
 
 from roampub.roam_model import *
 
-class RoamTests(unittest.TestCase):
+class RoamModelTests(unittest.TestCase):
+
+    def test_validate_root_page(self):
+        name: str = 'rule.name'
+        description: str = 'rule.description'
+        rule: ValidationRule = ValidationRule(name, description, validate_root_page)
+        logging.debug(f"rule: {rule}")
+
+        self.assertEqual(name, rule.name)
+        self.assertEqual(description, rule.description)
+        self.assertEqual(validate_root_page, rule.impl)
+
+
+    def test_validation_rule(self):
+
+        name: str = 'rule.name'
+        description: str = 'rule.description'
+        rule: ValidationRule = ValidationRule(name, description, validate_root_page)
+        logging.debug(f"rule: {rule}")
+
+        self.assertEqual(name, rule.name)
+        self.assertEqual(description, rule.description)
+        self.assertEqual(validate_root_page, rule.impl)
+
+
+    def test_validation_failure(self):
+
+        message: str = 'failure message string'
+        validation_failure: ValidationFailure = ValidationFailure(ROOT_PAGE_RULE, message)
+        logging.debug(f"validation_failure: {validation_failure}")
+
+        self.assertEqual(ROOT_PAGE_RULE, validation_failure.rule)
+        self.assertEqual(message, validation_failure.failure_message)
+
 
     def test_file_vertex_create(self):
 
-        fileVertex: FileVertex = FileVertex('uid.0', MediaType.TEXT_PLAIN, 'file.file_name', 'file.source')
-        logging.debug(f"fileVertex: {fileVertex}")
-        self.assertEqual('uid.0', fileVertex.uid)
-        self.assertEqual(VertexType.ROAM_FILE, fileVertex.vertex_type)
-        self.assertEqual(MediaType.TEXT_PLAIN, fileVertex.media_type)
-        self.assertEqual('file.file_name', fileVertex.file_name)
-        self.assertEqual('file.source', fileVertex.source)
+        file_vertex: FileVertex = FileVertex('uid.0', MediaType.TEXT_PLAIN, 'file.file_name', 'file.source')
+        logging.debug(f"fileVertex: {file_vertex}")
+        self.assertEqual('uid.0', file_vertex.uid)
+        self.assertEqual(VertexType.ROAM_FILE, file_vertex.vertex_type)
+        self.assertEqual(MediaType.TEXT_PLAIN, file_vertex.media_type)
+        self.assertEqual('file.file_name', file_vertex.file_name)
+        self.assertEqual('file.source', file_vertex.source)
         
 
     def test_block_content_create(self):
 
-        blockContentNode: BlockContentNode = BlockContentNode('uid.0', MediaType.TEXT_PLAIN, 'block.content')
-        logging.debug(f"blockContentNode: {blockContentNode}")
-        self.assertEqual('uid.0', blockContentNode.uid)
-        self.assertEqual(VertexType.ROAM_BLOCK_CONTENT, blockContentNode.vertex_type)
-        self.assertEqual(MediaType.TEXT_PLAIN, blockContentNode.media_type)
-        self.assertEqual('block.content', blockContentNode.content)
+        block_content_node: BlockContentNode = BlockContentNode('uid.0', MediaType.TEXT_PLAIN, 'block.content')
+        logging.debug(f"blockContentNode: {block_content_node}")
+        self.assertEqual('uid.0', block_content_node.uid)
+        self.assertEqual(VertexType.ROAM_BLOCK_CONTENT, block_content_node.vertex_type)
+        self.assertEqual(MediaType.TEXT_PLAIN, block_content_node.media_type)
+        self.assertEqual('block.content', block_content_node.content)
 
 
     def test_block_heading_create(self):
 
-        blockHeadingNode: BlockHeadingNode = BlockHeadingNode('uid.0', MediaType.TEXT_PLAIN, 'block.heading')
-        logging.debug(f"blockHeadingNode: {blockHeadingNode}")
-        self.assertEqual('uid.0', blockHeadingNode.uid)
-        self.assertEqual(VertexType.ROAM_BLOCK_HEADING, blockHeadingNode.vertex_type)
-        self.assertEqual(MediaType.TEXT_PLAIN, blockHeadingNode.media_type)
-        self.assertEqual('block.heading', blockHeadingNode.heading)
+        block_heading_node: BlockHeadingNode = BlockHeadingNode('uid.0', MediaType.TEXT_PLAIN, 'block.heading')
+        logging.debug(f"blockHeadingNode: {block_heading_node}")
+        self.assertEqual('uid.0', block_heading_node.uid)
+        self.assertEqual(VertexType.ROAM_BLOCK_HEADING, block_heading_node.vertex_type)
+        self.assertEqual(MediaType.TEXT_PLAIN, block_heading_node.media_type)
+        self.assertEqual('block.heading', block_heading_node.heading)
 
 
     def test_page_create(self):
 
-        pageNode: PageNode = PageNode('uid.0', MediaType.TEXT_PLAIN, 'page.title')
-        logging.debug(f"pageNode: {pageNode}")
-        self.assertEqual('uid.0', pageNode.uid)
-        self.assertEqual(VertexType.ROAM_PAGE, pageNode.vertex_type)
-        self.assertEqual(MediaType.TEXT_PLAIN, pageNode.media_type)
-        self.assertEqual('page.title', pageNode.title)
+        page_node: PageNode = PageNode('uid.0', MediaType.TEXT_PLAIN, 'page.title')
+        logging.debug(f"pageNode: {page_node}")
+        self.assertEqual('uid.0', page_node.uid)
+        self.assertEqual(VertexType.ROAM_PAGE, page_node.vertex_type)
+        self.assertEqual(MediaType.TEXT_PLAIN, page_node.media_type)
+        self.assertEqual('page.title', page_node.title)
 
 
     def test_node_create(self):
