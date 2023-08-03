@@ -63,12 +63,13 @@ class RoamModelTests(unittest.TestCase):
 
     def test_block_heading_create(self):
 
-        block_heading_node: BlockHeadingNode = BlockHeadingNode('uid.0', MediaType.TEXT_PLAIN, 'block.heading')
+        block_heading_node: BlockHeadingNode = BlockHeadingNode('uid.0', MediaType.TEXT_PLAIN, 'block.heading', 1)
         logging.debug(f"blockHeadingNode: {block_heading_node}")
         self.assertEqual('uid.0', block_heading_node.uid)
         self.assertEqual(VertexType.ROAM_BLOCK_HEADING, block_heading_node.vertex_type)
         self.assertEqual(MediaType.TEXT_PLAIN, block_heading_node.media_type)
         self.assertEqual('block.heading', block_heading_node.heading)
+        self.assertEqual(1, block_heading_node.level)
 
 
     def test_page_create(self):
@@ -98,7 +99,7 @@ class RoamModelTests(unittest.TestCase):
     def test_vertex_type(self):
 
         logging.debug(f"roam/page: {VertexType.ROAM_PAGE}")
-        self.assertEqual('roam/page', VertexType.ROAM_PAGE._value_)
+        self.assertEqual('roam/page', VertexType.ROAM_PAGE.value)
         self.assertEqual(VertexType.ROAM_PAGE, VertexType.ROAM_PAGE)
         self.assertTrue(VertexType.ROAM_PAGE == VertexType.ROAM_PAGE)
         self.assertIs(VertexType.ROAM_PAGE, VertexType.ROAM_PAGE)

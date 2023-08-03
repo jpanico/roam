@@ -89,7 +89,9 @@ class RoamVertex(ABC):
     def __init__(self: Any, uid: Uid, media_type: MediaType): 
         if any(arg is None for arg in (uid, media_type)):
             raise ValueError("missing required arg")
-
+        if not isinstance(media_type, MediaType):
+            raise TypeError(f"is not instanceof {MediaType}; media_type: {media_type}")
+        
         # PEP 8: "Use one leading underscore only for non-public methods and instance variables."
         self._uid = uid
         self._media_type = media_type
@@ -112,7 +114,7 @@ class RoamVertex(ABC):
 
     def __repr__(self):
         clsname: str = type(self).__name__
-        uid_string: str = self.uid[-9] if len(self.uid) > 9 else self.uid
+        uid_string: str = self.uid[-9:] if len(self.uid) > 9 else self.uid
         property_values: dict[str,Any] = get_property_values(self, True)
         logging.debug(f"property_values: {property_values}")
         # filter out the properties that are defined by this class
@@ -163,18 +165,22 @@ class PageNode(RoamNode):
 
 class BlockHeadingNode(RoamNode):
 
-    def __init__(self: Any, uid: Uid, media_type: MediaType, heading: str, children: Optional[list[Uid]] =[], 
-                 references: Optional[list[Uid]] =[]): 
-        if any(arg is None for arg in (heading)):
+    def __init__(self: Any, uid: Uid, media_type: MediaType, heading: str, level: int, 
+                 children: Optional[list[Uid]] =[], references: Optional[list[Uid]] =[]): 
+        if any(arg is None for arg in (heading, level)):
             raise ValueError("missing required arg")
 
         self._heading = heading
+        self._level = level
         super().__init__(uid, media_type, children, references)
 
     @property
     def heading(self) -> str:
         return self._heading
-    
+
+    @property
+    def level(self) -> int:
+        return self._level
 
     @property
     def vertex_type(self) -> VertexType:
