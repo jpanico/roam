@@ -95,6 +95,42 @@ class RoamModelTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             vertex = RoamVertex('uid.0', MediaType.TEXT_PLAIN) # type: ignore
 
+    def test_vertex_type_match(self):
+        """
+        Demonstrates very curious property of Python ``Enums`` used in ``match`` statements;
+        POLA is violated-- they don't work as expected/inuitively
+        """
+        vertex_type: VertexType = VertexType.ROAM_FILE
+        logging.debug(f"vertex_type: {vertex_type}")
+
+        from_if_tower: VertexType
+        if vertex_type is VertexType.ROAM_PAGE:
+            from_if_tower = VertexType.ROAM_PAGE
+        elif vertex_type is VertexType.ROAM_BLOCK_CONTENT:
+            from_if_tower = VertexType.ROAM_BLOCK_CONTENT
+        elif vertex_type is VertexType.ROAM_BLOCK_HEADING:
+            from_if_tower = VertexType.ROAM_BLOCK_HEADING
+        elif vertex_type is VertexType.ROAM_FILE:
+            from_if_tower = VertexType.ROAM_FILE
+        else:
+            raise ValueError(f"unrecognized vertex_type: {vertex_type}")
+            
+        self.assertIs(VertexType.ROAM_FILE, from_if_tower)
+
+        from_match: VertexType
+        match vertex_type:
+            case VertexType.ROAM_PAGE:
+                from_match = VertexType.ROAM_PAGE
+            case VertexType.ROAM_BLOCK_CONTENT:
+                from_match = VertexType.ROAM_BLOCK_CONTENT
+            case VertexType.ROAM_BLOCK_HEADING:
+                from_match = VertexType.ROAM_BLOCK_HEADING
+            case VertexType.ROAM_FILE:
+                from_match = VertexType.ROAM_FILE
+            case _:
+                raise ValueError(f"unrecognized vertex_type: {vertex_type}")
+
+        self.assertIs(VertexType.ROAM_PAGE, from_match)
 
     def test_vertex_type(self):
 

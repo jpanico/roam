@@ -1,3 +1,4 @@
+from typing import Any, TextIO
 import logging
 import unittest
 import json
@@ -8,9 +9,9 @@ class JSONTests(unittest.TestCase):
 
 
     def test_read(self):
-        jsonFile = open("./tests/data/Page 3.json")
+        jsonFile: TextIO = open("./tests/data/Page 3.json")
 
-        jsonObj: list[dict] = json.load(jsonFile)
+        jsonObj: list[dict[str,Any]] = json.load(jsonFile)
 
         logging.debug(f"jsonObj: {jsonObj}, len: {len(jsonObj)}")
         self.assertEquals(len(jsonObj), 30)
