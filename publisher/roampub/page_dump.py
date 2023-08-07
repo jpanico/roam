@@ -7,18 +7,42 @@ Functions:
 
 """
 
-from typing import TypeAlias, Any, TextIO
+from typing import TypeAlias, Any, Tuple, TextIO
 import logging
+from pathlib import Path
 from json import load
+from zipfile import ZipFile
 
 from roampub.roam_model import *
 
+class PageDump:
+    def __init__(self: Any, zip_path: Path): 
+        if any(arg is None for arg in [zip_path]):
+            raise ValueError("missing required arg")
+        if not isinstance(zip_path, Path):
+            raise TypeError(f"is not instanceof {Path}; zip_path: {zip_path}")
+        
+        # PEP 8: "Use one leading underscore only for non-public methods and instance variables."
+        self._zip_path = zip_path
+        self._vertex_map = None
 
-def read_page_dump_json(file_path: str) -> list[dict[str, Any]]: 
+    @property
+    def zip_path(self) -> Path:
+        """is read-only"""
+        return self._zip_path
+
+    @property
+    def vertex_map(self) -> VertexMap:
+        assert self._vertex_map is not None
+        return self._vertex_map
+
+
+def read_page_dump_json(file_path: Path) -> list[dict[str, Any]]: 
     logging.debug(f"file_path: {file_path}")
-    if any(arg is None for arg in (file_path)):
+    if any(arg is None for arg in [file_path]):
         raise ValueError("missing required arg")
-
+    if not isinstance(file_path, Path):
+        raise TypeError(f"is not instanceof {Path}; file_path: {file_path}")
     jsonFile: TextIO = open(file_path)
     logging.debug(f"jsonFile: {jsonFile}")
     return load(jsonFile)
@@ -31,6 +55,21 @@ def create_vertex_map(source: list[dict[str, Any]]) -> VertexMap:
     
     vertices: list[RoamVertex] = [create_roam_vertex(i) for i in source]
     return OrderedDict([(v.uid, v) for v in vertices])
+
+
+def load_zip_dump(zip_path: Path) -> Tuple[ZipFile, VertexMap]:
+    raise NotImplementedError
+
+
+def load_json_dump(json_path: Path) ->  VertexMap:
+    logging.debug(f"json_path: {json_path}")
+    if not json_path:
+        raise ValueError("missing required arg")
+    
+    json_objs: list[dict[str, Any]] = read_page_dump_json(json_path)
+    logging.debug(f"json_objs: {json_objs}")
+    return create_vertex_map(json_objs)
+
 
 def create_roam_vertex(source: dict[str, Any]) -> RoamVertex: 
     logging.debug(f"source: {source}")
@@ -47,7 +86,8 @@ def create_roam_vertex(source: dict[str, Any]) -> RoamVertex:
         return create_file_vertex(source)
     else:
         raise ValueError(f"unrecognized vertex_type: {vertex_type}")
-        
+    
+
 def _validate_create_source(source: dict[str, Any], vertex_type: VertexType) -> MediaType:
     if not source:
         raise ValueError("missing required arg")
@@ -57,6 +97,7 @@ def _validate_create_source(source: dict[str, Any], vertex_type: VertexType) -> 
     
     # convert MediaType enum value to enum member
     return MediaType(source['media-type'])
+
 
 def create_page_node(source: dict[str, Any]) -> PageNode: 
 
@@ -69,17 +110,19 @@ def create_page_node(source: dict[str, Any]) -> PageNode:
         source.get('refs'),
     )
 
+
 def create_block_heading_node(source: dict[str, Any]) -> BlockHeadingNode: 
 
     media_type = _validate_create_source(source, VertexType.ROAM_BLOCK_HEADING)
     return BlockHeadingNode(
         source['uid'],
         media_type,
+        source['text'],
         source['heading'],
-        source['level'],
         source.get('children'),
         source.get('refs'),
     )
+
 
 def create_block_content_node(source: dict[str, Any]) -> BlockContentNode: 
 
@@ -91,6 +134,7 @@ def create_block_content_node(source: dict[str, Any]) -> BlockContentNode:
         source.get('children'),
         source.get('refs'),
     )
+
 
 def create_file_vertex(source: dict[str, Any]) -> FileVertex: 
 

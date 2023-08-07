@@ -4,18 +4,44 @@ import unittest
 from common.log import configure_logging
 
 from roampub.roam_model import *
+from roampub.page_dump import *
 
 class RoamModelTests(unittest.TestCase):
 
-    def test_validate_root_page(self):
-        name: str = 'rule.name'
-        description: str = 'rule.description'
-        rule: ValidationRule = ValidationRule(name, description, validate_root_page)
-        logging.debug(f"rule: {rule}")
+    @unittest.skip('wip')
+    def test_validate_children_exist(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(CHILDREN_EXIST_RULE.validate(brief_vertex_map))
+        
+        # page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        # logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        # self.assertIsNone(ROOT_PAGE_RULE.validate(page3_vertex_map))
+    
 
-        self.assertEqual(name, rule.name)
-        self.assertEqual(description, rule.description)
-        self.assertEqual(validate_root_page, rule.impl)
+    def test_validate_root_page(self):
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(ROOT_PAGE_RULE.validate(page3_vertex_map))
+    
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(ROOT_PAGE_RULE.validate(brief_vertex_map))
+
+        # remove first item from VertexMap
+        page3_vertex_map.popitem(last=False)
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        validation_result: list[ValidationFailure] = ROOT_PAGE_RULE.validate(page3_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, ROOT_PAGE_RULE)
+
+        self.assertIsNone(ROOT_PAGE_RULE.validate(None)) # type: ignore
+
+        wrong_type_vertex_map = dict(brief_vertex_map)
+        logging.debug(f"type(wrong_type_vertex_map): {type(wrong_type_vertex_map)}")
+        with self.assertRaises(TypeError):
+            ROOT_PAGE_RULE.validate(wrong_type_vertex_map) # type: ignore
 
 
     def test_validation_rule(self):
@@ -95,6 +121,7 @@ class RoamModelTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             vertex = RoamVertex('uid.0', MediaType.TEXT_PLAIN) # type: ignore
 
+
     def test_vertex_type_match(self):
         """
         Demonstrates very curious property of Python ``Enums`` used in ``match`` statements;
@@ -131,6 +158,7 @@ class RoamModelTests(unittest.TestCase):
                 raise ValueError(f"unrecognized vertex_type: {vertex_type}")
 
         self.assertIs(VertexType.ROAM_PAGE, from_match)
+
 
     def test_vertex_type(self):
 

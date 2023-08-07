@@ -25,7 +25,7 @@ Functions:
 
 """
 
-from typing import TypeAlias, Any, Optional, Callable, Final, NamedTuple
+from typing import TypeAlias, Any, Optional, Callable, Final, NamedTuple, cast
 from abc import ABC, abstractmethod
 from enum import StrEnum
 from collections import OrderedDict
@@ -59,6 +59,7 @@ class VertexType(StrEnum):
     def __str__(self):
         return f"{self.__class__.__name__}.{self._name_}"
 
+
 class MediaType(StrEnum):
     TEXT_PLAIN = 'text/plain'
     TEXT_MARKDOWN = 'text/markdown'
@@ -66,6 +67,7 @@ class MediaType(StrEnum):
 
     def __str__(self):
         return f"{self.__class__.__name__}.{self._name_}"
+
 
 class RoamVertex(ABC):
     """
@@ -121,10 +123,12 @@ class RoamVertex(ABC):
         property_values = {k:v for k,v in property_values.items() if k not in ['uid', 'vertex_type', 'media_type']}
         return f"{clsname}<{uid_string}>({self.vertex_type}, {self.media_type}, {property_values})"
 
+
 VertexMap: TypeAlias = OrderedDict[Uid, 'RoamVertex']
 """
 The ``VertexMap`` preserves the item order from the PageDump.json file.
 """
+
 
 class RoamNode(RoamVertex):
 
@@ -144,6 +148,7 @@ class RoamNode(RoamVertex):
         """is read-only"""
         return self._references
 
+
 class PageNode(RoamNode):
 
     def __init__(self: Any, uid: Uid, media_type: MediaType, title: str, children: Optional[list[Uid]] =[], 
@@ -162,6 +167,7 @@ class PageNode(RoamNode):
     @property
     def vertex_type(self) -> VertexType:
         return VertexType.ROAM_PAGE
+
 
 class BlockHeadingNode(RoamNode):
 
@@ -186,6 +192,7 @@ class BlockHeadingNode(RoamNode):
     def vertex_type(self) -> VertexType:
         return VertexType.ROAM_BLOCK_HEADING
 
+
 class BlockContentNode(RoamNode):
 
     def __init__(self: Any, uid: Uid, media_type: MediaType, content: str, children: Optional[list[Uid]] =[], 
@@ -201,6 +208,7 @@ class BlockContentNode(RoamNode):
     @property
     def vertex_type(self) -> VertexType:
         return VertexType.ROAM_BLOCK_CONTENT
+
 
 class FileVertex(RoamVertex):
 
@@ -224,9 +232,33 @@ class FileVertex(RoamVertex):
     def vertex_type(self) -> VertexType:
         return VertexType.ROAM_FILE
 
+def all_children(graph: VertexMap) -> list[Uid]:
+    logging.debug(f"graph: {graph}")
+    if graph is None: 
+        return []
+
+    if not isinstance(graph, VertexMap.__origin__): # type: ignore
+        raise TypeError()
+        
+    return list(reduce(_accumulate_children, graph.values(), []))
+
+
+def _accumulate_children(accumulator: list[Uid], vertex: RoamVertex) -> list[Uid]:
+    if not isinstance(vertex, RoamNode):
+        return accumulator
+    
+    node: RoamNode = cast(RoamNode, vertex)
+    children: Optional[list[Uid]] = node.children
+    if not children:
+        return accumulator
+
+    return accumulator + children
+
+
 ValidationFailure = NamedTuple("ValidationFailure", [('rule', 'ValidationRule'), ('failure_message', str)])
 ValidationResult: TypeAlias = Optional[list[ValidationFailure]]
 Validation: TypeAlias = Callable[['ValidationRule', VertexMap], ValidationResult]
+
 
 class ValidationRule(NamedTuple):
     name: str
@@ -234,22 +266,25 @@ class ValidationRule(NamedTuple):
     impl: Validation
 
     def validate(self, graph: VertexMap) -> ValidationResult: 
+        logging.debug(f"rule: {self}")
+        if graph is None: 
+            return None
+    
+        if not isinstance(graph, VertexMap.__origin__): # type: ignore
+            raise TypeError()
+    
         return self.impl(self, graph)
 
 
 def validate_root_page(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
-    logging.debug(f"rule: {rule}")
-    if not graph:
-        return None
-    
     first_vertex: RoamVertex = list(graph.items())[0][1]
     logging.debug(f"first_node: {first_vertex}")
 
     if( first_vertex.vertex_type is VertexType.ROAM_PAGE):
         return None
     
-
-
+    failure_message: str = f"is not {VertexType.ROAM_PAGE}; first vertex: {first_vertex}"
+    return [ValidationFailure(ROOT_PAGE_RULE, failure_message)]
 
 
 ROOT_PAGE_RULE: Final[ValidationRule] = ValidationRule(
@@ -258,8 +293,10 @@ ROOT_PAGE_RULE: Final[ValidationRule] = ValidationRule(
     validate_root_page
 )
 
+
 def validate_children_exist(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
     raise NotImplementedError
+
 
 CHILDREN_EXIST_RULE: Final[ValidationRule] = ValidationRule(
     'ChildrenExistRule', 
@@ -267,14 +304,19 @@ CHILDREN_EXIST_RULE: Final[ValidationRule] = ValidationRule(
     validate_children_exist
 )
 
+
 def validate_references_exist(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
     raise NotImplementedError
+
 
 REFERENCES_EXIST_RULE: Final[ValidationRule] = ValidationRule(
     'ReferencesExistRule', 
     'all ``Uid`` values appearing in ``references`` have corresponding entry in VertexMap', 
     validate_references_exist
 )
+
+
+
 
 def validate_block_parents_exist(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
     raise NotImplementedError
@@ -387,7 +429,8 @@ def validate(graph: VertexMap) -> ValidationResult:
     if not results:
         return None
     
-    flat_result: list[ValidationFailure] = list(reduce(lambda x, y: x + y, results, []))  # type: ignore
+    flat_result: list[ValidationFailure] = 
+        list(reduce(lambda accum, iter_val: accum + iter_val, results, []))  # type: ignore
 
     if not flat_result:
         return None

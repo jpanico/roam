@@ -3,6 +3,7 @@ import logging
 import unittest
 
 from common.log import configure_logging
+from common.collect import get_first_value, get_last_value
 
 from roampub.roam_model import *
 from roampub.page_dump import *
@@ -10,11 +11,77 @@ from roampub.page_dump import *
 class PageDumpTests(unittest.TestCase):
 
     def test_create_vertex_map(self):
-        pass
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self._validate_page3_map(page3_vertex_map)
+    
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self._validate_brief_map(brief_vertex_map)
+
+
+    def _validate_page3_map(self, vertex_map: VertexMap) -> None:
+        self.assertEqual(len(vertex_map),30)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_PAGE),4)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_FILE),2)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_BLOCK_HEADING),0)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_BLOCK_CONTENT),24)
+
+        first: PageNode = cast(PageNode,get_first_value(vertex_map))
+        logging.debug(f"first: {first}")
+        self.assertEqual(first.uid, 'hfm6NKq2c')
+        self.assertEqual(first.vertex_type,VertexType.ROAM_PAGE)
+        self.assertEqual(first.media_type,MediaType.TEXT_PLAIN)
+        self.assertEqual(first.title,'Page 3')
+        self.assertEqual(first.children,["IO75SriD8","uFL-CFN6i","LXoC6aV1-","dftwwQg-V"])
+        self.assertIsNone(first.references)
+
+        last: BlockContentNode = cast(BlockContentNode, get_last_value(vertex_map))
+        logging.debug(f"last: {last}")
+        self.assertEqual(last.uid, 'mvVww9zGd')
+        self.assertEqual(last.vertex_type,VertexType.ROAM_BLOCK_CONTENT)
+        self.assertEqual(last.media_type,MediaType.TEXT_PLAIN)
+        self.assertEqual(last.content,'Block 1.2')
+        self.assertEqual(last.children,["Wu-bKjjdJ"])
+        self.assertIsNone(last.references)
+
+
+    def _validate_brief_map(self, vertex_map: VertexMap) -> None:
+        self.assertEqual(len(vertex_map),12)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_PAGE),1)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_FILE),0)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_BLOCK_HEADING),3)
+        self.assertEqual(sum(1 for i in vertex_map.values() if i.vertex_type is VertexType.ROAM_BLOCK_CONTENT),8)
+
+        first: PageNode = cast(PageNode,get_first_value(vertex_map))
+        logging.debug(f"first: {first}")
+        self.assertEqual(first.uid, 'lALsKb-Dx')
+        self.assertEqual(first.vertex_type,VertexType.ROAM_PAGE)
+        self.assertEqual(first.media_type,MediaType.TEXT_PLAIN)
+        self.assertEqual(first.title,'Creative Brief')
+        self.assertEqual(first.children,[
+            "C2uKKD4-b",
+            "ZdZlJbgy1",
+            "6TCv5eKPQ",
+            "2bW3xKCMS",
+            "4jf3ZlLqF",
+            "ZnUfgOM7W",
+            "6r7Q5nxw5"
+        ])
+        self.assertIsNone(first.references)
+        
+        last: BlockContentNode = cast(BlockContentNode, get_last_value(vertex_map))
+        logging.debug(f"last: {last}")
+        self.assertEqual(last.uid, '6r7Q5nxw5')
+        self.assertEqual(last.vertex_type,VertexType.ROAM_BLOCK_CONTENT)
+        self.assertEqual(last.media_type,MediaType.TEXT_PLAIN)
+        self.assertEqual(last.content,'So every programmer, whether they know it or not, is making a decision each time they write some code-- ')
+        self.assertIsNone(last.children)
+        self.assertIsNone(last.references)
 
 
     def test_read_page_dump_json(self):
-        creative_brief_json: list[dict[str, Any]] = read_page_dump_json("./tests/data/Creative Brief.json")
+        creative_brief_json: list[dict[str, Any]] = read_page_dump_json(Path('./tests/data/Creative Brief.json'))
         logging.debug(f"creative_brief_json: {creative_brief_json}")
         self.assertEqual(len(creative_brief_json),12)
         self.assertEqual(sum(1 for i in creative_brief_json if i['vertex-type'] == VertexType.ROAM_PAGE.value),1)
@@ -53,7 +120,7 @@ class PageDumpTests(unittest.TestCase):
         self.assertIsNone(last.get('children'))
         self.assertIsNone(last.get('refs'))
 
-        page3_json: list[dict[str, Any]] = read_page_dump_json("./tests/data/Page 3.json")
+        page3_json: list[dict[str, Any]] = read_page_dump_json(Path('./tests/data/Page 3.json'))
         logging.debug(f"page3_json: {page3_json}")
         self.assertEqual(len(page3_json),30)
         self.assertEqual(sum(1 for i in page3_json if i['vertex-type'] == VertexType.ROAM_PAGE.value),4)
@@ -158,7 +225,7 @@ class PageDumpTests(unittest.TestCase):
        self._test_create_block_heading_node(create_block_heading_node)
 
 
-    def _test_create_block_heading_node(self, creator: Callable[[dict[str, Any]], RoamVertex]):
+    def _test_create_block_heading_node(self, creator: Callable[[dict[str, Any]], RoamVertex]) -> None:
         heading: str = "solution 2 (hard to understand)"
         level: int = 1
         children: list[Uid] = [
@@ -170,8 +237,8 @@ class PageDumpTests(unittest.TestCase):
         media_type: MediaType = MediaType.TEXT_PLAIN
         media_type_value: str = media_type.value
         source: dict = {
-            "heading": heading,
-            "level": level,
+            "text": heading,
+            "heading": level,
             "children": children,
             "uid": uid,
             "vertex-type": vertex_type_value,
