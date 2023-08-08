@@ -22,18 +22,22 @@ Classes:
 Functions:
 
     validate(VertexMap) -> Optional[list[str]]
+    all_linked_uids(str,VertexMap) -> list[Uid]
 
 """
 
 from typing import TypeAlias, Any, Optional, Callable, Final, NamedTuple, cast
 from abc import ABC, abstractmethod
 from enum import StrEnum
-from collections import OrderedDict
-from functools import reduce
+from collections import OrderedDict, Counter
+from functools import reduce, partial
 import logging
 
 from common.types import Url
 from common.introspect import get_property_values
+from common.log import TRACE_LEVEL
+
+logger = logging.getLogger(__name__)
 
 Uid: TypeAlias = str
 """
@@ -81,7 +85,7 @@ class RoamVertex(ABC):
         see ``Uid: TypeAlias`` for description of semantics
 
     vertex_type : VertexType
-        this is abstract -- hardwired into subclasses
+        this is abstract -- concrete value is hardwired into subclasses
         
     media_type : MediaType
         https://en.wikipedia.org/wiki/Media_type
@@ -118,7 +122,7 @@ class RoamVertex(ABC):
         clsname: str = type(self).__name__
         uid_string: str = self.uid[-9:] if len(self.uid) > 9 else self.uid
         property_values: dict[str,Any] = get_property_values(self, True)
-        logging.debug(f"property_values: {property_values}")
+        logger.log(TRACE_LEVEL, f"property_values: {property_values}")
         # filter out the properties that are defined by this class
         property_values = {k:v for k,v in property_values.items() if k not in ['uid', 'vertex_type', 'media_type']}
         return f"{clsname}<{uid_string}>({self.vertex_type}, {self.media_type}, {property_values})"
@@ -232,27 +236,40 @@ class FileVertex(RoamVertex):
     def vertex_type(self) -> VertexType:
         return VertexType.ROAM_FILE
 
-def all_children(graph: VertexMap) -> list[Uid]:
-    logging.debug(f"graph: {graph}")
-    if graph is None: 
-        return []
 
+def all_linked_uids(link_name: str, graph: VertexMap) -> list[Uid]:
+    """
+    there are 2 kinds of ``link``s amongst RoamNodes: ``children`` and ``references``
+    """
+    logger.log(TRACE_LEVEL, f"link_name: {link_name}, graph: {graph}")
+    if any(arg is None for arg in (link_name, graph)):
+        raise ValueError("missing required arg")
     if not isinstance(graph, VertexMap.__origin__): # type: ignore
         raise TypeError()
-        
-    return list(reduce(_accumulate_children, graph.values(), []))
+    if len(graph) == 0: 
+        return []
+            
+    accumulate_func: Callable[[list[Uid], RoamVertex], list[Uid]] = partial(_accumulate_linked_uids, link_name)
+    return list(reduce(accumulate_func, graph.values(), []))
 
 
-def _accumulate_children(accumulator: list[Uid], vertex: RoamVertex) -> list[Uid]:
+def _accumulate_linked_uids(link_name: str, accumulator: list[Uid], vertex: RoamVertex) -> list[Uid]:
+    """
+    there are 2 kinds of ``link``s amongst RoamNodes: ``children`` and ``references``
+    """
+    logger.log(TRACE_LEVEL, f"link_name: {link_name}, accumulator: {accumulator}, vertex: {vertex}")
+    if any(arg is None for arg in (link_name, accumulator, vertex)):
+        raise ValueError("missing required arg")
     if not isinstance(vertex, RoamNode):
         return accumulator
     
     node: RoamNode = cast(RoamNode, vertex)
-    children: Optional[list[Uid]] = node.children
-    if not children:
+    # linked: Optional[list[Uid]] = node.children
+    linked: Optional[list[Uid]] = getattr(node, link_name)
+    if not linked:
         return accumulator
 
-    return accumulator + children
+    return accumulator + linked
 
 
 ValidationFailure = NamedTuple("ValidationFailure", [('rule', 'ValidationRule'), ('failure_message', str)])
@@ -266,7 +283,7 @@ class ValidationRule(NamedTuple):
     impl: Validation
 
     def validate(self, graph: VertexMap) -> ValidationResult: 
-        logging.debug(f"rule: {self}")
+        logger.debug(f"rule: {self}")
         if graph is None: 
             return None
     
@@ -278,13 +295,13 @@ class ValidationRule(NamedTuple):
 
 def validate_root_page(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
     first_vertex: RoamVertex = list(graph.items())[0][1]
-    logging.debug(f"first_node: {first_vertex}")
+    logger.debug(f"first_node: {first_vertex}")
 
     if( first_vertex.vertex_type is VertexType.ROAM_PAGE):
         return None
     
     failure_message: str = f"is not {VertexType.ROAM_PAGE}; first vertex: {first_vertex}"
-    return [ValidationFailure(ROOT_PAGE_RULE, failure_message)]
+    return [ValidationFailure(rule, failure_message)]
 
 
 ROOT_PAGE_RULE: Final[ValidationRule] = ValidationRule(
@@ -295,7 +312,18 @@ ROOT_PAGE_RULE: Final[ValidationRule] = ValidationRule(
 
 
 def validate_children_exist(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
-    raise NotImplementedError
+    node_children: list[Uid] = all_linked_uids('children', graph)
+    dangling_children: list[Uid] = list(filter(lambda uid: not uid in graph, node_children))
+    logger.debug(f"dangling_children: {dangling_children}")
+
+    if not dangling_children:
+        return None
+    
+    # N.B. parens are just for formatting long lines-- PEP 8
+    failure_message: str = (
+        f"Uids found in ``children`` attributes are not vertices of ``graph``; dangling_children: {dangling_children}"
+    )
+    return [ValidationFailure(rule, failure_message)]
 
 
 CHILDREN_EXIST_RULE: Final[ValidationRule] = ValidationRule(
@@ -306,7 +334,18 @@ CHILDREN_EXIST_RULE: Final[ValidationRule] = ValidationRule(
 
 
 def validate_references_exist(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
-    raise NotImplementedError
+    node_references: list[Uid] = all_linked_uids('references', graph)
+    dangling_references: list[Uid] = list(filter(lambda uid: not uid in graph, node_references))
+    logger.debug(f"dangling_references: {dangling_references}")
+
+    if not dangling_references:
+        return None
+    
+    # N.B. parens are just for formatting long lines-- PEP 8
+    failure_message: str = (
+        f"Uids found in ``references`` attributes are not vertices of ``graph``; dangling_references: {dangling_references}"
+    )
+    return [ValidationFailure(rule, failure_message)]
 
 
 REFERENCES_EXIST_RULE: Final[ValidationRule] = ValidationRule(
@@ -316,10 +355,32 @@ REFERENCES_EXIST_RULE: Final[ValidationRule] = ValidationRule(
 )
 
 
-
-
 def validate_block_parents_exist(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
-    raise NotImplementedError
+    all_block_nodes: list[RoamVertex] = (
+        list(filter(lambda v: v.vertex_type in [VertexType.ROAM_BLOCK_HEADING, VertexType.ROAM_BLOCK_CONTENT], 
+                    graph.values()
+                )
+        )
+    )
+    logger.log(TRACE_LEVEL, f"all_block_nodes: {all_block_nodes}")
+
+    if not all_block_nodes:
+        return None
+    
+    all_block_uids: list[Uid] = list(map(lambda b: b.uid, all_block_nodes))
+    all_children_uids: list[Uid] = all_linked_uids('children', graph)
+    children_counter: Counter[Uid] = Counter(all_children_uids)
+    logger.log(TRACE_LEVEL, f"children_counter: {children_counter}")
+    invalids: dict[Uid, int] = {k:v for (k,v) in children_counter.items() if ((k in all_block_uids) and (v > 1))}
+    logger.log(logging.DEBUG if invalids else TRACE_LEVEL, f"invalids: {invalids}")
+    if not invalids:
+        return None    
+
+    failure_message: str = (
+        f"block ``Uids`` with invalid number of parents: {invalids}"
+    )
+    return [ValidationFailure(rule, failure_message)]
+
 
 BLOCK_PARENTS_EXIST_RULE: Final[ValidationRule] = ValidationRule(
     'BlockParentsExistRule', 
@@ -327,14 +388,39 @@ BLOCK_PARENTS_EXIST_RULE: Final[ValidationRule] = ValidationRule(
     validate_block_parents_exist
 )
 
+
 def validate_children_vertex_types(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
-    raise NotImplementedError
+    all_children_uids: list[Uid] = all_linked_uids('children', graph)
+    if not all_children_uids:
+        return None
+
+    invalid_children_vertices: list[RoamVertex] = (
+        [
+            graph[uid] 
+            for uid in all_children_uids 
+            if graph[uid].vertex_type in [VertexType.ROAM_PAGE, VertexType.ROAM_FILE]
+        ]
+    )
+    logger.log(
+        logging.DEBUG if invalid_children_vertices else TRACE_LEVEL, 
+        f"invalid_children_vertices: {invalid_children_vertices}"
+    )
+    if not invalid_children_vertices:
+        return None    
+
+    failure_message: str = (
+        f"(PageNode | FileVertex)s appearing as children: {invalid_children_vertices}"
+    )
+    return [ValidationFailure(rule, failure_message)]
+
+
 
 CHILDREN_VERTEX_TYPES_RULE: Final[ValidationRule] = ValidationRule(
     'ChildrenVertexTypesRule', 
     'no (PageNode | FileVertex) ``Uid`` can appear in any ``children`` lists', 
     validate_children_vertex_types
 )
+
 
 def validate_page_node_children(rule: ValidationRule, graph: VertexMap) -> ValidationResult:
     raise NotImplementedError
@@ -421,16 +507,15 @@ def validate(graph: VertexMap) -> ValidationResult:
     - None: if there are no validation failures
     - list[ValidationFailure] === list[description of validation failure encountered]
     """
-    logging.debug(f"graph: {graph}")
+    logger.info(f"graph: {graph}")
     results: list[ValidationResult] = [rule.validate(graph) for rule in ALL_RULES]
-    logging.debug(f"results: {results}")
+    logger.info(f"results: {results}")
     results: list[ValidationResult] = list(filter(lambda x: x is not None, results))
 
     if not results:
         return None
     
-    flat_result: list[ValidationFailure] = 
-        list(reduce(lambda accum, iter_val: accum + iter_val, results, []))  # type: ignore
+    flat_result: list[ValidationFailure] = list(reduce(lambda accum, iter_val: accum + iter_val, results, []))  # type: ignore
 
     if not flat_result:
         return None

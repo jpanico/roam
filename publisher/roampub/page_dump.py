@@ -15,6 +15,8 @@ from zipfile import ZipFile
 
 from roampub.roam_model import *
 
+logger = logging.getLogger(__name__)
+
 class PageDump:
     def __init__(self: Any, zip_path: Path): 
         if any(arg is None for arg in [zip_path]):
@@ -38,18 +40,18 @@ class PageDump:
 
 
 def read_page_dump_json(file_path: Path) -> list[dict[str, Any]]: 
-    logging.debug(f"file_path: {file_path}")
+    logger.info(f"file_path: {file_path}")
     if any(arg is None for arg in [file_path]):
         raise ValueError("missing required arg")
     if not isinstance(file_path, Path):
         raise TypeError(f"is not instanceof {Path}; file_path: {file_path}")
     jsonFile: TextIO = open(file_path)
-    logging.debug(f"jsonFile: {jsonFile}")
+    logger.info(f"jsonFile: {jsonFile}")
     return load(jsonFile)
 
 
 def create_vertex_map(source: list[dict[str, Any]]) -> VertexMap: 
-    logging.debug(f"source: {source}")
+    logger.debug(f"source: {source}")
     if any(arg is None for arg in (source)):
         raise ValueError("missing required arg")
     
@@ -62,20 +64,20 @@ def load_zip_dump(zip_path: Path) -> Tuple[ZipFile, VertexMap]:
 
 
 def load_json_dump(json_path: Path) ->  VertexMap:
-    logging.debug(f"json_path: {json_path}")
+    logger.info(f"json_path: {json_path}")
     if not json_path:
         raise ValueError("missing required arg")
     
     json_objs: list[dict[str, Any]] = read_page_dump_json(json_path)
-    logging.debug(f"json_objs: {json_objs}")
+    logger.debug(f"json_objs: {json_objs}")
     return create_vertex_map(json_objs)
 
 
 def create_roam_vertex(source: dict[str, Any]) -> RoamVertex: 
-    logging.debug(f"source: {source}")
+    logger.debug(f"source: {source}")
 
     vertex_type: VertexType = VertexType(source['vertex-type'])
-    logging.debug(f"vertex_type: {vertex_type}")
+    logger.debug(f"vertex_type: {vertex_type}")
     if vertex_type is VertexType.ROAM_PAGE:
         return create_page_node(source)
     elif vertex_type is VertexType.ROAM_BLOCK_CONTENT:

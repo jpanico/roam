@@ -13,7 +13,7 @@ Functions:
 
 """
 
-from typing import TypeVar, Optional, cast
+from typing import TypeVar, cast
 from collections.abc import Iterable, Mapping
 
 T = TypeVar('T')    # Declare type variable "T"

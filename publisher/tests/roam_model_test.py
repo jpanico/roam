@@ -8,16 +8,121 @@ from roampub.page_dump import *
 
 class RoamModelTests(unittest.TestCase):
 
-    @unittest.skip('wip')
+    @unittest.skip("")
+    def test_validate_children_vertex_types(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(CHILDREN_VERTEX_TYPES_RULE.validate(brief_vertex_map))
+
+
+    def test_validate_block_parents_exist(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(BLOCK_PARENTS_EXIST_RULE.validate(brief_vertex_map))
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(BLOCK_PARENTS_EXIST_RULE.validate(page3_vertex_map))
+
+        # C2uKKD4-b is a ``ROAM_BLOCK_CONTENT`` node that is child of root ``PageNode``
+        # here we erroneously insert it as a child of 2bW3xKCMS as well
+        node_2bW3xKCMS: RoamNode = cast(RoamNode, brief_vertex_map['2bW3xKCMS'])
+        logging.debug(f"node_2bW3xKCMS: {node_2bW3xKCMS}")
+        node_2bW3xKCMS.children.append('C2uKKD4-b') # type: ignore
+        validation_result: list[ValidationFailure] = BLOCK_PARENTS_EXIST_RULE.validate(brief_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, BLOCK_PARENTS_EXIST_RULE)
+        self.assertIn("{'C2uKKD4-b': 2}", validation_result[0].failure_message)
+
+        # soJKEPwjQ is a ``ROAM_BLOCK_HEADING`` node that is child of 2bW3xKCMS
+        # here we erroneously insert it as a child of 4jf3ZlLqF as well
+        node_4jf3ZlLqF: RoamNode = cast(RoamNode, brief_vertex_map['4jf3ZlLqF'])
+        logging.debug(f"node_4jf3ZlLqF: {node_4jf3ZlLqF}")
+        node_4jf3ZlLqF.children.append('soJKEPwjQ') # type: ignore
+        validation_result: list[ValidationFailure] = BLOCK_PARENTS_EXIST_RULE.validate(brief_vertex_map)  # type: ignore
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, BLOCK_PARENTS_EXIST_RULE)
+        self.assertIn("{'C2uKKD4-b': 2, 'soJKEPwjQ': 2}", validation_result[0].failure_message)
+
+
+    def test_validate_references_exist(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(REFERENCES_EXIST_RULE.validate(brief_vertex_map))
+        
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(REFERENCES_EXIST_RULE.validate(page3_vertex_map))
+
+        del page3_vertex_map['IO75SriD8']
+        validation_result: list[ValidationFailure] = REFERENCES_EXIST_RULE.validate(page3_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, REFERENCES_EXIST_RULE)
+        self.assertIn('IO75SriD8', validation_result[0].failure_message)
+
+        del page3_vertex_map['9b673aae-8089-4a91-84df-9dac152a7f94']
+        validation_result: list[ValidationFailure] = REFERENCES_EXIST_RULE.validate(page3_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, REFERENCES_EXIST_RULE)
+        self.assertIn('IO75SriD8', validation_result[0].failure_message)
+        self.assertIn('9b673aae-8089-4a91-84df-9dac152a7f94', validation_result[0].failure_message)
+
+
+    def test_all_references(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        result: list[Uid] = all_linked_uids('references', brief_vertex_map)
+        logging.debug(f"result: {result}")
+        self.assertEqual(result, [])
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        result: list[Uid] = all_linked_uids('references', page3_vertex_map)
+        logging.debug(f"result: {result}")
+        self.assertEqual(result, ['IO75SriD8', 'A_4nJQ1Y7', 'plH3eTesS', 'o2hTH3dbf', 'YMkrw0y7Y', '9b673aae-8089-4a91-84df-9dac152a7f94', 'Qb2JOnrUQ', 'Pvyh6q_ag', 'mvVww9zGd', 'Pvyh6q_ag', '81770416-701c-4099-b585-ff0988894cc9'])
+
+
     def test_validate_children_exist(self):
         brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
         logging.debug(f"brief_vertex_map: {brief_vertex_map}")
         self.assertIsNone(CHILDREN_EXIST_RULE.validate(brief_vertex_map))
         
-        # page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
-        # logging.debug(f"page3_vertex_map: {page3_vertex_map}")
-        # self.assertIsNone(ROOT_PAGE_RULE.validate(page3_vertex_map))
-    
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(CHILDREN_EXIST_RULE.validate(page3_vertex_map))
+
+        # the last RoamVertex in page3_vertex_map is "uid"="mvVww9zGd", which is in the ``children`` list of 
+        # another vertex. 
+        del page3_vertex_map['mvVww9zGd']
+        validation_result: list[ValidationFailure] = CHILDREN_EXIST_RULE.validate(page3_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, CHILDREN_EXIST_RULE)
+        self.assertIn('mvVww9zGd', validation_result[0].failure_message)
+
+        del page3_vertex_map['Ww_4xiPko']
+        validation_result: list[ValidationFailure] = CHILDREN_EXIST_RULE.validate(page3_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, CHILDREN_EXIST_RULE)
+        self.assertIn('mvVww9zGd', validation_result[0].failure_message)
+        self.assertIn('Ww_4xiPko', validation_result[0].failure_message)
+
+
+    def test_all_children(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        result: list[Uid] = all_linked_uids('children', brief_vertex_map)
+        logging.debug(f"result: {result}")
+        self.assertEqual(result, ['C2uKKD4-b', 'ZdZlJbgy1', '6TCv5eKPQ', '2bW3xKCMS', '4jf3ZlLqF', 'ZnUfgOM7W', '6r7Q5nxw5', 'Gi1BCIGoW', 'dkdzOF1XB', 'Kkl93sU4u', 'soJKEPwjQ'])
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        result: list[Uid] = all_linked_uids('children', page3_vertex_map)
+        logging.debug(f"result: {result}")
+        self.assertEqual(result, ['IO75SriD8', 'uFL-CFN6i', 'LXoC6aV1-', 'dftwwQg-V', 'nvZuZUSrh', 'plH3eTesS', 'IvK1p6Cqs', 'a9PURgUrs', 'GI38yM-z4', 'Mw66e2LRj', 'q1qajG3Zk', 'cLvvyOfnB', 'MQ5dNpkpA', 'Up_5YBvZg', 'lreFpitoR', 'A_4nJQ1Y7', 'mvVww9zGd', '5_de8n-ih', 'YMkrw0y7Y', 'eqOJ4CH9Y', '9dy8FUY7E', 'Ww_4xiPko', 'yiZaMqbAz', 'Wu-bKjjdJ'])
+
 
     def test_validate_root_page(self):
         page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))

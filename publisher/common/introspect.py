@@ -2,8 +2,10 @@ from typing import Any, Iterable
 from collections.abc import ItemsView
 import logging
 
+logger = logging.getLogger(__name__)
+
 def get_properties(cls: type[Any], include_supers: bool = False) -> dict[str,property]: 
-    logging.debug(f"cls: {cls}")
+    logger.debug(f"cls: {cls}")
     assert isinstance(cls, type)
 
     class_items: ItemsView[str,Any] = cls.__dict__.items()
@@ -20,7 +22,7 @@ def get_property_names(cls: type[Any], include_supers: bool = False) -> Iterable
 
 def get_property_values(target: Any, include_supers: bool = False)  -> dict[str,Any]: 
     property_names: Iterable[str] = get_property_names(type(target), include_supers)
-    logging.debug(f"property_names: {property_names}")
+    logger.debug(f"property_names: {property_names}")
 
     return get_attributes(target, property_names)
 
