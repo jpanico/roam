@@ -11,6 +11,29 @@ from tests.data.test_targets import *
 
 class IntrospectTests(unittest.TestCase):
 
+    def test_has_attribute_value(self):
+        base_target: BaseTestTarget = BaseTestTarget('attr1.value1', {'key':'value'})
+        self.assertFalse(has_attribute_value(base_target,'does not exist'))
+        self.assertTrue(has_attribute_value(base_target,'attr1'))
+        self.assertTrue(has_attribute_value(base_target,'attr2'))
+
+        base_target: BaseTestTarget = BaseTestTarget(None, None) # type: ignore
+        self.assertFalse(has_attribute_value(base_target,'attr1'))
+        self.assertFalse(has_attribute_value(base_target,'attr2'))
+
+        derived_target: DerivedTestTarget = DerivedTestTarget('attr1.value1', {'key':'value'}, 'attr3.value1')
+        self.assertFalse(has_attribute_value(derived_target,'does not exist'))
+        self.assertTrue(has_attribute_value(derived_target,'attr1'))
+        self.assertTrue(has_attribute_value(derived_target,'attr2'))
+        self.assertTrue(has_attribute_value(derived_target,'attr3'))
+
+        derived_target: DerivedTestTarget = DerivedTestTarget(None, None, None)  # type: ignore
+        self.assertFalse(has_attribute_value(derived_target,'does not exist'))
+        self.assertFalse(has_attribute_value(derived_target,'attr1'))
+        self.assertFalse(has_attribute_value(derived_target,'attr2'))
+        self.assertFalse(has_attribute_value(derived_target,'attr3'))
+
+
     def test_get_property_values(self):
         base_target: BaseTestTarget = BaseTestTarget('attr1.value1', {'key':'value'})
         property_values: dict[str,Any] = get_property_values(base_target)
@@ -30,6 +53,7 @@ class IntrospectTests(unittest.TestCase):
         property_values: dict[str,Any] = get_property_values(derived_target, True)
         logging.debug(f"property_values: {property_values}")
         self.assertEqual(property_values, {'attr1': 'attr1.value1','attr2': {'key': 'value'},'attr3': 'attr3.value1'})
+
 
     def test_get_attributes(self):
         base_target: BaseTestTarget = BaseTestTarget('attr1.value1', {'key':'value'})
@@ -63,6 +87,7 @@ class IntrospectTests(unittest.TestCase):
         attributes: dict[str,Any] = get_attributes(derived_target, ['attr1','attr2','attr3'])
         self.assertEqual(attributes, {'attr1': 'attr1.value1','attr2': {'key': 'value'},'attr3': 'attr3.value1'})
 
+
     def test_get_property_names(self):
         property_names: Iterable[str] = get_property_names(BaseTestTarget)
         logging.debug(f"property_names: {property_names}")
@@ -79,6 +104,7 @@ class IntrospectTests(unittest.TestCase):
         property_names: Iterable[str] = get_property_names(DerivedTestTarget, True)
         logging.debug(f"property_names: {property_names}")
         self.assertEqual(property_names, {'attr1', 'attr2','attr3'})
+
 
     def test_get_properties(self):
         properties: dict[str,property] = get_properties(BaseTestTarget)
@@ -101,6 +127,7 @@ class IntrospectTests(unittest.TestCase):
         properties: dict[str,property] = get_properties(DerivedTestTarget, True)
         logging.debug(f"properties: {properties}")
         self.assertEqual(properties.keys(), {'attr1', 'attr2','attr3'})
+
 
     def test_inspect(self):
         derived_target: DerivedTestTarget = DerivedTestTarget('attr1.value1', {'key':'value'}, 'attr3.value1')

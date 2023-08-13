@@ -1,18 +1,214 @@
-import logging
 import unittest
+from operator import contains
+from enum import Enum, StrEnum
+from logging import DEBUG
 
-from common.log import configure_logging
+from common.log import configure_logging, TRACE
+from common.collect import get_first
 
 from roampub.roam_model import *
 from roampub.page_dump import *
 
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3 
+
+
+class StrColor(StrEnum):
+    RED = 'red'
+    GREEN = 'green'
+    BLUE = 'blue'
+
+
 class RoamModelTests(unittest.TestCase):
 
-    @unittest.skip("")
+
+    def test_validate(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(validate(brief_vertex_map))
+
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(validate(page3_vertex_map))
+
+
+        # add ROAM_FILE vertex (9b673aae-8089-4a91-84df-9dac152a7f94) as child of root PAGE_NODE (hfm6NKq2c)
+        node_hfm6NKq2c: RoamNode = cast(RoamNode, page3_vertex_map['hfm6NKq2c'])
+        logging.debug(f"node_hfm6NKq2c: {node_hfm6NKq2c}")
+        node_hfm6NKq2c.children.append('9b673aae-8089-4a91-84df-9dac152a7f94') # type: ignore
+        validation_result: list[ValidationFailure] = validate(page3_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 2)
+        self.assertIs(validation_result[0].rule, CHILDREN_VERTEX_TYPES_RULE)
+        self.assertIn("9b673aae-8089-4a91-84df-9dac152a7f94", validation_result[0].failure_message)
+        self.assertIs(validation_result[1].rule, PAGE_NODE_CHILDREN_RULE)
+        self.assertIn("9b673aae-8089-4a91-84df-9dac152a7f94", validation_result[1].failure_message)
+
+
+    def test_validate_references_appear_in_content(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(REFERENCES_APPEAR_IN_CONTENT_RULE.validate(brief_vertex_map))
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(REFERENCES_APPEAR_IN_CONTENT_RULE.validate(page3_vertex_map))
+
+        # find first RoamNode that has refs
+        referring_node: BlockContentNode = (cast(BlockContentNode,
+            get_first(
+                [v for v in page3_vertex_map.values() if has_attribute_value(v, 'references')])
+            )
+        )       
+        logging.debug(f"referring_node: {referring_node}")
+        ref_id: Uid = get_first(referring_node.references) # type: ignore
+        logging.debug(f"ref_id: {ref_id}")
+        updated_content: str = referring_node._content.replace(ref_id, 'xxxxx') 
+        updated_node: BlockContentNode = BlockContentNode(
+            referring_node.uid, referring_node.media_type, updated_content,
+            referring_node.children, referring_node.references
+        )
+        logging.debug(f"updated_node: {updated_node}")
+        page3_vertex_map[referring_node.uid] = updated_node
+        validation_result: list[ValidationFailure] = (
+            REFERENCES_APPEAR_IN_CONTENT_RULE.validate(page3_vertex_map)  # type: ignore
+        )
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, REFERENCES_APPEAR_IN_CONTENT_RULE)
+        self.assertIn("Wu-bKjjdJ", validation_result[0].failure_message)
+        self.assertIn("IO75SriD8", validation_result[0].failure_message)
+
+
+    def test_content_contains_reference(self):
+        content: str = "Block 1.2.1 -- block-ref-> ((IO75SriD8))"
+        self.assertTrue(content_contains_reference(content, 'IO75SriD8'))
+
+        content: str = "Block 1.2.1 -- page-ref-> [[IO75SriD8]]"
+        self.assertTrue(content_contains_reference(content, 'IO75SriD8'))
+
+        content: str = "Block 1.2.1 -- file-ref-> <<IO75SriD8>>"
+        self.assertTrue(content_contains_reference(content, 'IO75SriD8'))
+
+        content: str = "Block 1.2.1 -- file-ref-> <<xxxxx>>"
+        self.assertFalse(content_contains_reference(content, 'IO75SriD8'))
+
+        content: str = "Block 1.2.1 -- file-ref-> <IO75SriD8>"
+        self.assertFalse(content_contains_reference(content, 'IO75SriD8'))
+
+        content: str = "Block 1.2.1 -- file-ref-> IO75SriD8"
+        self.assertFalse(content_contains_reference(content, 'IO75SriD8'))
+
+
+    def test_validate_references_attribute_appearance(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(REFERENCES_ATTRIBUTE_APPEARANCE_RULE.validate(brief_vertex_map))
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(REFERENCES_ATTRIBUTE_APPEARANCE_RULE.validate(page3_vertex_map))
+
+        # add references to root ROAM_PAGE vertex (lALsKb-Dx)
+        root_node: RoamNode = cast(RoamNode, brief_vertex_map['lALsKb-Dx'])
+        logging.debug(f"root_node: {root_node}")
+        root_node._references = ['2bW3xKCMS']
+        validation_result: list[ValidationFailure] = (
+            REFERENCES_ATTRIBUTE_APPEARANCE_RULE.validate(brief_vertex_map)  # type: ignore
+        )
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, REFERENCES_ATTRIBUTE_APPEARANCE_RULE)
+        self.assertIn("lALsKb-Dx", validation_result[0].failure_message)
+
+
+    def test_validate_children_attribute_appearance(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(CHILDREN_ATTRIBUTE_APPEARANCE_RULE.validate(brief_vertex_map))
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(CHILDREN_ATTRIBUTE_APPEARANCE_RULE.validate(page3_vertex_map))
+
+        # add children to ROAM_FILE vertex (9b673aae-8089-4a91-84df-9dac152a7f94)
+        node_c152a7f94: FileVertex = cast(FileVertex, page3_vertex_map['9b673aae-8089-4a91-84df-9dac152a7f94'])
+        logging.debug(f"node_c152a7f94: {node_c152a7f94}")
+        setattr(node_c152a7f94, 'children', ['soJKEPwjQ'])
+        validation_result: list[ValidationFailure] = (
+            CHILDREN_ATTRIBUTE_APPEARANCE_RULE.validate(page3_vertex_map)  # type: ignore
+        )
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, CHILDREN_ATTRIBUTE_APPEARANCE_RULE)
+        self.assertIn("c152a7f94", validation_result[0].failure_message)
+
+
+    def test_validate_block_heading_children(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(BLOCK_HEADING_CHILDREN_RULE.validate(brief_vertex_map))
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(BLOCK_HEADING_CHILDREN_RULE.validate(page3_vertex_map))
+
+        # add root PAGE_NODE (lALsKb-Dx) as child of ROAM_BLOCK_HEADING Node soJKEPwjQ
+        node_soJKEPwjQ: RoamNode = cast(RoamNode, brief_vertex_map['soJKEPwjQ'])
+        logging.debug(f"node_soJKEPwjQ: {node_soJKEPwjQ}")
+        node_soJKEPwjQ.children.append('lALsKb-Dx') # type: ignore
+        validation_result: list[ValidationFailure] = (
+            BLOCK_HEADING_CHILDREN_RULE.validate(brief_vertex_map)  # type: ignore
+        )
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, BLOCK_HEADING_CHILDREN_RULE)
+        self.assertIn("lALsKb-Dx", validation_result[0].failure_message)
+
+
+    def test_validate_page_node_children(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self.assertIsNone(PAGE_NODE_CHILDREN_RULE.validate(brief_vertex_map))
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(PAGE_NODE_CHILDREN_RULE.validate(page3_vertex_map))
+
+        # add ROAM_FILE vertex (9b673aae-8089-4a91-84df-9dac152a7f94) as child of root PAGE_NODE (hfm6NKq2c)
+        node_hfm6NKq2c: RoamNode = cast(RoamNode, page3_vertex_map['hfm6NKq2c'])
+        logging.debug(f"node_hfm6NKq2c: {node_hfm6NKq2c}")
+        node_hfm6NKq2c.children.append('9b673aae-8089-4a91-84df-9dac152a7f94') # type: ignore
+        validation_result: list[ValidationFailure] = PAGE_NODE_CHILDREN_RULE.validate(page3_vertex_map)  # type: ignore
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, PAGE_NODE_CHILDREN_RULE)
+        self.assertIn("9b673aae-8089-4a91-84df-9dac152a7f94", validation_result[0].failure_message)
+
+
     def test_validate_children_vertex_types(self):
         brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
         logging.debug(f"brief_vertex_map: {brief_vertex_map}")
         self.assertIsNone(CHILDREN_VERTEX_TYPES_RULE.validate(brief_vertex_map))
+
+        page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self.assertIsNone(CHILDREN_VERTEX_TYPES_RULE.validate(page3_vertex_map))
+
+        # add root PAGE_NODE (lALsKb-Dx) as child of Node soJKEPwjQ
+        node_soJKEPwjQ: RoamNode = cast(RoamNode, brief_vertex_map['soJKEPwjQ'])
+        logging.debug(f"node_soJKEPwjQ: {node_soJKEPwjQ}")
+        node_soJKEPwjQ.children.append('lALsKb-Dx') # type: ignore
+        validation_result: list[ValidationFailure] = (
+            CHILDREN_VERTEX_TYPES_RULE.validate(brief_vertex_map)  # type: ignore
+        )
+        logging.debug(f"validation_result: {validation_result}")
+        self.assertEqual(len(validation_result), 1)
+        self.assertIs(validation_result[0].rule, CHILDREN_VERTEX_TYPES_RULE)
+        self.assertIn("lALsKb-Dx", validation_result[0].failure_message)
 
 
     def test_validate_block_parents_exist(self):
@@ -228,26 +424,8 @@ class RoamModelTests(unittest.TestCase):
 
 
     def test_vertex_type_match(self):
-        """
-        Demonstrates very curious property of Python ``Enums`` used in ``match`` statements;
-        POLA is violated-- they don't work as expected/inuitively
-        """
         vertex_type: VertexType = VertexType.ROAM_FILE
         logging.debug(f"vertex_type: {vertex_type}")
-
-        from_if_tower: VertexType
-        if vertex_type is VertexType.ROAM_PAGE:
-            from_if_tower = VertexType.ROAM_PAGE
-        elif vertex_type is VertexType.ROAM_BLOCK_CONTENT:
-            from_if_tower = VertexType.ROAM_BLOCK_CONTENT
-        elif vertex_type is VertexType.ROAM_BLOCK_HEADING:
-            from_if_tower = VertexType.ROAM_BLOCK_HEADING
-        elif vertex_type is VertexType.ROAM_FILE:
-            from_if_tower = VertexType.ROAM_FILE
-        else:
-            raise ValueError(f"unrecognized vertex_type: {vertex_type}")
-            
-        self.assertIs(VertexType.ROAM_FILE, from_if_tower)
 
         from_match: VertexType
         match vertex_type:
@@ -262,12 +440,11 @@ class RoamModelTests(unittest.TestCase):
             case _:
                 raise ValueError(f"unrecognized vertex_type: {vertex_type}")
 
-        self.assertIs(VertexType.ROAM_PAGE, from_match)
+        self.assertIs(VertexType.ROAM_FILE, from_match)
 
 
     def test_vertex_type(self):
 
-        logging.debug(f"roam/page: {VertexType.ROAM_PAGE}")
         self.assertEqual('roam/page', VertexType.ROAM_PAGE.value)
         self.assertEqual(VertexType.ROAM_PAGE, VertexType.ROAM_PAGE)
         self.assertTrue(VertexType.ROAM_PAGE == VertexType.ROAM_PAGE)
@@ -275,9 +452,28 @@ class RoamModelTests(unittest.TestCase):
         self.assertTrue(VertexType.ROAM_PAGE is VertexType.ROAM_PAGE)
         self.assertIs(type(VertexType.ROAM_PAGE), VertexType)
 
+        self.assertNotEqual('roam/page', VertexType.ROAM_BLOCK_CONTENT.value)
+        self.assertNotEqual(VertexType.ROAM_PAGE, VertexType.ROAM_BLOCK_CONTENT)
+        self.assertFalse(VertexType.ROAM_PAGE == VertexType.ROAM_BLOCK_CONTENT)
+        self.assertIsNot(VertexType.ROAM_PAGE, VertexType.ROAM_BLOCK_CONTENT)
+        self.assertFalse(VertexType.ROAM_PAGE is VertexType.ROAM_BLOCK_CONTENT)
+        self.assertIs(type(VertexType.ROAM_BLOCK_CONTENT), VertexType)
+
+        self.assertTrue(VertexType.ROAM_PAGE in [VertexType.ROAM_PAGE, VertexType.ROAM_BLOCK_HEADING])
+        self.assertFalse(VertexType.ROAM_BLOCK_CONTENT in [VertexType.ROAM_PAGE, VertexType.ROAM_BLOCK_HEADING])
+
+
+
+    def test_enum_compare(self):
+        self.assertEqual(Color.RED, Color.RED)
+        self.assertNotEqual(Color.RED, Color.BLUE)
+
+        self.assertEqual(StrColor.RED, StrColor.RED)
+        self.assertNotEqual(StrColor.RED, StrColor.BLUE)
+
 
     def setUp(self):
-        configure_logging()
+        configure_logging(DEBUG)
         logging.debug("logging configured")
 
 

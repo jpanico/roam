@@ -13,7 +13,7 @@ Functions:
 
 """
 
-from typing import TypeVar, cast
+from typing import TypeVar, cast, Any
 from collections.abc import Iterable, Mapping
 
 T = TypeVar('T')    # Declare type variable "T"
@@ -40,7 +40,7 @@ def get_first_item(collect: Iterable[T]) -> T:
     return next(iter(collect))
 
 
-def get_first_key(map: Mapping[K,V]) -> K:
+def get_first_key(map: Mapping[K,Any]) -> K:
     if any(arg is None for arg in (map)):
         raise ValueError("missing required arg")
     if not map:
@@ -48,7 +48,7 @@ def get_first_key(map: Mapping[K,V]) -> K:
     return next(iter(map.keys())) # type: ignore
 
 
-def get_first_value(map: Mapping[K,V]) -> V:
+def get_first_value(map: Mapping[Any,V]) -> V:
     if any(arg is None for arg in (map)):
         raise ValueError("missing required arg")
     if not map:
@@ -77,7 +77,7 @@ def get_last_item(collect: Iterable[T]) -> T:
     return last
 
 
-def get_last_key(map: Mapping[K,V]) -> K:
+def get_last_key(map: Mapping[K,Any]) -> K:
     if any(arg is None for arg in (map)):
         raise ValueError("missing required arg")
     if not map:
@@ -86,7 +86,7 @@ def get_last_key(map: Mapping[K,V]) -> K:
     return last
 
 
-def get_last_value(map: Mapping[K,V]) -> V:
+def get_last_value(map: Mapping[Any,V]) -> V:
     if any(arg is None for arg in (map)):
         raise ValueError("missing required arg")
     if not map:

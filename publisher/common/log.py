@@ -1,5 +1,7 @@
 import sys
-from logging import getLogger, Logger, Formatter, StreamHandler, Filter, LogRecord, DEBUG, INFO, WARN
+from logging import Logger, Formatter, StreamHandler, Filter, LogRecord
+from logging import  getLogger, addLevelName, getLevelName
+from logging import  DEBUG, INFO
 
 """
 https://docs.python.org/3/howto/logging.html#configuring-logging-for-a-library
@@ -8,7 +10,15 @@ Note It is strongly advised that you do not log to the root logger in your libra
 """
 _is_configured: bool = False
 
-TRACE_LEVEL = 1
+# Define TRACE  log level
+TRACE = 1
+
+# "Register" new loggin level
+addLevelName(TRACE, 'TRACE') 
+
+# Verify
+assert getLevelName(TRACE) == 'TRACE'
+
 
 def configure_logging(level: int = DEBUG) -> None: 
     global _is_configured
@@ -28,10 +38,10 @@ def configure_logging(level: int = DEBUG) -> None:
     introspect_logger.setLevel(INFO)
 
     page_dump_logger: Logger = getLogger("roampub.page_dump")
-    page_dump_logger.setLevel(INFO)
+    page_dump_logger.setLevel(level)
 
     roam_model_logger: Logger = getLogger("roampub.roam_model")
-    roam_model_logger.setLevel(DEBUG)
+    roam_model_logger.setLevel(level)
 
     _is_configured = True
 
