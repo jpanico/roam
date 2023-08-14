@@ -4,12 +4,17 @@ Types:
 
     Uid
     VertexMap
+    ValidationFailure
+    ValidationResult
+    Validation
 
+    
 Enums:
 
     VertexType
     MediaType
 
+    
 Classes:
 
     RoamVertex
@@ -18,11 +23,12 @@ Classes:
     BlockHeadingNode
     BlockContentNode
     FileVertex
+    ValidationRule
 
+    
 Functions:
 
-    validate(VertexMap) -> Optional[list[str]]
-    all_linked_uids(str,VertexMap) -> list[Uid]
+    validate(VertexMap) -> ValidationResult
 
 """
 

@@ -1,17 +1,34 @@
 """ functions to read PageDump generated .zip archives -- the output of PageDump.js
  
+Classes:
+
+    PageDump
+    
+    
+Exceptions:
+
+    BadPageDump
+
+
 Functions:
 
-    read_page_dump(str) -> VertexMap
-    create_page_node(dict) -> PageNode
+    load_json_dump(Path) -> VertexMap
+    read_page_dump_json(Path) -> list[dict[str, Any]]
+    create_vertex_map(list[dict[str, Any]]) -> VertexMap
+    create_roam_vertex(dict[str, Any]) -> RoamVertex
+    create_page_node(dict[str, Any]) -> PageNode
+    create_block_heading_node(dict[str, Any]) -> BlockHeadingNode
+    create_block_content_node(dict[str, Any]) -> BlockContentNode
+    create_file_vertex(dict[str, Any]) -> FileVertex
+
 
 """
 
-from typing import TypeAlias, Any, Tuple, TextIO
+from typing import Any, TextIO
 import logging
-from pathlib import Path
-from json import load
-from zipfile import ZipFile
+from pathlib import Path, PurePath
+from json import load, loads
+from zipfile import ZipFile, ZipInfo
 
 from roampub.roam_model import *
 
@@ -25,18 +42,71 @@ class PageDump:
             raise TypeError(f"is not instanceof {Path}; zip_path: {zip_path}")
         
         # PEP 8: "Use one leading underscore only for non-public methods and instance variables."
-        self._zip_path = zip_path
-        self._vertex_map = None
+        self._zip_file: ZipFile = ZipFile(zip_path, "r")
+        _validate_zip_file(self._zip_file)
+
+        self._vertex_map_json: str = None
+        self._vertex_map: VertexMap = None
+
+        self.vertex_map_json
+        validation_result: ValidationResult = validate(self.vertex_map)
+        logger.info(f"validation_result: {validation_result}")
+        if validation_result is not None:
+            raise BadPageDump(validation_result)
+
 
     @property
     def zip_path(self) -> Path:
         """is read-only"""
-        return self._zip_path
+        return Path(self._zip_file.filename)  # type: ignore
+
+
+    @property
+    def dump_name(self) -> str:
+        """is read-only"""
+        return self.zip_path.stem
+    
+
+    @property
+    def vertex_map_json(self) -> str:
+        """is read-only"""
+        if self._vertex_map_json is not None:
+            return self._vertex_map_json
+        
+
+        json_path: PurePath = PurePath(f"{self.dump_name}", f"{self.dump_name}.json")
+        logger.debug(f"json_path: {json_path}")
+        json_zipinfo: ZipInfo = self._zip_file.getinfo(json_path.as_posix())
+        logger.debug(f"json_zipinfo: {json_zipinfo}")
+        self._vertex_map_json: str = self._zip_file.read(json_zipinfo).decode(encoding="utf-8")
+        logger.log(TRACE, f"_vertex_map_json: {self._vertex_map_json}")
+
+        return self._vertex_map_json
+    
 
     @property
     def vertex_map(self) -> VertexMap:
-        assert self._vertex_map is not None
+        if self._vertex_map is not None:
+            return self._vertex_map
+        
+        json_objs: list[dict[str, Any]]  = loads(self.vertex_map_json)
+        logger.log(TRACE, f"json_objs: {json_objs}")
+        self._vertex_map = create_vertex_map(json_objs)
+
         return self._vertex_map
+
+
+def _validate_zip_file(zip_file: ZipFile) -> None:
+    logging.debug(f"zip_file: {zip_file}")
+    zip_path: Path = Path(zip_file.filename) # type: ignore
+    logger.debug(f"zip_path: { zip_path}")
+    dump_name: str = zip_path.stem
+    logger.debug(f"dump_name: { dump_name}")
+    info_list: list[ZipInfo] = zip_file.infolist()
+    logger.debug(f"info_list: { info_list}")
+    main_dir: ZipInfo = zip_file.getinfo(dump_name + '/')
+    logger.debug(f"main_dir: { main_dir}")
+    assert(main_dir.is_dir)
 
 
 def read_page_dump_json(file_path: Path) -> list[dict[str, Any]]: 
@@ -57,10 +127,6 @@ def create_vertex_map(source: list[dict[str, Any]]) -> VertexMap:
     
     vertices: list[RoamVertex] = [create_roam_vertex(i) for i in source]
     return OrderedDict([(v.uid, v) for v in vertices])
-
-
-def load_zip_dump(zip_path: Path) -> Tuple[ZipFile, VertexMap]:
-    raise NotImplementedError
 
 
 def load_json_dump(json_path: Path) ->  VertexMap:
@@ -148,3 +214,14 @@ def create_file_vertex(source: dict[str, Any]) -> FileVertex:
         source['source']
     )
 
+
+class BadPageDump(Exception):
+    def __init__(self: Any, validation_failures: list[ValidationFailure]):
+        self._validation_failures = validation_failures
+        super().__init__(self._validation_failures.__str__)
+
+
+    @property
+    def validation_failures(self) -> list[ValidationFailure]:
+        """is read-only"""
+        return self._validation_failures

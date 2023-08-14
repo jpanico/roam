@@ -1,6 +1,7 @@
 from typing import Callable, cast
 import logging
 import unittest
+from zipfile import BadZipFile
 
 from common.log import configure_logging
 from common.collect import get_first_value, get_last_value
@@ -9,6 +10,36 @@ from roampub.roam_model import *
 from roampub.page_dump import *
 
 class PageDumpTests(unittest.TestCase):
+
+    def test_page_dump_class(self):
+        path: Path = Path('./tests/data/Creative Brief.zip')
+        logging.debug(f"path: {path}")
+        brief_dump: PageDump = PageDump(path)
+        logging.debug(f"brief_dump: {brief_dump}")
+        self.assertEqual(path, brief_dump.zip_path)
+
+        brief_vertex_map: VertexMap = brief_dump.vertex_map
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        self._validate_brief_map(brief_vertex_map)
+
+        path: Path = Path('./tests/data/Page 3.zip')
+        page3_dump: PageDump = PageDump(path)
+        logging.debug(f"page3_dump: {page3_dump}")
+        page3_vertex_map: VertexMap = page3_dump.vertex_map
+        logging.debug(f"page3_vertex_map: {page3_vertex_map}")
+        self._validate_page3_map(page3_vertex_map)
+
+
+    def test_page_dump_invalid_files(self):
+        path: Path = Path('./tests/data/Creative Brief.json')
+        with self.assertRaises(BadZipFile):
+            page_dump: PageDump = PageDump(path)
+
+
+        path: Path = Path('./tests/data/Creative Brief.xxxxxx')
+        with self.assertRaises(FileNotFoundError):
+            page_dump: PageDump = PageDump(path)
+
 
     def test_create_vertex_map(self):
         page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
