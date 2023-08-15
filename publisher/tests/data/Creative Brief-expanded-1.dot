@@ -1,0 +1,188 @@
+strict digraph {
+graph [
+      label = "Creative Brief"
+      labelloc = t
+      fontname = "Helvetica,Arial,sans-serif"
+      fontsize = 12
+      layout = dot
+]
+node [
+      fontname="Helvetica,Arial,sans-serif" 
+      fontsize = 8
+      shape = plaintext
+]
+edge [
+      fontname="Helvetica,Arial,sans-serif"
+]
+
+"lALsKb-Dx" [
+      id="lALsKb-Dx" shape=box color = "#e27dd6ff" style = "setlinewidth(5)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> lALsKb-Dx </td> </tr>
+            <tr> <td>
+             Creative Brief
+            </td> </tr>
+      </table>>
+]
+
+"C2uKKD4-b" [
+      id="C2uKKD4-b" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> C2uKKD4-b </td> </tr>
+            <tr> <td align="left">
+             Natural language, English for instance, is written <br align="left"/> 
+             for a single species of audience: human readers.<br align="left"/>
+             It is used to convey ideas from one human to another,<br align="left"/>
+             and is, by its nature, ambiguous in terms of __formal logic__...
+            </td> </tr>
+      </table>>
+]
+
+"ZdZlJbgy1" [
+      id="ZdZlJbgy1" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> ZdZlJbgy1 </td> </tr>
+            <tr> <td align="left">
+             There is no end to the possible different ways that source code <br align="left"/> 
+             can be written to achieve the exact same result from a computer. <br align="left"/>  
+             The computer doesn't care which possible choice of source code it ...
+            </td> </tr>
+      </table>>      
+]
+
+"6TCv5eKPQ" [
+      id="6TCv5eKPQ" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> 6TCv5eKPQ </td> </tr>
+            <tr> <td align="left">
+             Write a program that prints out the numbers 1 to 100 (inclusive). If the number is evenly<br align="left"/>
+             divisible by 3, print __'Fizz'__ instead of the number. If the number is evenly <br align="left"/>
+             divisible by 5, print __'Buzz'__ instead of the number. If the number is evenly <br align="left"/>
+             divisible by both 3 and 5, print __'FizzBuzz'__ instead of the number.\n\n
+            </td> </tr>
+      </table>>      
+]
+
+"2bW3xKCMS" [
+      id="2bW3xKCMS" shape=box color = "#c46747" style = "setlinewidth(3)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> 2bW3xKCMS </td> </tr>
+            <tr> <td align="left">
+             Solution 1 -- easy to understand
+            </td> </tr>
+      </table>>      
+]
+
+"4jf3ZlLqF" [
+      id="4jf3ZlLqF" shape=box color = "#c46747" style = "setlinewidth(3)"      
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> 4jf3ZlLqF </td> </tr>
+            <tr> <td align="left">
+             solution 2 (hard to understand)
+            </td> </tr>
+      </table>>      
+]
+
+"ZnUfgOM7W" [
+      id="ZnUfgOM7W" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> ZnUfgOM7W </td> </tr>
+            <tr> <td align="left">
+             But crafting code to be comprehensible does not come for free.<br align="left"/>  
+             It requires careful thought, effort, practice and feedback. 
+            </td> </tr>
+      </table>>      
+]
+
+"6r7Q5nxw5" [
+      id="6r7Q5nxw5" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> 6r7Q5nxw5 </td> </tr>
+            <tr> <td align="left">
+             So every programmer, whether they know it or not, is making a decision<br align="left"/>
+             each time they write some code--  
+            </td> </tr>
+      </table>>   
+]
+
+"Kkl93sU4u" [
+      id="Kkl93sU4u" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> 6r7Q5nxw5 </td> </tr>
+            <tr> <td align="left">
+             Here is a very easy to understand implementation (in JavaScript). <br align="left"/>
+             It simply loops through all of the numbers from 1 to 100, checking each number.<br align="left"/> 
+             The reader really only has to understand one thing: that the '%' (modulo) operator <br align="left"/>
+             returns the remainder of dividing the left hand side by the right hand side.   
+            </td> </tr>
+      </table>>   
+]
+
+"soJKEPwjQ" [
+      id="soJKEPwjQ" shape=box color = "#c46747" style = "setlinewidth(2)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> soJKEPwjQ </td> </tr>
+            <tr> <td align="left">
+             example 1
+            </td> </tr>
+      </table>>      
+]
+
+"Gi1BCIGoW" [
+      id="Gi1BCIGoW" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> Gi1BCIGoW </td> </tr>
+            <tr> <td align="left">
+             ```javascript\nresults = \nFizzBuzz(1)\nconsole.log(`results = ${results}`)\n\nfunction FizzBuzz(s) 
+             ```
+            </td> </tr>
+      </table>> 
+]
+
+"dkdzOF1XB" [
+      id="dkdzOF1XB" shape=box color = "#51bf5b" style = "setlinewidth(1)"
+      label=
+      <<table border="0" cellborder="1" cellspacing="0" cellpadding="0">
+            <tr> <td> dkdzOF1XB </td> </tr>
+            <tr> <td align="left">
+             ```javascript\nresults = \nFizzBuzz(1)\nconsole.log(`results = ${results}`)\n\nfunction FizzBuzz(s) 
+             ```
+            </td> </tr>
+      </table>> 
+]
+
+"lALsKb-Dx" -> {
+      "C2uKKD4-b", 
+      "ZdZlJbgy1",
+      "6TCv5eKPQ",
+      "2bW3xKCMS",
+      "4jf3ZlLqF",
+      "ZnUfgOM7W",
+      "6r7Q5nxw5"
+} [weight=2 penwidth=1]
+
+"2bW3xKCMS" -> {
+      "Kkl93sU4u", 
+      "soJKEPwjQ"
+} [weight=2 penwidth=1]
+
+"4jf3ZlLqF" -> {
+      "Gi1BCIGoW"
+} [weight=2 penwidth=1]
+
+"soJKEPwjQ" -> {
+      "dkdzOF1XB"
+} [weight=2 penwidth=1]
+
+} 
