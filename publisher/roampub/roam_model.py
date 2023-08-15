@@ -32,10 +32,10 @@ Functions:
 
 """
 
-from typing import TypeAlias, Any, Optional, Callable, Final, NamedTuple, cast
+from typing import TypeAlias, Any, Optional, Callable, Iterable, Final, NamedTuple, DefaultDict, cast
 from abc import ABC, abstractmethod
 from enum import StrEnum, unique
-from collections import OrderedDict, Counter
+from collections import OrderedDict, Counter, defaultdict
 from functools import reduce, partial
 import logging
 
@@ -105,16 +105,19 @@ class RoamVertex(ABC):
         self._uid = uid
         self._media_type = media_type
 
+
     @property
     def uid(self) -> Uid:
         """is read-only"""
         return self._uid
 
+
     @property
     def media_type(self) -> MediaType:
         """is read-only"""
         return self._media_type
-    
+
+
     @property
     @abstractmethod
     def vertex_type(self) -> VertexType:
@@ -131,10 +134,12 @@ class RoamVertex(ABC):
         return f"{clsname}<{uid_string}>({self.vertex_type}, {self.media_type}, {property_values})"
 
 
-VertexMap: TypeAlias = OrderedDict[Uid, 'RoamVertex']
+VertexMap: TypeAlias = OrderedDict[Uid, RoamVertex]
 """
 The ``VertexMap`` preserves the item order from the PageDump.json file.
 """
+
+VertexTypeMap: TypeAlias = dict[VertexType, list[RoamVertex]]
 
 
 class RoamNode(RoamVertex):
@@ -279,10 +284,25 @@ ValidationResult: TypeAlias = Optional[list[ValidationFailure]]
 Validation: TypeAlias = Callable[['ValidationRule', VertexMap], ValidationResult]
 
 
+def to_vertex_type_map(graph: VertexMap) -> VertexTypeMap:
+    logger.debug(f"graph: {graph}")
+    if any(arg is None for arg in [graph]):
+        raise ValueError("missing required arg")
+    if not isinstance(graph, VertexMap.__origin__): # type: ignore
+        raise TypeError()
+
+    vertex_type_map: DefaultDict[VertexType, list[RoamVertex]] = defaultdict(list) 
+    for v in graph.values():
+        vertex_type_map[v.vertex_type].append(v)
+
+    return vertex_type_map
+
+
 class ValidationRule(NamedTuple):
     name: str
     description: str
     impl: Validation
+
 
     def validate(self, graph: VertexMap) -> ValidationResult: 
         logger.debug(f"rule: {self}")
@@ -636,9 +656,9 @@ def validate(graph: VertexMap) -> ValidationResult:
     - None: if there are no validation failures
     - list[ValidationFailure] === list[description of validation failure encountered]
     """
-    logger.info(f"graph: {graph}")
+    logger.debug(f"graph: {graph}")
     results: list[ValidationResult] = [rule.validate(graph) for rule in ALL_RULES]
-    logger.info(f"results: {results}")
+    logger.debug(f"results: {results}")
     results: list[ValidationResult] = list(filter(lambda x: x is not None, results))
 
     if not results:

@@ -21,7 +21,7 @@ class ZipFileTests(unittest.TestCase):
 
 
     def setUp(self):
-        configure_logging()
+        configure_logging(logging.INFO)
         logging.debug("logging configured")
 
 

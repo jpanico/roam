@@ -1,0 +1,26 @@
+strict digraph { 
+
+  "lALsKb-Dx" -> {
+        "C2uKKD4-b",
+        "ZdZlJbgy1",
+        "6TCv5eKPQ",
+        "2bW3xKCMS",
+        "4jf3ZlLqF",
+        "ZnUfgOM7W",
+        "6r7Q5nxw5"
+  }
+
+  "2bW3xKCMS" -> {
+        "Kkl93sU4u",
+        "soJKEPwjQ"
+  }
+
+  "4jf3ZlLqF" -> {
+        "Gi1BCIGoW"
+  }
+
+  "soJKEPwjQ" -> {
+        "dkdzOF1XB"
+  }
+
+} 

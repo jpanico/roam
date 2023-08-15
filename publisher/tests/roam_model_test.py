@@ -23,6 +23,16 @@ class StrColor(StrEnum):
 
 class RoamModelTests(unittest.TestCase):
 
+    def test_to_vertex_type_map(self):
+        brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
+        logging.debug(f"brief_vertex_map: {brief_vertex_map}")
+        vertex_type_map: VertexTypeMap = to_vertex_type_map(brief_vertex_map)
+        logging.debug(f"vertex_type_map: {vertex_type_map}")
+        self.assertEqual(len(vertex_type_map[VertexType.ROAM_PAGE]), 1)
+        self.assertEqual(len(vertex_type_map[VertexType.ROAM_BLOCK_HEADING]), 3)
+        self.assertEqual(len(vertex_type_map[VertexType.ROAM_BLOCK_CONTENT]), 8)
+        self.assertEqual(len(vertex_type_map[VertexType.ROAM_FILE]), 0)
+
 
     def test_validate(self):
         brief_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Creative Brief.json'))
@@ -463,7 +473,6 @@ class RoamModelTests(unittest.TestCase):
         self.assertFalse(VertexType.ROAM_BLOCK_CONTENT in [VertexType.ROAM_PAGE, VertexType.ROAM_BLOCK_HEADING])
 
 
-
     def test_enum_compare(self):
         self.assertEqual(Color.RED, Color.RED)
         self.assertNotEqual(Color.RED, Color.BLUE)
@@ -473,7 +482,7 @@ class RoamModelTests(unittest.TestCase):
 
 
     def setUp(self):
-        configure_logging(DEBUG)
+        configure_logging(logging.INFO)
         logging.debug("logging configured")
 
 

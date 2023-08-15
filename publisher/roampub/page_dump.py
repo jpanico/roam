@@ -30,9 +30,11 @@ from pathlib import Path, PurePath
 from json import load, loads
 from zipfile import ZipFile, ZipInfo
 
+from common.collect import get_first_value, get_first_item
 from roampub.roam_model import *
 
 logger = logging.getLogger(__name__)
+
 
 class PageDump:
     def __init__(self: Any, zip_path: Path): 
@@ -50,7 +52,7 @@ class PageDump:
 
         self.vertex_map_json
         validation_result: ValidationResult = validate(self.vertex_map)
-        logger.info(f"validation_result: {validation_result}")
+        logger.debug(f"validation_result: {validation_result}")
         if validation_result is not None:
             raise BadPageDump(validation_result)
 
@@ -95,6 +97,35 @@ class PageDump:
 
         return self._vertex_map
 
+
+    @property
+    def root_page(self) -> PageNode:
+        return get_first_value(self.vertex_map) # type: ignore
+
+
+    def get_items(self, keys: list[Uid]) -> VertexMap:
+        items: dict[Uid, RoamVertex] =  {k:self.vertex_map[k] for k in keys}
+        return OrderedDict(items)
+
+
+    def _vertex_type_counts(self) -> dict[str, int]:
+        vertex_type_map: VertexTypeMap = to_vertex_type_map(self.vertex_map)
+
+        return {vertex_type.name:len(vertex_type_map[vertex_type]) for vertex_type in list(VertexType) }
+
+
+    def __len__(self):
+        return len(self.vertex_map)
+
+
+    def __getitem__(self, key: Uid) -> RoamVertex:
+        return self.vertex_map[key]
+
+
+    def __str__(self):
+        clsname: str = type(self).__name__
+        return f"{clsname}<{self.dump_name}>({self._vertex_type_counts()})"
+    
 
 def _validate_zip_file(zip_file: ZipFile) -> None:
     logging.debug(f"zip_file: {zip_file}")

@@ -11,6 +11,91 @@ from roampub.page_dump import *
 
 class PageDumpTests(unittest.TestCase):
 
+    def test_get_items(self):
+        path: Path = Path('./tests/data/Creative Brief.zip')
+        brief_dump: PageDump = PageDump(path)
+        items: VertexMap = brief_dump.get_items([])
+        self.assertEqual(len(items), 0)
+
+        uids: list[Uid] = ['lALsKb-Dx']
+        items: VertexMap = brief_dump.get_items(uids)
+        logging.info(f"items: {items}")
+        self.assertEqual(len(items), 1)
+        self.assertIs(items[uids[0]], brief_dump.root_page)
+
+        uids: list[Uid] = ['lALsKb-Dx', 'C2uKKD4-b']
+        items: VertexMap = brief_dump.get_items(uids)
+        logging.info(f"items: {items}")
+        self.assertEqual(len(items), 2)
+        self.assertIs(items[uids[0]], brief_dump.root_page)
+        self.assertEqual(items[uids[1]].uid, uids[1])        
+
+        uids: list[Uid] = ['lALsKb-Dx', 'C2uKKD4-b', 'ZdZlJbgy1', '6TCv5eKPQ', '2bW3xKCMS', '4jf3ZlLqF']
+        items: VertexMap = brief_dump.get_items(uids)
+        self.assertEqual(len(items), 6)
+
+        uids: list[Uid] = ['lALsKb-Dx', 'C2uKKD4-b', 'xxxxxx', '6TCv5eKPQ', '2bW3xKCMS', '4jf3ZlLqF']
+        with self.assertRaises(KeyError):
+            items: VertexMap = brief_dump.get_items(uids)
+
+
+    def test_subscript(self):
+        path: Path = Path('./tests/data/Creative Brief.zip')
+        brief_dump: PageDump = PageDump(path)
+        uid: Uid = 'lALsKb-Dx'
+        root_page: PageNode = brief_dump[uid] # type: ignore
+        logging.info(f"root_page: {root_page}")
+        self.assertIsNotNone(root_page)
+        self.assertEqual(root_page.uid, uid)
+        self.assertIsInstance(root_page, PageNode)
+        self.assertIs(root_page.vertex_type, VertexType.ROAM_PAGE)
+        self.assertEqual(root_page.title, 'Creative Brief')
+
+        uid: Uid = 'ZnUfgOM7W'
+        node: RoamNode = brief_dump[uid] # type: ignore
+        logging.info(f"node: {node}")
+        self.assertIsNotNone(node)
+        self.assertEqual(node.uid, uid)
+        self.assertIsInstance(node, BlockContentNode)
+
+        with self.assertRaises(KeyError):
+            node: RoamNode = brief_dump['hfm6NKq2c'] # type: ignore
+
+        path: Path = Path('./tests/data/Page 3.zip')
+        page3_dump: PageDump = PageDump(path)
+        uid: Uid = 'hfm6NKq2c'
+        root_page: PageNode = page3_dump[uid] # type: ignore
+        logging.info(f"root_page: {root_page}")
+        self.assertIsNotNone(root_page)
+        self.assertEqual(root_page.uid, uid)
+        self.assertIsInstance(root_page, PageNode)
+        self.assertIs(root_page.vertex_type, VertexType.ROAM_PAGE)
+        self.assertEqual(root_page.title, 'Page 3')
+
+
+    def test_len(self):
+        path: Path = Path('./tests/data/Creative Brief.zip')
+        brief_dump: PageDump = PageDump(path)
+        self.assertEqual(len(brief_dump), 12)
+
+        path: Path = Path('./tests/data/Page 3.zip')
+        page3_dump: PageDump = PageDump(path)
+        self.assertEqual(len(page3_dump), 30)
+
+
+    def test_root_page(self):
+        path: Path = Path('./tests/data/Creative Brief.zip')
+        logging.debug(f"path: {path}")
+        brief_dump: PageDump = PageDump(path)
+        logging.debug(f"brief_dump: {brief_dump}")
+        self.assertEqual(brief_dump.root_page, brief_dump.vertex_map['lALsKb-Dx'])
+
+        path: Path = Path('./tests/data/Page 3.zip')
+        page3_dump: PageDump = PageDump(path)
+        logging.debug(f"page3_dump: {page3_dump}")
+        self.assertEqual(page3_dump.root_page, page3_dump.vertex_map['hfm6NKq2c'])
+       
+
     def test_page_dump_class(self):
         path: Path = Path('./tests/data/Creative Brief.zip')
         logging.debug(f"path: {path}")
@@ -332,7 +417,7 @@ class PageDumpTests(unittest.TestCase):
 
 
     def setUp(self):
-        configure_logging()
+        configure_logging(logging.INFO)
         logging.debug("logging configured")
 
 

@@ -111,7 +111,7 @@ class EBookLibTests(unittest.TestCase):
         [logging.debug(f"key: {key}, value: {book.get_metadata('DC', key)}") for key in optional_meta_keys] 
 
     def setUp(self):
-        configure_logging()
+        configure_logging(logging.INFO)
         logging.debug("logging configured")
 
 
