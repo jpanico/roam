@@ -394,7 +394,7 @@ def validate_block_parents_exist(rule: ValidationRule, graph: VertexMap) -> Vali
     children_counter: Counter[Uid] = Counter(all_children_uids)
     logger.log(TRACE, f"children_counter: {children_counter}")
     invalids: dict[Uid, int] = {k:v for (k,v) in children_counter.items() if ((k in all_block_uids) and (v > 1))}
-    logger.log(logging.DEBUG if invalids else TRACE, f"invalids: {invalids}")
+    logger.log(logging.WARN if invalids else TRACE, f"invalids: {invalids}")
     if not invalids:
         return None    
 
@@ -424,7 +424,7 @@ def validate_children_vertex_types(rule: ValidationRule, graph: VertexMap) -> Va
         ]
     )
     logger.log(
-        logging.DEBUG if invalid_children_vertices else TRACE, 
+        logging.WARN if invalid_children_vertices else TRACE, 
         f"invalid_children_vertices: {invalid_children_vertices}"
     )
     if not invalid_children_vertices:
@@ -556,7 +556,7 @@ REFERENCES_ATTRIBUTE_APPEARANCE_RULE: Final[ValidationRule] = ValidationRule(
 )
 
 
-def content_contains_reference(target: str, ref: str) -> bool:
+def content_contains_reference(target: str, ref: Uid) -> bool:
     logger.log(TRACE, f"target: {target}, ref: {ref}")
     if any(arg is None for arg in [target, ref]):
         raise ValueError("missing required arg")

@@ -11,6 +11,55 @@ from roampub.page_dump import *
 
 class PageDumpTests(unittest.TestCase):
 
+
+    def test_extract_file(self):
+        path: Path = Path('./tests/data/Creative Brief.zip')
+        brief_dump: PageDump = PageDump(path)
+
+        with self.assertRaises(KeyError):
+            info: ZipInfo = brief_dump.extract_file('does not exist', Path('.'))
+
+        with self.assertRaises(TypeError):
+            info: ZipInfo = brief_dump.extract_file('lALsKb-Dx', Path('.'))
+
+        path: Path = Path('./tests/data/Page 3.zip')
+        page3_dump: PageDump = PageDump(path)
+        dest_dir: Path = Path('./out/')
+        info: ZipInfo = page3_dump.extract_file('9b673aae-8089-4a91-84df-9dac152a7f94', dest_dir)
+        logging.info(f"info: {info}")
+        self.assertEqual(info.filename, 'Page 3/files/flower.jpeg')
+        dest_path: Path = dest_dir.joinpath(info.filename)
+        logging.info(f"dest_path: {dest_path}")
+        dest_content: bytes = open(dest_path, 'rb').read()
+        self.assertTrue(dest_path.exists())
+        expected_content_path: Path = Path('./tests/data/flower.jpeg')
+        expected_content: bytes = open(expected_content_path, 'rb').read()
+        self.assertEqual(expected_content, expected_content)
+
+
+    def test_get_file(self):
+        path: Path = Path('./tests/data/Creative Brief.zip')
+        brief_dump: PageDump = PageDump(path)
+
+        with self.assertRaises(KeyError):
+            info: ZipInfo = brief_dump.get_file('does not exist')  # type: ignore
+
+        with self.assertRaises(TypeError):
+            info: ZipInfo = brief_dump.get_file('lALsKb-Dx')  # type: ignore
+
+        path: Path = Path('./tests/data/Page 3.zip')
+        page3_dump: PageDump = PageDump(path)
+        info: ZipInfo = page3_dump.get_file('9b673aae-8089-4a91-84df-9dac152a7f94')  # type: ignore
+        logging.info(f"info: {info}")
+        self.assertEqual(info.filename, 'Page 3/files/flower.jpeg')
+        file: Tuple[ZipInfo, bytes] = page3_dump.get_file('9b673aae-8089-4a91-84df-9dac152a7f94', True)  # type: ignore
+        logging.info(f"file: {file}")
+        self.assertEqual(file[0].filename, 'Page 3/files/flower.jpeg')
+        expected_content_path: Path = Path('./tests/data/flower.jpeg')
+        expected_content: bytes = open(expected_content_path, 'rb').read()
+        self.assertEqual(file[1], expected_content)
+
+
     def test_get_items(self):
         path: Path = Path('./tests/data/Creative Brief.zip')
         brief_dump: PageDump = PageDump(path)

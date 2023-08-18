@@ -24,7 +24,7 @@ Functions:
 
 """
 
-from typing import Any, TextIO
+from typing import Any, TextIO, Union, Tuple
 import logging
 from pathlib import Path, PurePath
 from json import load, loads
@@ -106,6 +106,50 @@ class PageDump:
     def get_items(self, keys: list[Uid]) -> VertexMap:
         items: dict[Uid, RoamVertex] =  {k:self.vertex_map[k] for k in keys}
         return OrderedDict(items)
+
+
+    def get_file(self, key: Uid, include_content: bool = False) -> Union[ZipInfo, Tuple[ZipInfo, bytes]]:
+        """
+        Args:
+            key (Uid): must be the Uid for a ROAM_FILE type RoamVertex; otherwise, an Error will be raised
+
+        Returns:
+            ``ZipInfo``: if ``include_content`` is ``False``
+            ``Tuple[ZipInfo, bytes]``: if ``include_content`` is ``True``
+        """        
+        logger.log(TRACE, f"key: {key}, include_content: {include_content}")
+        if any(arg is None for arg in [key, include_content]):
+            raise ValueError("missing required arg")
+        if not isinstance(key, Uid):
+            raise TypeError(f"is not instanceof {Uid}; key: {key}")
+    
+        vertex: RoamVertex = self[key]
+        logger.log(TRACE, f"vertex: {vertex}")
+        if not isinstance(vertex, FileVertex):
+            raise TypeError(f"is not instanceof {FileVertex}; vertex: {vertex}")
+        file_vertex: FileVertex = cast(FileVertex, vertex)
+        zip_item_path: PurePath = PurePath(f"{self.dump_name}", 'files', f"{file_vertex.file_name}")
+        logger.log(TRACE, f"zip_item_path: {zip_item_path.as_posix()}")
+        zip_info: ZipInfo = self._zip_file.getinfo(zip_item_path.as_posix())
+        logger.log(TRACE, f"zip_info: {zip_info}")
+
+        if not include_content:
+            return zip_info
+    
+        content: bytes = self._zip_file.read(zip_info)
+        return (zip_info, content)
+
+
+    def extract_file(self, key: Uid, destination: Path) -> ZipInfo:
+        logger.log(TRACE, f"key: {key}, destination: {destination}")
+        if any(arg is None for arg in [key, destination]):
+            raise ValueError("missing required arg")
+
+        zip_info: ZipInfo = cast(ZipInfo, self.get_file(key, False))
+        logger.log(TRACE, f"zip_info: {zip_info}")
+
+        self._zip_file.extract(zip_info, destination)
+        return zip_info
 
 
     def _vertex_type_counts(self) -> dict[str, int]:
