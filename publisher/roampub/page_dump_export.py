@@ -31,7 +31,7 @@ def export_page_node(node: RoamNode, graph: VertexMap) -> str:
         raise TypeError(f"is not instanceof {PageNode}; node: {node}")
     
     page_node: PageNode = cast(PageNode, node)
-    heading: str = f"# {page_node.title}\n"
+    heading: str = f"# {page_node.title.strip()}"
 
     if not page_node.children:
         return heading
@@ -41,7 +41,10 @@ def export_page_node(node: RoamNode, graph: VertexMap) -> str:
     )
     logger.log(TRACE, f"children_exports: {children_exports}")
     
-    return '\n\n'.join(([heading]+children_exports))
+    nodes_content: str = '\n\n'.join(([heading]+children_exports))
+    # add a single newline to end of document
+    nodes_content += '\n'
+    return nodes_content
 
 
 def export_block_heading_node(node: RoamNode, graph: VertexMap) -> str:
@@ -50,7 +53,7 @@ def export_block_heading_node(node: RoamNode, graph: VertexMap) -> str:
         raise TypeError(f"is not instanceof {BlockHeadingNode}; node: {node}")
     
     block_heading_node: BlockHeadingNode = cast(BlockHeadingNode, node)
-    heading: str = f"{'#'*block_heading_node.level} {block_heading_node.heading}\n"
+    heading: str = f"{'#'*block_heading_node.level} {block_heading_node.heading.strip()}"
 
     if not block_heading_node.children:
         return heading
@@ -69,7 +72,7 @@ def export_block_content_node(node: RoamNode, graph: VertexMap) -> str:
         raise TypeError(f"is not instanceof {BlockContentNode}; node: {node}")
     
     block_content_node: BlockContentNode = cast(BlockContentNode, node)
-    content: str = block_content_node.content
+    content: str = block_content_node.content.strip()
 
     if not block_content_node.children:
         return content

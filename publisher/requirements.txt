@@ -1,5 +1,6 @@
 EbookLib==0.18
 lxml==4.9.3
-markdown-it-py==3.0.0
+markdown-it-py==2.2.0
+mdformat==0.7.16
 mdurl==0.1.2
 six==1.16.0

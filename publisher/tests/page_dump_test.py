@@ -175,7 +175,7 @@ class PageDumpTests(unittest.TestCase):
             page_dump: PageDump = PageDump(path)
 
 
-    def test_create_vertex_map(self):
+    def test_load_json_dump(self):
         page3_vertex_map: VertexMap = load_json_dump(Path('./tests/data/Page 3.json'))
         logging.debug(f"page3_vertex_map: {page3_vertex_map}")
         self._validate_page3_map(page3_vertex_map)
