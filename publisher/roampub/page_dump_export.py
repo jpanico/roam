@@ -1,4 +1,4 @@
-""" functions to export PageDump as Roam MarkDown
+""" functions to export PageDump as Roam MarkDown, via home-rolled conversion
  
 
 Types:
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 Exportation: TypeAlias = Callable[[RoamNode, VertexMap], str]
 
 
-def export_page_node(node: RoamNode, graph: VertexMap) -> str:
+def export_page_node_str(node: RoamNode, graph: VertexMap) -> str:
     logger.log(TRACE, f"node: {node}")
     if not isinstance(node, PageNode):
         raise TypeError(f"is not instanceof {PageNode}; node: {node}")
@@ -37,7 +37,7 @@ def export_page_node(node: RoamNode, graph: VertexMap) -> str:
         return heading
     
     children_exports: list[str] = (
-        [export_node(cast(RoamNode, graph[c_uid]), graph) for c_uid in page_node.children]
+        [export_node_str(cast(RoamNode, graph[c_uid]), graph) for c_uid in page_node.children]
     )
     logger.log(TRACE, f"children_exports: {children_exports}")
     
@@ -47,7 +47,7 @@ def export_page_node(node: RoamNode, graph: VertexMap) -> str:
     return nodes_content
 
 
-def export_block_heading_node(node: RoamNode, graph: VertexMap) -> str:
+def export_block_heading_node_str(node: RoamNode, graph: VertexMap) -> str:
     logger.log(TRACE, f"node: {node}")
     if not isinstance(node, BlockHeadingNode):
         raise TypeError(f"is not instanceof {BlockHeadingNode}; node: {node}")
@@ -59,14 +59,14 @@ def export_block_heading_node(node: RoamNode, graph: VertexMap) -> str:
         return heading
     
     children_exports: list[str] = (
-        [export_node(cast(RoamNode, graph[c_uid]), graph) for c_uid in block_heading_node.children]
+        [export_node_str(cast(RoamNode, graph[c_uid]), graph) for c_uid in block_heading_node.children]
     )
     logger.log(TRACE, f"children_exports: {children_exports}")
     
     return '\n\n'.join(([heading]+children_exports))
 
 
-def export_block_content_node(node: RoamNode, graph: VertexMap) -> str:
+def export_block_content_node_str(node: RoamNode, graph: VertexMap) -> str:
     logger.log(TRACE, f"node: {node}")
     if not isinstance(node, BlockContentNode):
         raise TypeError(f"is not instanceof {BlockContentNode}; node: {node}")
@@ -78,14 +78,14 @@ def export_block_content_node(node: RoamNode, graph: VertexMap) -> str:
         return content
     
     children_exports: list[str] = (
-        [export_node(cast(RoamNode, graph[c_uid]), graph) for c_uid in block_content_node.children]
+        [export_node_str(cast(RoamNode, graph[c_uid]), graph) for c_uid in block_content_node.children]
     )
     logger.log(TRACE, f"children_exports: {children_exports}")
     
     return '\n\n'.join(([content]+children_exports))
 
 
-def export_node(node: RoamNode, graph: VertexMap)-> str:
+def export_node_str(node: RoamNode, graph: VertexMap)-> str:
     logger.log(TRACE, f"node: {node}")
     if any(arg is None for arg in [node, graph]):
         raise ValueError("missing required arg")
@@ -94,11 +94,11 @@ def export_node(node: RoamNode, graph: VertexMap)-> str:
     if not isinstance(graph, VertexMap.__origin__):  # type: ignore
         raise TypeError(f"is not instanceof {VertexMap}; node: {graph}")    
     
-    return EXPORTATION_MAP[node.vertex_type](node, graph)
+    return STR_EXPORTATION_MAP[node.vertex_type](node, graph)
 
 
-EXPORTATION_MAP: dict[VertexType, Exportation] = {
-    VertexType.ROAM_PAGE: export_page_node,
-    VertexType.ROAM_BLOCK_HEADING: export_block_heading_node,
-    VertexType.ROAM_BLOCK_CONTENT: export_block_content_node
+STR_EXPORTATION_MAP: dict[VertexType, Exportation] = {
+    VertexType.ROAM_PAGE: export_page_node_str,
+    VertexType.ROAM_BLOCK_HEADING: export_block_heading_node_str,
+    VertexType.ROAM_BLOCK_CONTENT: export_block_content_node_str
 }

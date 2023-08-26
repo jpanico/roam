@@ -124,6 +124,7 @@ class RoamVertex(ABC):
         """is read-only"""
         pass
 
+
     def __repr__(self):
         clsname: str = type(self).__name__
         uid_string: str = self.uid[-9:] if len(self.uid) > 9 else self.uid
@@ -261,6 +262,20 @@ def all_linked_uids(link_name: str, graph: VertexMap) -> list[Uid]:
     return list(reduce(accumulate_func, graph.values(), []))
 
 
+def to_vertex_type_map(graph: VertexMap) -> VertexTypeMap:
+    logger.debug(f"graph: {graph}")
+    if any(arg is None for arg in [graph]):
+        raise ValueError("missing required arg")
+    if not isinstance(graph, VertexMap.__origin__): # type: ignore
+        raise TypeError()
+
+    vertex_type_map: DefaultDict[VertexType, list[RoamVertex]] = defaultdict(list) 
+    for v in graph.values():
+        vertex_type_map[v.vertex_type].append(v)
+
+    return vertex_type_map
+
+
 def _accumulate_linked_uids(link_name: str, accumulator: list[Uid], vertex: RoamVertex) -> list[Uid]:
     """
     there are 2 kinds of ``link``s amongst RoamNodes: ``children`` and ``references``
@@ -282,20 +297,6 @@ def _accumulate_linked_uids(link_name: str, accumulator: list[Uid], vertex: Roam
 ValidationFailure = NamedTuple("ValidationFailure", [('rule', 'ValidationRule'), ('failure_message', str)])
 ValidationResult: TypeAlias = Optional[list[ValidationFailure]]
 Validation: TypeAlias = Callable[['ValidationRule', VertexMap], ValidationResult]
-
-
-def to_vertex_type_map(graph: VertexMap) -> VertexTypeMap:
-    logger.debug(f"graph: {graph}")
-    if any(arg is None for arg in [graph]):
-        raise ValueError("missing required arg")
-    if not isinstance(graph, VertexMap.__origin__): # type: ignore
-        raise TypeError()
-
-    vertex_type_map: DefaultDict[VertexType, list[RoamVertex]] = defaultdict(list) 
-    for v in graph.values():
-        vertex_type_map[v.vertex_type].append(v)
-
-    return vertex_type_map
 
 
 class ValidationRule(NamedTuple):

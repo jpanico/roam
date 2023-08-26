@@ -34,7 +34,7 @@ class PageDumpTests(unittest.TestCase):
         self.assertTrue(dest_path.exists())
         expected_content_path: Path = Path('./tests/data/flower.jpeg')
         expected_content: bytes = open(expected_content_path, 'rb').read()
-        self.assertEqual(expected_content, expected_content)
+        self.assertEqual(dest_content, expected_content)
 
 
     def test_get_file(self):

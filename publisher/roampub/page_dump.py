@@ -1,4 +1,4 @@
-""" functions to read PageDump generated .zip archives -- the output of PageDump.js
+""" class to read PageDump generated .zip archives -- the output of PageDump.js
  
 Classes:
 
@@ -30,7 +30,7 @@ from pathlib import Path, PurePath
 from json import load, loads
 from zipfile import ZipFile, ZipInfo
 
-from common.collect import get_first_value, get_first_item
+from common.collect import get_first_value
 from roampub.roam_model import *
 
 logger = logging.getLogger(__name__)
@@ -200,7 +200,7 @@ def create_vertex_map(source: list[dict[str, Any]]) -> VertexMap:
     if any(arg is None for arg in (source)):
         raise ValueError("missing required arg")
     
-    vertices: list[RoamVertex] = [create_roam_vertex(i) for i in source]
+    vertices: list[RoamVertex] = [create_roam_vertex(json_obj) for json_obj in source]
     return OrderedDict([(v.uid, v) for v in vertices])
 
 
