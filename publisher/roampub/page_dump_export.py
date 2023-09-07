@@ -1,4 +1,4 @@
-""" functions to export PageDump as Roam MarkDown, via home-rolled conversion
+""" functions to export PageDump directly as Roam MarkDown, via home-rolled conversion. Does not attempt any normalization of the MD to CommonMark.
  
 
 Types:
@@ -9,6 +9,10 @@ Types:
 
 Functions:
 
+    export_node_str(RoamNode, VertexMap) -> str
+    export_page_node_str(RoamNode, VertexMap) -> str
+    export_block_heading_node_str(RoamNode, VertexMap) -> str
+    export_block_content_node_str(RoamNode, VertexMap) -> str
 
 """
 from typing import TypeAlias, Callable, cast

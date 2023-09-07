@@ -50,7 +50,6 @@ class PageDump:
         self._vertex_map_json: str = None
         self._vertex_map: VertexMap = None
 
-        self.vertex_map_json
         validation_result: ValidationResult = validate(self.vertex_map)
         logger.debug(f"validation_result: {validation_result}")
         if validation_result is not None:
