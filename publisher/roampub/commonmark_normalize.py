@@ -62,8 +62,8 @@ def normalize_block_quote(rule: NormalizationRule, content: str) -> Normalizatio
     if not content.startswith('>'):
         return NormalizationResult(content, False)
     
-    normalized_content: str =  PARA_BREAK_PATTERN.sub("\n\n>", stripped_content)
-    return NormalizationResult(normalized_content, True)
+    normalized_content: str =  PARA_BREAK_PATTERN.sub("\n>\n>", stripped_content)
+    return NormalizationResult(normalized_content, False)
 
 
 BLOCK_QUOTE_RULE: Final[NormalizationRule] = NormalizationRule(
@@ -75,6 +75,21 @@ BLOCK_QUOTE_RULE: Final[NormalizationRule] = NormalizationRule(
     normalize_block_quote
 )
 
+def normalize_code_block(rule: NormalizationRule, content: str) -> NormalizationResult:
+    logger.log(TRACE, f"rule: {rule}, content: {content}")
+    stripped: str = content.strip()
+    return NormalizationResult(content, is_code_block(stripped))
+
+
+CODE_BLOCK_RULE: Final[NormalizationRule] = NormalizationRule(
+    'CodeBlockRule', 
+    (
+        "a BlockContentNode that starts with ``` is treated as one big code block" +
+        "Right now, there are no transformations applied by this normalization, but the rule will" +
+        "`consume` the block, preventing any other rules from applying"
+    ), 
+    normalize_code_block
+)
 
 def normalize_italics(rule: NormalizationRule, content: str) -> NormalizationResult:
     normalized_content: str =   ROAM_ITALIC_PATTERN.sub(r"*\1*", content)
@@ -94,6 +109,7 @@ ITALICS_RULE: Final[NormalizationRule] = NormalizationRule(
 
 ALL_RULES: Final[list[NormalizationRule]] = [
     # simply comment out any rules you wish to disable
+    CODE_BLOCK_RULE,
     BLOCK_QUOTE_RULE,
     ITALICS_RULE,
 ]
@@ -112,4 +128,6 @@ def normalize_block_content(content: str) -> str:
     return normalized_content
 
 
+def is_code_block(content: str) -> bool:
+    return content.startswith("```")
 

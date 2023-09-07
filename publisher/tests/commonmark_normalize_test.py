@@ -10,17 +10,91 @@ import roampub.commonmark_normalize as norm
 class CommonMarkNormalizeTests(unittest.TestCase):
 
     def test_normalize_block_content(self):
+        input: str = (
+            """
+            ```javascript
+            __results__ = []
+        
+            for (number=1; number<=100; number++) {
+            
+            """
+        )
+        self.assertEqual(norm.normalize_block_content(input), input)
+
         input: str =  "In this age of __affordable__ beauty there was something __heraldic__ about his __lack__ of it."
         output: str =  "In this age of *affordable* beauty there was something *heraldic* about his *lack* of it."
         self.assertEqual(norm.normalize_block_content(input), output)
 
         input: str =  ">hello\r\n\r\n\r\ncruel\r\n\r\n\r\n\nworld"
-        output: str = ">hello\n\n>cruel\n\n>world"
+        output: str = ">hello\n>\n>cruel\n>\n>world"
         self.assertEqual(norm.normalize_block_content(input), output)
 
         input: str =  ">hello\r\n\r\n\r\n__cruel__\r\n\r\n\r\n\nworld"
-        output: str = ">hello\n\n>__cruel__\n\n>world"
+        output: str = ">hello\n>\n>*cruel*\n>\n>world"
         self.assertEqual(norm.normalize_block_content(input), output)
+
+
+    def test_normalize_code_block(self):
+        input: str = (
+            """
+            ```javascript
+            __results__ = []
+        
+            for (number=1; number<=100; number++) {
+            
+            """
+        )
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, True))
+
+        input: str = (
+            """
+            __```javascript
+            results = []
+        
+            for (number=1; number<=100; number++) {
+            
+            """
+        )
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, False))
+        
+        input: str = (
+            """
+            ```javascript
+            results = []
+        
+            for (number=1; number<=100; number++) {
+            
+            """
+        )
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, True))
+
+        input: str = (
+            """
+            ```javascript
+            results = []
+        
+            for (number=1; number<=100; number++) {
+            ```
+            """
+        )
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, True))
+        
+        input: str =  "In this age of __affordable__ beauty there was something __heraldic__ about his __lack__ of it."
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, False))
+        input: str =  "__hello cruel __world"
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, False))
+        input: str =  ">hello world"
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, False))
+        input: str =  "hello world"
+        self.assertEqual(
+            norm.normalize_code_block(norm.CODE_BLOCK_RULE, input), norm.NormalizationResult(input, False))
 
 
     def test_normalize_italic(self):
@@ -52,6 +126,10 @@ class CommonMarkNormalizeTests(unittest.TestCase):
         output: str =  "In this age of *affordable* beauty there was something *heraldic* about his *lack* of it."
         self.assertEqual(
             norm.normalize_italics(norm.ITALICS_RULE, input), norm.NormalizationResult(output, False))
+        input: str =  "If the number is evenly divisible by 3, print __'Fizz'__ instead of the number"
+        output: str =  "If the number is evenly divisible by 3, print *'Fizz'* instead of the number"
+        self.assertEqual(
+            norm.normalize_italics(norm.ITALICS_RULE, input), norm.NormalizationResult(output, False))
 
 
     def test_italic_replace(self):
@@ -75,8 +153,8 @@ class CommonMarkNormalizeTests(unittest.TestCase):
         """
         matched: re.Match = re.search(norm.ROAM_ITALIC_PATTERN, content)  # type: ignore
         logging.debug(f"matched: {matched.group(1)}")
-        self.assertEqual(matched.span(), (72, 81))
-        self.assertEqual(matched.span(1), (74, 79))
+        self.assertEqual(matched.span(), (71, 80))
+        self.assertEqual(matched.span(1), (73, 78))
         self.assertEqual(matched.group(1), 'lords')
 
         matched: re.Match = re.search(norm.ROAM_ITALIC_PATTERN, "__hello __")  # type: ignore
@@ -114,21 +192,21 @@ class CommonMarkNormalizeTests(unittest.TestCase):
         self.assertEqual(
             norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(input, False))
         input: str =  ">hello\n\nworld"
-        output: str = ">hello\n\n>world"
+        output: str = ">hello\n>\n>world"
         self.assertEqual(
-            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, True))
+            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, False))
         input: str =  ">hello\n\ncruel\n\nworld"
-        output: str =  ">hello\n\n>cruel\n\n>world"
+        output: str =  ">hello\n>\n>cruel\n>\n>world"
         self.assertEqual(
-            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, True))
+            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, False))
         input: str =  ">hello\n\n\ncruel\n\n\n\nworld"
-        output: str = ">hello\n\n>cruel\n\n>world"
+        output: str = ">hello\n>\n>cruel\n>\n>world"
         self.assertEqual(
-            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, True))
+            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, False))
         input: str =  ">hello\r\n\r\n\r\ncruel\r\n\r\n\r\n\nworld"
-        output: str = ">hello\n\n>cruel\n\n>world"
+        output: str = ">hello\n>\n>cruel\n>\n>world"
         self.assertEqual(
-            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, True))
+            norm.normalize_block_quote(norm.BLOCK_QUOTE_RULE, input), norm.NormalizationResult(output, False))
 
 
     def test_paragraph_breaks(self):

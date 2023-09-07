@@ -17,8 +17,6 @@ class PageDumpExportTests(unittest.TestCase):
 
 
     def test_parse(self):
-        """
-        """      
         path: Path = Path('./tests/data/Creative Brief.zip')
         brief_dump: PageDump = PageDump(path)
         export_md: str = export_node_str(brief_dump.root_page, brief_dump.vertex_map)
@@ -53,7 +51,7 @@ class PageDumpExportTests(unittest.TestCase):
         brief_dump: PageDump = PageDump(path)
         export_md: str = export_node_str(brief_dump.root_page, brief_dump.vertex_map)
         logging.debug(f"export_md: {export_md}")
-        expected_md_path: Path = Path(f"./tests/data/{brief_dump.dump_name}-expected.md")
+        expected_md_path: Path = Path(f"./tests/data/{brief_dump.dump_name}-export-expected.md")
         expectedIO: TextIO = open(expected_md_path, "rt")
         expected_md = expectedIO.read()
         self.assertEqual(export_md, expected_md)
